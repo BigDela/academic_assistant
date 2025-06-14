@@ -2,8 +2,7 @@
 
 {% block content %}
 <head>
-  <link href="https://unpkg.com/stream-chat-css/dist/css/index.css" rel="stylesheet" />
-  <script src="https://unpkg.com/stream-chat@^8.0.0/dist/browser/index.js"></script>
+  <script src="https://unpkg.com/stream-chat@latest/dist/browser/index.js"></script>
   <style>
     #chat-box {
       border: 1px solid #ccc;
@@ -42,7 +41,8 @@
     const response = await fetch("{% url 'get_chat_token' %}");
     const data = await response.json();
 
-    const client = StreamChat.getInstance(data.api_key);
+    const client = StreamChat.StreamChat.getInstance(data.api_key);
+
 
     await client.connectUser(
       {

@@ -8,6 +8,8 @@ from django.contrib import messages
 from .forms import MessageForm
 from .models import GroupChat
 from .forms import DocumentUploadForm
+from django.conf import settings
+
 
 @login_required
 def upload_document(request):
@@ -86,16 +88,14 @@ def join_group(request, group_id):
     return redirect('group_detail', group_id=group.id)
 
 
-
 import pusher
-from django.conf import settings
 
 pusher_client = pusher.Pusher(
     app_id=settings.PUSHER_APP_ID,
     key=settings.PUSHER_KEY,
     secret=settings.PUSHER_SECRET,
     cluster=settings.PUSHER_CLUSTER,
-    ssl=settings.PUSHER_SSL
+    ssl=True
 )
 
 @login_required

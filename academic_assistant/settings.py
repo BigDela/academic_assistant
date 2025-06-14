@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv # type: ignore
+
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -149,13 +154,12 @@ LOGIN_REDIRECT_URL = '/'       # redirect to homepage or dashboard
 LOGOUT_REDIRECT_URL = '/users/login/'
 
 # settings.py
+PUSHER_APP_ID = os.getenv('PUSHER_APP_ID')
+PUSHER_KEY = os.getenv('PUSHER_KEY')
+PUSHER_SECRET = os.getenv('PUSHER_SECRET')
+PUSHER_CLUSTER = os.getenv('PUSHER_CLUSTER')
 
-PUSHER_APP_ID = '2004772'
-PUSHER_KEY = '2c000a14a0e94102ab3a'
-PUSHER_SECRET = '0501a45650818a387e09'
-PUSHER_CLUSTER = 'mt1'
-PUSHER_SSL = True
 
-STREAM_API_KEY = '8ku776t8ne5m'
-STREAM_API_SECRET = 'wd2q4updhnqs3j6pfsc246533vjuebg6uj37tcew34tet5h4ghvh8u3tjy6bsj2s'
-STREAM_APP_ID = '1393646'
+
+STREAM_API_KEY = os.getenv("STREAM_API_KEY")
+STREAM_API_SECRET = os.getenv("STREAM_API_SECRET")
