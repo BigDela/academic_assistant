@@ -1,0 +1,16 @@
+{% extends 'users/base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+{% if user.is_authenticated %}
+    <h2>Welcome back, {{ user.username }}!</h2>
+    <p>Your course: {{ user.get_course_display }}, Year: {{ user.get_year_display }}</p>
+{% else %}
+    <h2>Welcome to Academic Assistant</h2>
+    <p><a href="{% url 'login' %}">Log in</a> or <a href="{% url 'signup' %}">Sign up</a> to continue.</p>
+{% endif %}
+{% endblock %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert">{{ message }}</div>
+  {% endfor %}
+{% endif %}

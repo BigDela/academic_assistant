@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>{{ group.name }}</h2>
+  <p>{{ group.description }}</p>
+  <p><strong>Creator:</strong> {{ group.creator }}</p>
+  <p><strong>Members:</strong> {{ group.members.count }}</p>
+
+  {% if user in group.members.all %}
+    <p>You are a member of this group.</p>
+  {% else %}
+    <a href="{% url 'join_group' group.id %}">Join Group</a>
+  {% endif %}
+
+  <a href="{% url 'group_list' %}">← Back to groups</a>
+{% endblock %}
+<h3>Group Chat</h3>
+
+<div style="border: 1px solid #ccc; padding: 10px; max-height: 300px; overflow-y: scroll;">
+  {% for message in messages %}
+    <p><strong>{{ message.user.username }}</strong>: {{ message.content }}<br>
+    <small>{{ message.timestamp }}</small></p>
+  {% empty %}
+    <p>No messages yet.</p>
+  {% endfor %}
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Send</button>
+</form>
+{% if messages %}
+  <div class="alert">
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+

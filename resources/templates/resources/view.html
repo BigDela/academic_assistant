@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>My Uploaded Documents</h2>
+  <ul>
+    {% for doc in documents %}
+      <li><a href="{{ doc.file.url }}">{{ doc.file.name }}</a> (Uploaded on {{ doc.uploaded_at }})</li>
+    {% empty %}
+      <li>No uploaded documents yet.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

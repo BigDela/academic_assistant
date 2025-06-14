@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>All Study Groups</h2>
+  <ul>
+    {% for group in groups %}
+      <li>
+        <a href="{% url 'group_chat' group.id %}">{{ group.name }}</a>
+        <!-- Optional detail link -->
+        (<a href="{% url 'group_detail' group.id %}">details</a>)
+      </li>
+    {% empty %}
+      <li>No groups found.</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'create_group' %}">+ Create new group</a>
+{% endblock %}

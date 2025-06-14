@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<head>
+  <link href="https://unpkg.com/stream-chat-css/dist/css/index.css" rel="stylesheet" />
+  <script src="https://unpkg.com/stream-chat@^8.0.0/dist/browser/index.js"></script>
+  <style>
+    #chat-box {
+      border: 1px solid #ccc;
+      height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    #chat-input {
+      display: flex;
+      gap: 10px;
+    }
+    #message-input {
+      flex: 1;
+      padding: 8px;
+    }
+    #send-btn {
+      padding: 8px 16px;
+    }
+  </style>
+</head>
+
+<h2>{{ group.name }} - Real-time Chat</h2>
+
+<div id="chat-box"></div>
+
+<div id="chat-input">
+  <input type="text" id="message-input" placeholder="Type your message..." />
+  <button id="send-btn">Send</button>
+</div>
+
+<script>
+  let chatChannel;
+
+  async function initChat() {
+    const response = await fetch("{% url 'get_chat_token' %}");
+    const data = await response.json();
+
+    const client = StreamChat.getInstance(data.api_key);
+
+    await client.connectUser(
+      {
+        id: data.user_id,
+        name: "{{ request.user.username }}"
+      },
+      data.token
+    );
+
+    chatChannel = client.channel("messaging", "group-{{ group.id }}", {
+      name: "{{ group.name }} Chat",
+      members: [data.user_id],
+    });
+
+    await chatChannel.watch();
+
+    // Load existing messages
+    const messages = chatChannel.state.messages;
+    for (const msg of messages) {
+      appendMessage(msg.user.name, msg.text);
+    }
+
+    // Real-time updates
+    chatChannel.on("message.new", (event) => {
+      appendMessage(event.message.user.name, event.message.text);
+    });
+
+    // Sending message
+    document.getElementById("send-btn").addEventListener("click", sendMessage);
+    document.getElementById("message-input").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  }
+
+  function appendMessage(username, text) {
+    const chatBox = document.getElementById("chat-box");
+    const p = document.createElement("p");
+    p.innerHTML = `<strong>${username}</strong>: ${text}`;
+    chatBox.appendChild(p);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("message-input");
+    const text = input.value.trim();
+    if (!text) return;
+    await chatChannel.sendMessage({ text });
+    input.value = "";
+  }
+
+  initChat();
+</script>
+{% endblock %}
