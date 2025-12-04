@@ -13,6 +13,9 @@ urlpatterns = [
 
     # Chat page
     path('groups/<int:group_id>/chat/', views.group_chat_view, name='group_chat'),
+    
+    # AJAX endpoint for sending messages
+    path('groups/<int:group_id>/send/', views.send_message, name='send_message'),
 
     path('groups/<int:group_id>/join/', views.join_group, name='join_group'),
 

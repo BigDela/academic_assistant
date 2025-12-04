@@ -1,16 +1,183 @@
-{% extends 'users/base.html' %}
-{% block title %}Home{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Home - Academic Assistant{% endblock %}
 {% block content %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, #4A90E2 0%, #5BA3F5 100%);
+        border-radius: 16px;
+        color: white;
+        margin-bottom: 3rem;
+        box-shadow: 0 8px 24px rgba(74, 144, 226, 0.2);
+    }
+    
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    
+    .hero p {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .feature-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-card h3 {
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+    
+    .feature-card p {
+        color: var(--text-gray);
+    }
+    
+    .user-info {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .user-info h2 {
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+    }
+    
+    .user-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .stat {
+        text-align: center;
+    }
+    
+    .stat-label {
+        color: var(--text-gray);
+        font-size: 0.9rem;
+    }
+    
+    .stat-value {
+        color: var(--primary-blue);
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2rem;
+        }
+        
+        .hero p {
+            font-size: 1rem;
+        }
+    }
+</style>
+
 {% if user.is_authenticated %}
-    <h2>Welcome back, {{ user.username }}!</h2>
-    <p>Your course: {{ user.get_course_display }}, Year: {{ user.get_year_display }}</p>
+    <div class="user-info">
+        <h2>Welcome back, {{ user.username }}! 👋</h2>
+        <p class="text-muted">{{ user.get_course_display }} • {{ user.get_year_display }}</p>
+        <div class="user-stats">
+            <div class="stat">
+                <div class="stat-value">{{ user.study_groups.count }}</div>
+                <div class="stat-label">Study Groups</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features">
+        <a href="{% url 'group_list' %}" style="text-decoration: none;">
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Study Groups</h3>
+                <p>Join or create groups to collaborate with peers</p>
+            </div>
+        </a>
+        
+        <a href="{% url 'upload_document' %}" style="text-decoration: none;">
+            <div class="feature-card">
+                <div class="feature-icon">📤</div>
+                <h3>Upload Documents</h3>
+                <p>Share notes, assignments, and study materials</p>
+            </div>
+        </a>
+        
+        <a href="{% url 'view_documents' %}" style="text-decoration: none;">
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>Browse Resources</h3>
+                <p>Access shared academic resources</p>
+            </div>
+        </a>
+    </div>
 {% else %}
-    <h2>Welcome to Academic Assistant</h2>
-    <p><a href="{% url 'login' %}">Log in</a> or <a href="{% url 'signup' %}">Sign up</a> to continue.</p>
+    <div class="hero">
+        <h1>Welcome to Academic Assistant</h1>
+        <p>Your collaborative platform for sharing resources, joining study groups, and connecting with classmates</p>
+        <div class="hero-buttons">
+            <a href="{% url 'signup' %}" class="btn btn-primary" style="background: white; color: var(--primary-blue); font-size: 1.1rem; padding: 0.875rem 2rem;">Get Started</a>
+            <a href="{% url 'login' %}" class="btn btn-outline" style="border-color: white; color: white; font-size: 1.1rem; padding: 0.875rem 2rem;">Log In</a>
+        </div>
+    </div>
+    
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <h3>Study Groups</h3>
+            <p>Create or join study groups to collaborate with classmates in real-time</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">💬</div>
+            <h3>Real-Time Chat</h3>
+            <p>Communicate instantly with group members via modern messaging</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Resource Sharing</h3>
+            <p>Upload and access academic documents, notes, and study materials</p>
+        </div>
+    </div>
 {% endif %}
 {% endblock %}
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert">{{ message }}</div>
-  {% endfor %}
-{% endif %}

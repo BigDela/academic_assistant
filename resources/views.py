@@ -9,6 +9,8 @@ from .forms import MessageForm
 from .models import GroupChat
 from .forms import DocumentUploadForm
 from django.conf import settings
+from django.views.decorators.http import require_POST
+
 
 
 @login_required
@@ -100,33 +102,58 @@ pusher_client = pusher.Pusher(
 
 @login_required
 def group_chat_view(request, group_id):
+    """Render the chat page with existing messages."""
     group = get_object_or_404(StudyGroup, id=group_id)
-    messages_qs = group.messages.all()
+    messages_qs = group.messages.all().order_by('timestamp')
     documents = group.documents.all()
-
-    if request.method == 'POST':
-        form = MessageForm(request.POST)
-        if form.is_valid():
-            message = form.save(commit=False)
-            message.group = group
-            message.user = request.user
-            message.save()
-
-            # 🚀 Trigger Pusher event
-            pusher_client.trigger(f'group-{group.id}', 'new-message', {
-                'username': request.user.username,
-                'message': message.content,
-            })
-
-            return redirect('group_chat', group_id=group.id)
-    else:
-        form = MessageForm()
 
     return render(request, 'resources/group_chat.html', {
         'group': group,
         'messages': messages_qs,
         'documents': documents,
-        'form': form
+        'pusher_key': settings.PUSHER_KEY,
+        'pusher_cluster': settings.PUSHER_CLUSTER,
+    })
+
+
+@login_required
+@require_POST
+def send_message(request, group_id):
+    """Handle AJAX message sending and trigger Pusher event."""
+    group = get_object_or_404(StudyGroup, id=group_id)
+    
+    # Verify user is a member
+    if request.user not in group.members.all():
+        return JsonResponse({'success': False, 'error': 'You are not a member of this group'}, status=403)
+    
+    content = request.POST.get('content', '').strip()
+    
+    if not content:
+        return JsonResponse({'success': False, 'error': 'Message content cannot be empty'}, status=400)
+    
+    if len(content) > 5000:
+        return JsonResponse({'success': False, 'error': 'Message too long (max 5000 characters)'}, status=400)
+    
+    # Create and save message
+    from .models import Message
+    message = Message.objects.create(
+        group=group,
+        user=request.user,
+        content=content
+    )
+    
+    # Trigger Pusher event for real-time updates to other users
+    pusher_client.trigger(f'group-{group.id}', 'new-message', {
+        'username': request.user.username,
+        'message': message.content,
+        'timestamp': message.timestamp.isoformat(),
+        'message_id': message.id,
+    })
+    
+    return JsonResponse({
+        'success': True,
+        'message_id': message.id,
+        'timestamp': message.timestamp.isoformat(),
     })
 
 

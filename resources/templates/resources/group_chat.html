@@ -1,98 +1,512 @@
 {% extends 'base.html' %}
-
-{% block content %}
-<head>
-  <script src="https://unpkg.com/stream-chat@latest/dist/browser/index.js"></script>
-  <style>
-    #chat-box {
-      border: 1px solid #ccc;
-      height: 400px;
-      overflow-y: auto;
-      padding: 10px;
-      margin-bottom: 10px;
+{% block title %}{{ group.name }} - Chat{% endblock %}
+{% block extra_css %}
+<style>
+    /* Hide messages notification on chat page */
+    .messages {
+        display: none !important;
     }
-    #chat-input {
-      display: flex;
-      gap: 10px;
+    
+    /* Messenger-style layout */
+    .chat-layout {
+        display: flex;
+        height: calc(100vh - 4.5rem);
+        background: white;
     }
+    
+    /* Sidebar */
+    .chat-sidebar {
+        width: 360px;
+        background: white;
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .sidebar-header h2 {
+        color: var(--text-dark);
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .sidebar-info {
+        color: var(--text-gray);
+        font-size: 0.9rem;
+    }
+    
+    .members-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+    }
+    
+    .member-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: background 0.2s;
+    }
+    
+    .member-item:hover {
+        background: var(--light-blue);
+    }
+    
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .member-name {
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+    
+    .sidebar-actions {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .sidebar-actions a {
+        display: block;
+        text-align: center;
+        padding: 0.75rem;
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .sidebar-actions a:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    
+    /* Main chat area */
+    .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #F0F2F5;
+    }
+    
+    .chat-header {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .chat-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .group-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .chat-header h3 {
+        color: var(--text-dark);
+        font-size: 1.1rem;
+        margin-bottom: 0.1rem;
+    }
+    
+    .online-status {
+        color: var(--text-gray);
+        font-size: 0.85rem;
+    }
+    
+    /* Messages area */
+    .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .message-group {
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .message-group.own {
+        align-items: flex-end;
+    }
+    
+    .message-sender {
+        font-size: 0.8rem;
+        color: var(--text-gray);
+        margin-bottom: 0.25rem;
+        padding: 0 0.5rem;
+    }
+    
+    .message {
+        max-width: 60%;
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        margin-bottom: 0.25rem;
+        word-wrap: break-word;
+        animation: messageSlideIn 0.2s ease-out;
+    }
+    
+    @keyframes messageSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message.other {
+        background: white;
+        color: var(--text-dark);
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .message.own {
+        background: var(--primary-blue);
+        color: white;
+        border-bottom-right-radius: 4px;
+        margin-left: auto;
+    }
+    
+    .message-time {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-top: 0.25rem;
+    }
+    
+    .no-messages {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-gray);
+    }
+    
+    .no-messages-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    /* Input area */
+    .chat-input-container {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .input-wrapper {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        background: #F0F2F5;
+        border-radius: 24px;
+        padding: 0.5rem 1rem;
+    }
+    
     #message-input {
-      flex: 1;
-      padding: 8px;
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 0.5rem;
+        font-size: 0.95rem;
+        outline: none;
+        font-family: inherit;
     }
+    
     #send-btn {
-      padding: 8px 16px;
+        width: 40px;
+        height: 40px;
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-size: 1.2rem;
     }
-  </style>
-</head>
+    
+    #send-btn:hover:not(:disabled) {
+        background: var(--dark-blue);
+        transform: scale(1.05);
+    }
+    
+    #send-btn:disabled {
+        background: var(--border-color);
+        cursor: not-allowed;
+    }
+    
+    /* Responsive */
+    @media (max-width: 968px) {
+        .chat-sidebar {
+            width: 300px;
+        }
+        
+        .message {
+            max-width: 75%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .chat-sidebar {
+            position: fixed;
+            left: -360px;
+            top: 4.5rem;
+            height: calc(100vh - 4.5rem);
+            z-index: 100;
+            transition: left 0.3s;
+        }
+        
+        .chat-sidebar.open {
+            left: 0;
+        }
+        
+        .sidebar-toggle {
+            display: block;
+        }
+        
+        .message {
+            max-width: 85%;
+        }
+    }
+</style>
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+{% endblock %}
 
-<h2>{{ group.name }} - Real-time Chat</h2>
-
-<div id="chat-box"></div>
-
-<div id="chat-input">
-  <input type="text" id="message-input" placeholder="Type your message..." />
-  <button id="send-btn">Send</button>
+{% block full_content %}
+<div class="chat-layout">
+    <!-- Sidebar -->
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <h2>{{ group.name }}</h2>
+            <div class="sidebar-info">
+                {{ group.members.count }} member{{ group.members.count|pluralize }}
+            </div>
+        </div>
+        
+        <div class="members-list">
+            <h4 style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.75rem; padding: 0 0.5rem;">Members</h4>
+            {% for member in group.members.all %}
+                <div class="member-item">
+                    <div class="member-avatar">{{ member.username.0|upper }}</div>
+                    <div class="member-name">
+                        {{ member.username }}
+                        {% if member == request.user %}<span style="color: var(--text-gray); font-size: 0.85rem;">(You)</span>{% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="sidebar-actions">
+            <a href="{% url 'group_detail' group.id %}">📋 Group Details</a>
+        </div>
+    </div>
+    
+    <!-- Main chat -->
+    <div class="chat-main">
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <div class="group-avatar">📚</div>
+                <div>
+                    <h3>{{ group.name }}</h3>
+                    <div class="online-status">Active now</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="messages-container" id="chat-box">
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="message-group {% if msg.user == request.user %}own{% endif %}">
+                        {% if msg.user != request.user %}
+                            <div class="message-sender">{{ msg.user.username }}</div>
+                        {% endif %}
+                        <div class="message {% if msg.user == request.user %}own{% else %}other{% endif %}">
+                            {{ msg.content }}
+                        </div>
+                        <div class="message-time">{{ msg.timestamp|date:"g:i A" }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-messages">
+                    <div class="no-messages-icon">💬</div>
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="message-input" 
+                    placeholder="Type a message..." 
+                    autocomplete="off"
+                />
+                <button id="send-btn">➤</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-  let chatChannel;
-
-  async function initChat() {
-    const response = await fetch("{% url 'get_chat_token' %}");
-    const data = await response.json();
-
-    const client = StreamChat.StreamChat.getInstance(data.api_key);
-
-
-    await client.connectUser(
-      {
-        id: data.user_id,
-        name: "{{ request.user.username }}"
-      },
-      data.token
-    );
-
-    chatChannel = client.channel("messaging", "group-{{ group.id }}", {
-      name: "{{ group.name }} Chat",
-      members: [data.user_id],
-    });
-
-    await chatChannel.watch();
-
-    // Load existing messages
-    const messages = chatChannel.state.messages;
-    for (const msg of messages) {
-      appendMessage(msg.user.name, msg.text);
+  const currentUsername = "{{ request.user.username }}";
+  const groupId = {{ group.id }};
+  const csrfToken = "{{ csrf_token }}";
+  
+  // Initialize Pusher
+  const pusher = new Pusher("{{ pusher_key }}", {
+    cluster: "{{ pusher_cluster }}",
+    encrypted: true
+  });
+  
+  const channel = pusher.subscribe(`group-${groupId}`);
+  
+  // Listen for new messages from other users
+  channel.bind('new-message', function(data) {
+    if (data.username !== currentUsername) {
+      appendMessage(data.username, data.message, data.timestamp, false);
     }
-
-    // Real-time updates
-    chatChannel.on("message.new", (event) => {
-      appendMessage(event.message.user.name, event.message.text);
-    });
-
-    // Sending message
-    document.getElementById("send-btn").addEventListener("click", sendMessage);
-    document.getElementById("message-input").addEventListener("keydown", function(e) {
-      if (e.key === "Enter") sendMessage();
-    });
-  }
-
-  function appendMessage(username, text) {
-    const chatBox = document.getElementById("chat-box");
-    const p = document.createElement("p");
-    p.innerHTML = `<strong>${username}</strong>: ${text}`;
-    chatBox.appendChild(p);
+  });
+  
+  // Scroll to bottom of chat
+  function scrollToBottom() {
+    const chatBox = document.getElementById('chat-box');
     chatBox.scrollTop = chatBox.scrollHeight;
   }
-
-  async function sendMessage() {
-    const input = document.getElementById("message-input");
-    const text = input.value.trim();
-    if (!text) return;
-    await chatChannel.sendMessage({ text });
-    input.value = "";
+  
+  // Append message to chat
+  function appendMessage(username, content, timestamp, isOwn) {
+    const chatBox = document.getElementById('chat-box');
+    
+    // Remove "no messages" placeholder
+    const noMessages = chatBox.querySelector('.no-messages');
+    if (noMessages) {
+      noMessages.remove();
+    }
+    
+    const messageGroup = document.createElement('div');
+    messageGroup.className = `message-group ${isOwn ? 'own' : ''}`;
+    
+    let html = '';
+    if (!isOwn) {
+      html += `<div class="message-sender">${username}</div>`;
+    }
+    html += `<div class="message ${isOwn ? 'own' : 'other'}">${escapeHtml(content)}</div>`;
+    html += `<div class="message-time">${formatTime(timestamp)}</div>`;
+    
+    messageGroup.innerHTML = html;
+    chatBox.appendChild(messageGroup);
+    scrollToBottom();
   }
-
-  initChat();
+  
+  // Format timestamp
+  function formatTime(timestamp) {
+    if (!timestamp) {
+      const now = new Date();
+      return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+  
+  // Escape HTML to prevent XSS
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  // Send message via AJAX
+  async function sendMessage() {
+    const input = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const content = input.value.trim();
+    
+    if (!content) return;
+    
+    // Disable input while sending
+    input.disabled = true;
+    sendBtn.disabled = true;
+    
+    try {
+      const response = await fetch("{% url 'send_message' group.id %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken
+        },
+        body: `content=${encodeURIComponent(content)}`
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Immediately append own message
+        appendMessage(currentUsername, content, data.timestamp, true);
+        input.value = '';
+      } else {
+        alert('Failed to send message: ' + (data.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
+    } finally {
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+  
+  // Event listeners
+  document.getElementById('send-btn').addEventListener('click', sendMessage);
+  document.getElementById('message-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+  
+  // Focus input on load
+  window.addEventListener('load', function() {
+    document.getElementById('message-input').focus();
+    scrollToBottom();
+  });
 </script>
 {% endblock %}
