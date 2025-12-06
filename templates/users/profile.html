@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - Academic Assistant{% endblock %}
+
+{% block content %}
+<style>
+    .profile-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .profile-header {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+    
+    .profile-picture-container {
+        position: relative;
+    }
+    
+    .profile-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--light-blue);
+    }
+    
+    .profile-picture-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        font-weight: 700;
+        border: 4px solid var(--light-blue);
+    }
+    
+    .profile-info {
+        flex: 1;
+    }
+    
+    .profile-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+    }
+    
+    .profile-username {
+        color: var(--text-gray);
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+    }
+    
+    .meta-icon {
+        font-size: 1.25rem;
+    }
+    
+    .profile-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .profile-sections {
+        display: grid;
+        gap: 1.5rem;
+    }
+    
+    .profile-section {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-content {
+        color: var(--text-gray);
+        line-height: 1.6;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-gray);
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-gray);
+    }
+    
+    .theme-toggle {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .theme-toggle:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .profile-actions {
+            justify-content: center;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-picture-container">
+            {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}" class="profile-picture">
+            {% else %}
+                <div class="profile-picture-placeholder">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-info">
+            <h1 class="profile-name">
+                {% if user.first_name or user.last_name %}
+                    {{ user.first_name }} {{ user.last_name }}
+                {% else %}
+                    {{ user.username }}
+                {% endif %}
+            </h1>
+            <div class="profile-username">@{{ user.username }}</div>
+            
+            <div class="profile-meta">
+                {% if profile.program_of_study %}
+                <div class="meta-item">
+                    <span class="meta-icon">🎓</span>
+                    <span>{{ profile.program_of_study }}</span>
+                </div>
+                {% endif %}
+                
+                {% if profile.year_level %}
+                <div class="meta-item">
+                    <span class="meta-icon">📚</span>
+                    <span>{{ profile.year_level }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="meta-item">
+                    <span class="meta-icon">✉️</span>
+                    <span>{{ user.email }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="profile-actions">
+        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
+            ✏️ Edit Profile
+        </a>
+        <a href="{% url 'user_info_edit' %}" class="btn btn-outline">
+            👤 Edit User Info
+        </a>
+        <a href="{% url 'change_password' %}" class="btn btn-outline">
+            🔒 Change Password
+        </a>
+        <a href="{% url 'toggle_theme' %}?next={{ request.path }}" class="theme-toggle">
+            {% if profile.theme_preference == 'light' %}
+                🌙 Dark Mode
+            {% else %}
+                ☀️ Light Mode
+            {% endif %}
+        </a>
+    </div>
+    
+    <div class="profile-sections">
+        <div class="profile-section">
+            <h2 class="section-title">
+                <span>ℹ️</span>
+                About Me
+            </h2>
+            <div class="section-content">
+                {% if profile.bio %}
+                    {{ profile.bio|linebreaks }}
+                {% else %}
+                    <div class="empty-state">
+                        No bio yet. <a href="{% url 'profile_edit' %}">Add one</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <h2 class="section-title">
+                <span>📋</span>
+                Account Details
+            </h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ user.username }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ user.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Course</div>
+                    <div class="info-value">{{ user.get_course_display }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Year</div>
+                    <div class="info-value">{{ user.get_year_display }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Theme Preference</div>
+                    <div class="info-value">
+                        {% if profile.theme_preference == 'light' %}
+                            ☀️ Light Mode
+                        {% else %}
+                            🌙 Dark Mode
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Member Since</div>
+                    <div class="info-value">{{ user.date_joined|date:"F Y" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

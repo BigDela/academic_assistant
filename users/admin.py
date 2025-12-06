@@ -2,9 +2,8 @@
 # users/admin.py
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, UserProfile
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-
 
 
 class CustomUserAdmin(UserAdmin):
@@ -16,7 +15,16 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('course', 'year')}),
     )
 
+
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'program_of_study', 'year_level', 'theme_preference', 'updated_at']
+    list_filter = ['theme_preference', 'created_at']
+    search_fields = ['user__username', 'program_of_study']
+    readonly_fields = ['created_at', 'updated_at']
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)
 
 # users/admin.py
 

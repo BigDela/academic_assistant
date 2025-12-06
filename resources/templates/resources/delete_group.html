@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Delete {{ group.name }} - Academic Assistant{% endblock %}
+{% block content %}
+<style>
+    .delete-group-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .delete-group-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        border: 2px solid #dc3545;
+    }
+    
+    .delete-group-card h1 {
+        color: #dc3545;
+        margin-bottom: 1rem;
+    }
+    
+    .warning-message {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .warning-message p {
+        margin: 0;
+        color: #856404;
+    }
+    
+    .group-info {
+        background: var(--light-blue);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .group-info p {
+        margin: 0.5rem 0;
+        color: var(--text-dark);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-danger:hover {
+        background: #c82333;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--primary-blue);
+    }
+</style>
+
+<a href="{% url 'group_detail' group.id %}" class="back-link">
+    ← Back to Group
+</a>
+
+<div class="delete-group-container">
+    <div class="delete-group-card">
+        <h1>🗑️ Delete Group</h1>
+        
+        <div class="warning-message">
+            <p><strong>⚠️ Warning:</strong> This action cannot be undone. All messages, documents, and member associations will be permanently deleted.</p>
+        </div>
+        
+        <div class="group-info">
+            <p><strong>Group Name:</strong> {{ group.name }}</p>
+            <p><strong>Members:</strong> {{ group.members.count }}</p>
+            <p><strong>Messages:</strong> {{ group.messages.count }}</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn-danger">Yes, Delete Group</button>
+                <a href="{% url 'group_detail' group.id %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

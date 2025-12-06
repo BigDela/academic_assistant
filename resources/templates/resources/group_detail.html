@@ -146,6 +146,37 @@
                 <a href="{% url 'group_chat' group.id %}" class="btn btn-primary">
                     💬 Open Chat
                 </a>
+                
+                <!-- Management Actions for Creator/Admins -->
+                {% if user == group.creator or user in group.admins.all %}
+                    <a href="{% url 'manage_permissions' group.id %}" class="btn btn-outline">
+                        👥 Manage Permissions
+                    </a>
+                    <a href="{% url 'group_invites' group.id %}" class="btn btn-outline">
+                        🔗 Invites
+                    </a>
+                {% endif %}
+                
+                <!-- Edit Group (Creators and Editors) -->
+                {% if user == group.creator or user in group.admins.all or user in group.editors.all %}
+                    <a href="{% url 'edit_group' group.id %}" class="btn btn-outline">
+                        ✏️ Edit Group
+                    </a>
+                {% endif %}
+                
+                <!-- Leave Group (Non-creators) -->
+                {% if user != group.creator %}
+                    <a href="{% url 'leave_group' group.id %}" class="btn btn-outline" style="color: #ffc107; border-color: #ffc107;">
+                        👋 Leave Group
+                    </a>
+                {% endif %}
+                
+                <!-- Delete Group (Creator only) -->
+                {% if user == group.creator %}
+                    <a href="{% url 'delete_group' group.id %}" class="btn btn-outline" style="color: #dc3545; border-color: #dc3545;">
+                        🗑️ Delete Group
+                    </a>
+                {% endif %}
             {% else %}
                 <a href="{% url 'join_group' group.id %}" class="btn btn-primary">
                     + Join Group

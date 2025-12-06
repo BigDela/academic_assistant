@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Join Group via Code - Academic Assistant{% endblock %}
+{% block content %}
+<style>
+    .join-code-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .join-code-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .join-code-card h1 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+        color: var(--text-gray);
+        margin-bottom: 2rem;
+    }
+    
+    .info-box {
+        background: var(--light-blue);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    
+    .info-box p {
+        margin: 0.5rem 0;
+        color: var(--text-gray);
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        color: var(--text-dark);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e8e8e8;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        text-align: center;
+        text-transform: uppercase;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+    
+    .help-text {
+        font-size: 0.85rem;
+        color: var(--text-gray);
+        text-align: center;
+        margin-top: 0.5rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--primary-blue);
+    }
+</style>
+
+<a href="{% url 'group_list' %}" class="back-link">
+    ← Back to Groups
+</a>
+
+<div class="join-code-container">
+    <div class="join-code-card">
+        <h1>🔑 Join via Invite Code</h1>
+        <p class="subtitle">Enter a 12-character code to join a study group</p>
+        
+        <div class="info-box">
+            <p><strong>💡 How it works:</strong></p>
+            <p>Ask a group member for their invite code and enter it below to instantly join their study group.</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.invite_code.id_for_label }}">Invite Code</label>
+                {{ form.invite_code }}
+                <div class="help-text">Example: ABCD1234EFGH</div>
+                {% if form.invite_code.errors %}
+                    <div class="error-message">{{ form.invite_code.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Join Group</button>
+                <a href="{% url 'group_list' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

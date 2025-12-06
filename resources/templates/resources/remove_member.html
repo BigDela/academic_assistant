@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Remove Member - {{ group.name }}{% endblock %}
+{% block content %}
+<style>
+    .remove-member-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .remove-member-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        border: 2px solid #ffc107;
+    }
+    
+    .remove-member-card h1 {
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+    
+    .warning-message {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .warning-message p {
+        margin: 0;
+        color: #856404;
+    }
+    
+    .member-info {
+        background: var(--light-blue);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .member-info p {
+        margin: 0.5rem 0;
+        color: var(--text-dark);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .btn-warning {
+        background: #ffc107;
+        color: #000;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-warning:hover {
+        background: #e0a800;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--primary-blue);
+    }
+</style>
+
+<a href="{% url 'group_detail' group.id %}" class="back-link">
+    ← Back to Group
+</a>
+
+<div class="remove-member-container">
+    <div class="remove-member-card">
+        <h1>🚫 Remove Member</h1>
+        
+        <div class="warning-message">
+            <p><strong>⚠️ Confirmation Required:</strong> This member will be removed from the group and lose access to all group resources.</p>
+        </div>
+        
+        <div class="member-info">
+            <p><strong>Group:</strong> {{ group.name }}</p>
+            <p><strong>Member to Remove:</strong> {{ member.username }}</p>
+            <p><strong>Member Since:</strong> {{ member.date_joined|date:"M d, Y" }}</p>
+        </div>
+        
+        <p style="color: var(--text-gray); margin-bottom: 1.5rem;">
+            The member will no longer have access to group chat, documents, or receive notifications.
+        </p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn-warning">Remove Member</button>
+                <a href="{% url 'group_detail' group.id %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

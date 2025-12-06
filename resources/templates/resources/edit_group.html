@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Edit {{ group.name }} - Academic Assistant{% endblock %}
+{% block content %}
+<style>
+    .edit-group-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .edit-group-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .edit-group-card h1 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+        color: var(--text-gray);
+        margin-bottom: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        color: var(--text-dark);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e8e8e8;
+        border-radius: 8px;
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .checkbox-wrapper input[type="checkbox"] {
+        width: auto;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--primary-blue);
+    }
+</style>
+
+<a href="{% url 'group_detail' group.id %}" class="back-link">
+    ← Back to Group
+</a>
+
+<div class="edit-group-container">
+    <div class="edit-group-card">
+        <h1>✏️ Edit Group</h1>
+        <p class="subtitle">Update your study group information</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">Group Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="error-message">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="error-message">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-wrapper">
+                    {{ form.is_invite_active }}
+                    <label for="{{ form.is_invite_active.id_for_label }}">Allow new members to join via invite code</label>
+                </div>
+                {% if form.is_invite_active.errors %}
+                    <div class="error-message">{{ form.is_invite_active.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'group_detail' group.id %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

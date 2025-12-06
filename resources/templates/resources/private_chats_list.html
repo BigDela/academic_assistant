@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}Private Chats - Academic Assistant{% endblock %}
+{% block content %}
+<style>
+    .chats-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        color: var(--primary-blue);
+        font-size: 2rem;
+    }
+    
+    .chat-list {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .chat-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-bottom: 1px solid #f0f0f0;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+    
+    .chat-item:hover {
+        background: var(--light-blue);
+    }
+    
+    .chat-item:last-child {
+        border-bottom: none;
+    }
+    
+    .chat-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.75rem;
+        font-weight: bold;
+        flex-shrink: 0;
+        object-fit: cover;
+    }
+    
+    .chat-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.25rem;
+    }
+    
+    .chat-name {
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .chat-time {
+        color: var(--text-gray);
+        font-size: 0.85rem;
+    }
+    
+    .chat-preview {
+        color: var(--text-gray);
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .unread-badge {
+        background: var(--primary-blue);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        min-width: 24px;
+        text-align: center;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h2 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: var(--text-gray);
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="chats-container">
+    <div class="page-header">
+        <h1>💬 Private Messages</h1>
+        <a href="{% url 'friends_list' %}" class="btn btn-outline">View Friends</a>
+    </div>
+
+    {% if chat_data %}
+    <div class="chat-list">
+        {% for data in chat_data %}
+        <a href="{% url 'private_chat' data.chat.id %}" class="chat-item">
+            {% if data.other_user.profile.profile_picture %}
+            <img src="{{ data.other_user.profile.profile_picture.url }}" alt="{{ data.other_user.username }}" class="chat-avatar">
+            {% else %}
+            <div class="chat-avatar">{{ data.other_user.username|slice:":1"|upper }}</div>
+            {% endif %}
+            <div class="chat-info">
+                <div class="chat-header">
+                    <div class="chat-name">{{ data.other_user.username }}</div>
+                    {% if data.last_message %}
+                    <div class="chat-time">{{ data.last_message.timestamp|timesince }} ago</div>
+                    {% endif %}
+                </div>
+                {% if data.last_message %}
+                <div class="chat-preview">
+                    {% if data.last_message.sender == user %}You: {% endif %}
+                    {{ data.last_message.content }}
+                </div>
+                {% else %}
+                <div class="chat-preview" style="font-style: italic;">No messages yet</div>
+                {% endif %}
+            </div>
+            {% if data.unread_count > 0 %}
+            <div class="unread-badge">{{ data.unread_count }}</div>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="chat-list">
+        <div class="empty-state">
+            <div class="empty-state-icon">💬</div>
+            <h2>No Conversations Yet</h2>
+            <p>Add friends and start chatting!</p>
+            <a href="{% url 'friends_list' %}" class="btn btn-primary">Go to Friends</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

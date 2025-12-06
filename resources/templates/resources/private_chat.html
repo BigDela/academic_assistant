@@ -1,0 +1,753 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Chat with {{ other_user.username }} - Academic Assistant{% endblock %}
+
+{% block full_content %}
+<style>
+    /* Hide messages notification */
+    .messages {
+        display: none !important;
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    .private-chat-wrapper {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: #f5f7fa;
+    }
+    
+    /* Chat Header */
+    .private-chat-header {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e8e8e8;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .header-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        font-weight: bold;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    
+    .header-info {
+        flex: 1;
+    }
+    
+    .header-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 1.1rem;
+    }
+    
+    .header-status {
+        font-size: 0.85rem;
+        color: var(--text-gray);
+    }
+    
+    .back-btn {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+    
+    .back-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    
+    /* Chat Container */
+    .private-chat-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Message Groups */
+    .message-date-divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+    
+    .message-date-divider span {
+        background: #f5f7fa;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: var(--text-gray);
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Message Bubbles */
+    .message-wrapper {
+        display: flex;
+        margin-bottom: 0.75rem;
+        animation: messageSlideIn 0.3s ease;
+    }
+    
+    .message-wrapper.own {
+        justify-content: flex-end;
+    }
+    
+    .message-wrapper.other {
+        justify-content: flex-start;
+    }
+    
+    .message-bubble {
+        max-width: 60%;
+        position: relative;
+    }
+    
+    .message-content {
+        padding: 0.75rem 1rem;
+        border-radius: 16px;
+        position: relative;
+        word-wrap: break-word;
+    }
+    
+    .message-wrapper.own .message-content {
+        background: var(--primary-blue);
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .message-wrapper.other .message-content {
+        background: white;
+        color: var(--text-dark);
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    
+    .message-text {
+        margin-bottom: 0.25rem;
+    }
+    
+    .message-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+    }
+    
+    .message-wrapper.own .message-meta {
+        justify-content: flex-end;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .message-wrapper.other .message-meta {
+        color: var(--text-gray);
+    }
+    
+    /* Message Actions */
+    .message-actions {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        display: none;
+        gap: 0.25rem;
+    }
+    
+    .message-wrapper.own .message-actions {
+        left: -60px;
+    }
+    
+    .message-wrapper.other .message-actions {
+        right: -60px;
+    }
+    
+    .message-wrapper:hover .message-actions {
+        display: flex;
+    }
+    
+    .action-btn {
+        background: white;
+        border: 1px solid #e8e8e8;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+    
+    .action-btn:hover {
+        background: var(--light-blue);
+        border-color: var(--primary-blue);
+    }
+    
+    /* Reactions */
+    .message-reactions {
+        display: flex;
+        gap: 0.25rem;
+        margin-top: 0.25rem;
+        flex-wrap: wrap;
+    }
+    
+    .reaction {
+        background: white;
+        border: 1px solid #e8e8e8;
+        border-radius: 12px;
+        padding: 0.125rem 0.5rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .reaction:hover {
+        background: var(--light-blue);
+        border-color: var(--primary-blue);
+    }
+    
+    .reaction.user-reacted {
+        background: var(--light-blue);
+        border-color: var(--primary-blue);
+    }
+    
+    /* Emoji Picker */
+    .emoji-picker {
+        position: absolute;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        padding: 0.75rem;
+        display: none;
+        z-index: 100;
+        bottom: 40px;
+        left: 0;
+    }
+    
+    .emoji-picker.active {
+        display: block;
+    }
+    
+    .emoji-option {
+        display: inline-block;
+        padding: 0.375rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+    
+    .emoji-option:hover {
+        background: var(--light-blue);
+    }
+    
+    /* Reply Indicator */
+    .reply-indicator {
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Parent Message Display */
+    .parent-message {
+        background: rgba(74, 144, 226, 0.1);
+        border-left: 3px solid var(--primary-blue);
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-gray);
+    }
+    
+    /* Thread Replies */
+    .thread-replies {
+        margin-left: 2rem;
+        margin-top: 0.5rem;
+        padding-left: 1rem;
+        border-left: 2px solid var(--light-blue);
+    }
+    
+    .thread-reply {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Input Area */
+    .private-chat-input {
+        background: white;
+        border-top: 1px solid #e8e8e8;
+        padding: 1rem 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    .input-wrapper {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+    }
+    
+    .message-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e8e8e8;
+        border-radius: 24px;
+        resize: none;
+        font-family: inherit;
+        font-size: 0.95rem;
+        max-height: 120px;
+        transition: border-color 0.2s;
+    }
+    
+    .message-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+    }
+    
+    .send-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: var(--primary-blue);
+        border: none;
+        color: white;
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .send-btn:hover {
+        background: var(--dark-blue);
+        transform: scale(1.05);
+    }
+    
+    .send-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    @keyframes messageSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .message-bubble {
+            max-width: 80%;
+        }
+    }
+</style>
+
+<div class="private-chat-wrapper">
+    <!-- Chat Header -->
+    <div class="private-chat-header">
+        <a href="{% url 'private_chats_list' %}" class="back-btn">← Back</a>
+        <a href="{% url 'public_profile' other_user.username %}" style="text-decoration: none;">
+            {% if other_user.profile.profile_picture %}
+            <img src="{{ other_user.profile.profile_picture.url }}" alt="{{ other_user.username }}" class="header-avatar">
+            {% else %}
+            <div class="header-avatar">{{ other_user.username|slice:":1"|upper }}</div>
+            {% endif %}
+        </a>
+        <div class="header-info">
+            <a href="{% url 'public_profile' other_user.username %}" style="text-decoration: none;">
+                <div class="header-name">{{ other_user.username }}</div>
+            </a>
+            <div class="header-status">Active in chat</div>
+        </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="private-chat-container" id="chat-container">
+        {% for message in messages %}
+        <div class="message-wrapper {% if message.sender == user %}own{% else %}other{% endif %}" data-message-id="{{ message.id }}">
+            <div class="message-bubble">
+                <div class="message-content">
+                    {% if message.parent_message %}
+                    <div class="parent-message">
+                        <div style="font-weight: 500; margin-bottom: 0.25rem;">↩ Replying to {{ message.parent_message.sender.username }}</div>
+                        <div>{{ message.parent_message.content|truncatewords:10 }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="message-text">{{ message.content }}</div>
+                    <div class="message-meta">
+                        <span>{{ message.timestamp|date:"g:i A" }}</span>
+                    </div>
+                </div>
+                
+                <!-- Message Actions -->
+                <div class="message-actions">
+                    <button class="action-btn emoji-trigger" data-message-id="{{ message.id }}">😊</button>
+                    <button class="action-btn reply-btn" data-message-id="{{ message.id }}">↩</button>
+                </div>
+                
+                <!-- Reactions -->
+                {% if message.reactions.exists %}
+                <div class="message-reactions">
+                    {% for reaction_data in message.get_reactions_summary %}
+                    <span class="reaction" data-emoji="{{ reaction_data.emoji }}">
+                        {{ reaction_data.emoji }} {{ reaction_data.count }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Input Area -->
+    <div class="private-chat-input">
+        <div class="input-wrapper">
+            <textarea id="message-input" class="message-input" placeholder="Type a message..." rows="1"></textarea>
+            <button id="send-btn" class="send-btn">▶</button>
+        </div>
+    </div>
+</div>
+
+<!-- Emoji Picker Template -->
+<div class="emoji-picker" id="emoji-picker">
+    {% for emoji, label in reaction_emojis %}
+    <span class="emoji-option" data-emoji="{{ emoji }}">{{ emoji }}</span>
+    {% endfor %}
+</div>
+
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<script>
+  const chatId = {{ chat.id }};
+  const currentUser = '{{ user.username }}';
+  const otherUser = '{{ other_user.username }}';
+  
+  // Initialize Pusher
+  const pusher = new Pusher('{{ pusher_key }}', {
+    cluster: '{{ pusher_cluster }}'
+  });
+  
+  const channel = pusher.subscribe(`private-chat-${chatId}`);
+  
+  // Auto-scroll to bottom
+  function scrollToBottom() {
+    const container = document.getElementById('chat-container');
+    container.scrollTop = container.scrollHeight;
+  }
+  
+  scrollToBottom();
+  
+  // Send message
+  async function sendMessage() {
+    const input = document.getElementById('message-input');
+    const content = input.value.trim();
+    
+    if (!content) return;
+    
+    // Disable send button
+    const sendBtn = document.getElementById('send-btn');
+    sendBtn.disabled = true;
+    
+    try {
+      const response = await fetch('{% url "send_private_message" chat.id %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `content=${encodeURIComponent(content)}`
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Append message immediately (optimistic UI)
+        appendMessage({
+          sender: currentUser,
+          content: content,
+          timestamp: new Date().toISOString(),
+          message_id: data.message_id
+        }, true);
+        
+        input.value = '';
+        input.style.height = 'auto';
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+  
+  // Append message to chat
+  function appendMessage(data, isOwn) {
+    const container = document.getElementById('chat-container');
+    const wrapper = document.createElement('div');
+    wrapper.className = `message-wrapper ${isOwn ? 'own' : 'other'}`;
+    wrapper.dataset.messageId = data.message_id;
+    
+    const time = new Date(data.timestamp).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+    
+    let parentHtml = '';
+    if (data.parent_id && replyingToContent) {
+      parentHtml = `
+        <div class="parent-message">
+          <div style="font-weight: 500; margin-bottom: 0.25rem;">↩ Replying to ${isOwn ? otherUser : currentUser}</div>
+          <div>${escapeHtml(replyingToContent.substring(0, 50))}${replyingToContent.length > 50 ? '...' : ''}</div>
+        </div>
+      `;
+    }
+    
+    wrapper.innerHTML = `
+      <div class="message-bubble">
+        <div class="message-content">
+          ${parentHtml}
+          <div class="message-text">${escapeHtml(data.content)}</div>
+          <div class="message-meta">
+            <span>${time}</span>
+          </div>
+        </div>
+        <div class="message-actions">
+          <button class="action-btn emoji-trigger" data-message-id="${data.message_id}">😊</button>
+          <button class="action-btn reply-btn" data-message-id="${data.message_id}">↩</button>
+        </div>
+      </div>
+    `;
+    
+    container.appendChild(wrapper);
+    scrollToBottom();
+  }
+  
+  // Escape HTML
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  // Listen for new messages from Pusher
+  channel.bind('new-message', function(data) {
+    // Only append if from other user (we already added our own)
+    if (data.sender !== currentUser) {
+      appendMessage(data, false);
+    }
+  });
+  
+  // Add reaction
+  async function addReaction(messageId, emoji) {
+    try {
+      const response = await fetch('{% url "add_reaction" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `message_id=${messageId}&emoji=${encodeURIComponent(emoji)}&message_type=private`
+      });
+      
+      const data = await response.json();
+      console.log('Reaction added:', data);
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+    }
+  }
+  
+  // Event listeners
+  document.getElementById('message-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessageWithReply();
+    }
+  });
+  
+  // Auto-resize textarea
+  document.getElementById('message-input').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+  
+  // Reply functionality
+  let replyingToId = null;
+  let replyingToContent = null;
+  
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('reply-btn') || e.target.closest('.reply-btn')) {
+      const btn = e.target.classList.contains('reply-btn') ? e.target : e.target.closest('.reply-btn');
+      const messageId = btn.dataset.messageId;
+      const messageWrapper = btn.closest('.message-wrapper');
+      const messageText = messageWrapper.querySelector('.message-text').textContent;
+      
+      replyingToId = messageId;
+      replyingToContent = messageText;
+      
+      // Show reply indicator
+      showReplyIndicator(messageText);
+      
+      // Focus input
+      document.getElementById('message-input').focus();
+    }
+    
+    // Handle emoji trigger
+    if (e.target.classList.contains('emoji-trigger') || e.target.closest('.emoji-trigger')) {
+      const btn = e.target.classList.contains('emoji-trigger') ? e.target : e.target.closest('.emoji-trigger');
+      const messageId = btn.dataset.messageId;
+      
+      // Position and show emoji picker
+      const picker = document.getElementById('emoji-picker');
+      const rect = btn.getBoundingClientRect();
+      picker.style.position = 'fixed';
+      picker.style.left = rect.left + 'px';
+      picker.style.bottom = (window.innerHeight - rect.top + 5) + 'px';
+      picker.classList.add('active');
+      picker.dataset.messageId = messageId;
+    }
+    
+    // Handle emoji selection
+    if (e.target.classList.contains('emoji-option')) {
+      const emoji = e.target.dataset.emoji;
+      const messageId = document.getElementById('emoji-picker').dataset.messageId;
+      
+      if (messageId) {
+        addReaction(messageId, emoji);
+      }
+      
+      document.getElementById('emoji-picker').classList.remove('active');
+    }
+    
+    // Close emoji picker when clicking outside
+    if (!e.target.closest('.emoji-picker') && !e.target.closest('.emoji-trigger')) {
+      document.getElementById('emoji-picker').classList.remove('active');
+    }
+  });
+  
+  function showReplyIndicator(messageText) {
+    const inputArea = document.querySelector('.private-chat-input');
+    
+    // Remove existing indicator
+    const existing = inputArea.querySelector('.reply-indicator');
+    if (existing) existing.remove();
+    
+    // Create new indicator
+    const indicator = document.createElement('div');
+    indicator.className = 'reply-indicator';
+    indicator.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--light-blue); border-radius: 8px; margin-bottom: 0.5rem;">
+        <span style="color: var(--primary-blue); font-weight: 500;">↩ Replying to:</span>
+        <span style="color: var(--text-gray); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(messageText.substring(0, 50))}${messageText.length > 50 ? '...' : ''}</span>
+        <button onclick="cancelReply()" style="background: none; border: none; color: var(--text-gray); cursor: pointer; font-size: 1.2rem;">×</button>
+      </div>
+    `;
+    
+    inputArea.insertBefore(indicator, inputArea.firstChild);
+  }
+  
+  window.cancelReply = function() {
+    replyingToId = null;
+    replyingToContent = null;
+    const indicator = document.querySelector('.reply-indicator');
+    if (indicator) indicator.remove();
+  };
+  
+  // Update sendMessage to include parent_id
+  async function sendMessageWithReply() {
+    const input = document.getElementById('message-input');
+    const content = input.value.trim();
+    
+    if (!content) return;
+    
+    const sendBtn = document.getElementById('send-btn');
+    sendBtn.disabled = true;
+    
+    try {
+      const formData = new URLSearchParams();
+      formData.append('content', content);
+      if (replyingToId) {
+        formData.append('parent_id', replyingToId);
+      }
+      
+      const response = await fetch('{% url "send_private_message" chat.id %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData.toString()
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        appendMessage({
+          sender: currentUser,
+          content: content,
+          timestamp: new Date().toISOString(),
+          message_id: data.message_id,
+          parent_id: replyingToId
+        }, true);
+        
+        input.value = '';
+        input.style.height = 'auto';
+        
+        // Clear reply state
+        if (replyingToId) {
+          cancelReply();
+        }
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+  
+  // Replace the old sendMessage references
+  document.getElementById('send-btn').removeEventListener('click', sendMessage);
+  document.getElementById('send-btn').addEventListener('click', sendMessageWithReply);
+  
+  // Focus input on load
+  document.getElementById('message-input').focus();
+</script>
+{% endblock %}

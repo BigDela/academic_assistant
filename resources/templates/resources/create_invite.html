@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Create Invite Link - {{ group.name }}{% endblock %}
+{% block content %}
+<style>
+    .create-invite-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .create-invite-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .create-invite-card h1 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+        color: var(--text-gray);
+        margin-bottom: 2rem;
+    }
+    
+    .info-box {
+        background: var(--light-blue);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    
+    .info-box p {
+        margin: 0.5rem 0;
+        color: var(--text-gray);
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        color: var(--text-dark);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e8e8e8;
+        border-radius: 8px;
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+    
+    .help-text {
+        font-size: 0.85rem;
+        color: var(--text-gray);
+        margin-top: 0.25rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--primary-blue);
+    }
+</style>
+
+<a href="{% url 'group_invites' group.id %}" class="back-link">
+    ← Back to Invites
+</a>
+
+<div class="create-invite-container">
+    <div class="create-invite-card">
+        <h1>🔗 Create Invite Link</h1>
+        <p class="subtitle">{{ group.name }}</p>
+        
+        <div class="info-box">
+            <p><strong>💡 Custom Invite Links</strong></p>
+            <p>Create invite links with optional expiration dates and usage limits. Leave fields empty for unlimited access.</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.expires_at.id_for_label }}">Expiration Date (Optional)</label>
+                {{ form.expires_at }}
+                <div class="help-text">Leave empty for a link that never expires</div>
+                {% if form.expires_at.errors %}
+                    <div class="error-message">{{ form.expires_at.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.max_uses.id_for_label }}">Maximum Uses (Optional)</label>
+                {{ form.max_uses }}
+                <div class="help-text">Limit how many times this link can be used</div>
+                {% if form.max_uses.errors %}
+                    <div class="error-message">{{ form.max_uses.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Link</button>
+                <a href="{% url 'group_invites' group.id %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

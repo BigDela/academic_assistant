@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Add Friend - Academic Assistant{% endblock %}
+{% block content %}
+<style>
+    .add-friend-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .add-friend-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .add-friend-card h1 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+        color: var(--text-gray);
+        margin-bottom: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        color: var(--text-dark);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e8e8e8;
+        border-radius: 8px;
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--primary-blue);
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<a href="{% url 'friends_list' %}" class="back-link">
+    ← Back to Friends
+</a>
+
+<div class="add-friend-container">
+    <div class="add-friend-card">
+        <h1>➕ Add Friend</h1>
+        <p class="subtitle">Enter a username to send a friend request</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="error-message">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Send Friend Request</button>
+                <a href="{% url 'friends_list' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

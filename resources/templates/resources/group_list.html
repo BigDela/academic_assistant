@@ -123,9 +123,14 @@
 
 <div class="page-header">
     <h1>👥 Study Groups</h1>
-    <a href="{% url 'create_group' %}" class="btn btn-primary">
-        + Create New Group
-    </a>
+    <div style="display: flex; gap: 0.75rem;">
+        <a href="{% url 'join_via_code' %}" class="btn btn-outline">
+            🔑 Join via Code
+        </a>
+        <a href="{% url 'create_group' %}" class="btn btn-primary">
+            + Create New Group
+        </a>
+    </div>
 </div>
 
 {% if groups %}

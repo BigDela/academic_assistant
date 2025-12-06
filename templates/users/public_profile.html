@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.username }}'s Profile - Academic Assistant{% endblock %}
+
+{% block content %}
+<style>
+    .profile-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .profile-header {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+    
+    .profile-picture-container {
+        position: relative;
+    }
+    
+    .profile-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--light-blue);
+    }
+    
+    .profile-picture-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        font-weight: 700;
+        border: 4px solid var(--light-blue);
+    }
+    
+    .profile-info {
+        flex: 1;
+    }
+    
+    .profile-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+    }
+    
+    .profile-username {
+        color: var(--text-gray);
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+    }
+    
+    .meta-icon {
+        font-size: 1.25rem;
+    }
+    
+    .profile-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .profile-sections {
+        display: grid;
+        gap: 1.5rem;
+    }
+    
+    .profile-section {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-content {
+        color: var(--text-gray);
+        line-height: 1.6;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-gray);
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        color: var(--text-dark);
+        font-weight: 500;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-gray);
+        font-style: italic;
+    }
+    
+    .friendship-badge {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .profile-actions {
+            justify-content: center;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-picture-container">
+            {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="{{ profile_user.username }}" class="profile-picture">
+            {% else %}
+                <div class="profile-picture-placeholder">
+                    {{ profile_user.username|slice:":1"|upper }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-info">
+            <h1 class="profile-name">
+                {% if profile_user.first_name or profile_user.last_name %}
+                    {{ profile_user.first_name }} {{ profile_user.last_name }}
+                {% else %}
+                    {{ profile_user.username }}
+                {% endif %}
+            </h1>
+            <div class="profile-username">@{{ profile_user.username }}</div>
+            
+            <div class="profile-meta">
+                {% if profile.program_of_study %}
+                <div class="meta-item">
+                    <span class="meta-icon">🎓</span>
+                    <span>{{ profile.program_of_study }}</span>
+                </div>
+                {% endif %}
+                
+                {% if profile.year_level %}
+                <div class="meta-item">
+                    <span class="meta-icon">📚</span>
+                    <span>{{ profile.year_level }}</span>
+                </div>
+                {% endif %}
+                
+                {% if are_friends %}
+                <div class="friendship-badge">
+                    <span>✓</span>
+                    <span>Friends</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if not is_own_profile %}
+    <div class="profile-actions">
+        {% if are_friends %}
+            <a href="{% url 'start_private_chat' profile_user.id %}" class="btn btn-primary">
+                💬 Send Message
+            </a>
+            <a href="{% url 'remove_friend' profile_user.id %}" class="btn btn-outline" onclick="return confirm('Remove {{ profile_user.username }} from your friends?')">
+                ✕ Unfriend
+            </a>
+        {% else %}
+            <a href="{% url 'add_friend_from_group' profile_user.id %}" class="btn btn-primary">
+                👤 Add Friend
+            </a>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="profile-actions">
+        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
+            ✏️ Edit Profile
+        </a>
+        <a href="{% url 'user_info_edit' %}" class="btn btn-outline">
+            👤 Edit User Info
+        </a>
+    </div>
+    {% endif %}
+    
+    <div class="profile-sections">
+        <div class="profile-section">
+            <h2 class="section-title">
+                <span>ℹ️</span>
+                About
+            </h2>
+            <div class="section-content">
+                {% if profile.bio %}
+                    {{ profile.bio|linebreaks }}
+                {% else %}
+                    <div class="empty-state">
+                        {% if is_own_profile %}
+                            No bio yet. <a href="{% url 'profile_edit' %}">Add one</a>
+                        {% else %}
+                            No bio available
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="profile-section">
+            <h2 class="section-title">
+                <span>📋</span>
+                Information
+            </h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ profile_user.username }}</div>
+                </div>
+                {% if profile.program_of_study %}
+                <div class="info-item">
+                    <div class="info-label">Program</div>
+                    <div class="info-value">{{ profile.program_of_study }}</div>
+                </div>
+                {% endif %}
+                {% if profile.year_level %}
+                <div class="info-item">
+                    <div class="info-label">Year Level</div>
+                    <div class="info-value">{{ profile.year_level }}</div>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <div class="info-label">Course</div>
+                    <div class="info-value">{{ profile_user.get_course_display }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Year</div>
+                    <div class="info-value">{{ profile_user.get_year_display }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Member Since</div>
+                    <div class="info-value">{{ profile_user.date_joined|date:"F Y" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

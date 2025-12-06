@@ -130,7 +130,11 @@
                     <div class="document-icon">📄</div>
                     <div class="document-info">
                         <h3>{{ doc.title }}</h3>
-                        {% if doc.course %}
+                        {% if doc.group %}
+                            <span class="document-course" style="background: #e8f4fd; color: #4a90e2;">
+                                🔒 {{ doc.group.name }}
+                            </span>
+                        {% elif doc.course %}
                             <span class="document-course">{{ doc.course }}</span>
                         {% endif %}
                         <div class="document-meta">
@@ -141,7 +145,7 @@
                 </div>
                 
                 <div class="document-actions">
-                    <a href="{{ doc.file.url }}" target="_blank">👁 View Document</a>
+                    <a href="{% url 'serve_document' doc.id %}" target="_blank" class="btn btn-primary">👁 View Document</a>
                 </div>
             </div>
         {% endfor %}

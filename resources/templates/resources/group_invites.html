@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% block title %}Group Invites - {{ group.name }}{% endblock %}
+{% block content %}
+<style>
+    .invites-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .invites-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .invites-card h1 {
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+        color: var(--text-gray);
+        margin-bottom: 2rem;
+    }
+    
+    .invite-code-section {
+        background: var(--light-blue);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    
+    .invite-code-section h3 {
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+    }
+    
+    .code-display {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .code-text {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        color: var(--primary-blue);
+        flex-grow: 1;
+    }
+    
+    .copy-btn {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .copy-btn:hover {
+        background: var(--dark-blue);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .status-active {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .invites-list h3 {
+        color: var(--text-dark);
+        margin-bottom: 1rem;
+    }
+    
+    .invite-item {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        border: 1px solid #e8e8e8;
+    }
+    
+    .invite-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+    
+    .invite-url {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: var(--text-gray);
+        word-break: break-all;
+        background: white;
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .invite-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .meta-item {
+        color: var(--text-gray);
+        font-size: 0.9rem;
+    }
+    
+    .meta-item strong {
+        color: var(--text-dark);
+    }
+    
+    .no-invites {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-gray);
+    }
+    
+    .actions-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--primary-blue);
+    }
+</style>
+
+<a href="{% url 'group_detail' group.id %}" class="back-link">
+    ← Back to Group
+</a>
+
+<div class="invites-container">
+    <div class="invites-card">
+        <h1>🔗 Group Invites</h1>
+        <p class="subtitle">{{ group.name }}</p>
+        
+        <div class="invite-code-section">
+            <h3>Quick Invite Code</h3>
+            <p style="color: var(--text-gray); margin-bottom: 1rem;">Share this code for instant group access</p>
+            <div class="code-display">
+                <div class="code-text" id="invite-code">{{ group.invite_code }}</div>
+                <button class="copy-btn" onclick="copyCode()">📋 Copy</button>
+            </div>
+            <p style="color: var(--text-gray); font-size: 0.9rem;">
+                Status: 
+                {% if group.is_invite_active %}
+                    <span class="status-badge status-active">Active</span>
+                {% else %}
+                    <span class="status-badge status-inactive">Disabled</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="actions-row">
+            <a href="{% url 'create_invite_link' group.id %}" class="btn btn-primary">
+                + Create Custom Invite Link
+            </a>
+        </div>
+        
+        <div class="invites-list">
+            <h3>Custom Invite Links</h3>
+            
+            {% if invites %}
+                {% for invite in invites %}
+                    <div class="invite-item">
+                        <div class="invite-header">
+                            <div>
+                                {% if invite.is_active and invite.can_be_used %}
+                                    <span class="status-badge status-active">Active</span>
+                                {% else %}
+                                    <span class="status-badge status-inactive">Inactive</span>
+                                {% endif %}
+                            </div>
+                            {% if invite.is_active %}
+                                <a href="{% url 'deactivate_invite' invite.id %}" class="btn btn-outline" style="font-size: 0.9rem;">
+                                    Deactivate
+                                </a>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="invite-url">
+                            {{ request.scheme }}://{{ request.get_host }}{% url 'join_via_invite_link' invite.invite_token %}
+                        </div>
+                        
+                        <div class="invite-meta">
+                            <div class="meta-item">
+                                <strong>Created by:</strong> {{ invite.created_by.username }}
+                            </div>
+                            <div class="meta-item">
+                                <strong>Created:</strong> {{ invite.created_at|date:"M d, Y H:i" }}
+                            </div>
+                            <div class="meta-item">
+                                <strong>Uses:</strong> {{ invite.uses_count }}{% if invite.max_uses %} / {{ invite.max_uses }}{% else %} (unlimited){% endif %}
+                            </div>
+                            <div class="meta-item">
+                                <strong>Expires:</strong> {% if invite.expires_at %}{{ invite.expires_at|date:"M d, Y H:i" }}{% else %}Never{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-invites">
+                    <p>No custom invite links created yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function copyCode() {
+    const codeText = document.getElementById('invite-code').textContent;
+    navigator.clipboard.writeText(codeText).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}
