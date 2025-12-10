@@ -307,7 +307,7 @@
     
     /* Input Area */
     .private-chat-input {
-        background: white;
+        background: #FFFFFF;
         border-top: 1px solid #e8e8e8;
         padding: 1rem 1.5rem;
         flex-shrink: 0;
@@ -317,6 +317,7 @@
         display: flex;
         gap: 0.75rem;
         align-items: flex-end;
+        background: #FFFFFF;
     }
     
     .message-input {
@@ -329,11 +330,17 @@
         font-size: 0.95rem;
         max-height: 120px;
         transition: border-color 0.2s;
+        background: #FFFFFF;
+        color: #2C3E50;
     }
     
     .message-input:focus {
         outline: none;
         border-color: var(--primary-blue);
+    }
+    
+    .message-input::placeholder {
+        color: #9CA3AF;
     }
     
     .send-btn {

@@ -224,7 +224,7 @@
     
     /* Input area */
     .chat-input-container {
-        background: white;
+        background: #FFFFFF;
         padding: 1rem 1.5rem;
         border-top: 1px solid var(--border-color);
     }
@@ -241,11 +241,16 @@
     #message-input {
         flex: 1;
         border: none;
-        background: transparent;
+        background: #FFFFFF;
+        color: #2C3E50;
         padding: 0.5rem;
         font-size: 0.95rem;
         outline: none;
         font-family: inherit;
+    }
+    
+    #message-input::placeholder {
+        color: #9CA3AF;
     }
     
     #send-btn {

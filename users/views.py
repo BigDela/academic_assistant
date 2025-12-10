@@ -124,13 +124,15 @@ def toggle_theme(request):
     """Toggle between light and dark mode"""
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     
+    # Toggle theme
     if profile.theme_preference == 'light':
         profile.theme_preference = 'dark'
+        messages.success(request, "Dark mode enabled")
     else:
         profile.theme_preference = 'light'
+        messages.success(request, "Light mode enabled")
     
     profile.save()
     
     # Return to previous page or profile
-    next_url = request.GET.get('next', 'profile')
-    return redirect(next_url)
+    return redirect(request.META.get('HTTP_REFERER', 'profile'))
