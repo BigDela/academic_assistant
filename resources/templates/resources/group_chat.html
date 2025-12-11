@@ -268,6 +268,44 @@
         font-size: 1.2rem;
     }
     
+    #send-btn:hover {
+        background: var(--accent-blue);
+        transform: scale(1.05);
+    }
+    
+    /* Pending approval notice */
+    .pending-notice {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #FEF3C7;
+        border-radius: 12px;
+        border: 2px solid #FCD34D;
+    }
+    
+    .pending-icon {
+        font-size: 2rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    .pending-text strong {
+        color: #92400E;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+    
+    .pending-text p {
+        color: #78350F;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
     #send-btn:hover:not(:disabled) {
         background: var(--dark-blue);
         transform: scale(1.05);
@@ -379,6 +417,15 @@
         
         <div class="chat-input-container">
             <div class="input-wrapper">
+                {% if not is_member and has_pending_request %}
+                <div class="pending-notice">
+                    <div class="pending-icon">⏳</div>
+                    <div class="pending-text">
+                        <strong>Pending Approval</strong>
+                        <p>Waiting for group admin to approve your join request. You'll be able to send messages once approved.</p>
+                    </div>
+                </div>
+                {% elif is_member %}
                 <input 
                     type="text" 
                     id="message-input" 
@@ -386,6 +433,7 @@
                     autocomplete="off"
                 />
                 <button id="send-btn">➤</button>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -393,8 +441,11 @@
 
 <script>
   const currentUsername = "{{ request.user.username }}";
+  const currentUserId = {{ request.user.id }};
   const groupId = {{ group.id }};
   const csrfToken = "{{ csrf_token }}";
+  let isMember = {{ is_member|yesno:"true,false" }};
+  let hasPendingRequest = {{ has_pending_request|yesno:"true,false" }};
   
   // Initialize Pusher
   const pusher = new Pusher("{{ pusher_key }}", {
@@ -402,12 +453,62 @@
     encrypted: true
   });
   
-  const channel = pusher.subscribe(`group-${groupId}`);
+  const groupChannel = pusher.subscribe(`group-${groupId}`);
+  const userChannel = pusher.subscribe(`user-${currentUserId}`);
   
-  // Listen for new messages from other users
-  channel.bind('new-message', function(data) {
-    if (data.username !== currentUsername) {
-      appendMessage(data.username, data.message, data.timestamp, false);
+  // Listen for new messages from ALL users (including own)
+  groupChannel.bind('new-message', function(data) {
+    // Only append if it's from another user (own messages are appended immediately after send)
+    if (data.user_id !== currentUserId) {
+      const displayName = data.display_name || data.username;
+      appendMessage(displayName, data.message, data.timestamp, false);
+    }
+  });
+  
+  // Listen for join request approval
+  userChannel.bind('join-request-approved', function(data) {
+    if (data.group_id === groupId) {
+      // Update state
+      isMember = true;
+      hasPendingRequest = false;
+      
+      // Replace pending notice with input box
+      const inputWrapper = document.querySelector('.input-wrapper');
+      inputWrapper.innerHTML = `
+        <input 
+          type="text" 
+          id="message-input" 
+          placeholder="Type a message..." 
+          autocomplete="off"
+        />
+        <button id="send-btn">➤</button>
+      `;
+      
+      // Re-attach event listeners
+      attachMessageEventListeners();
+      
+      // Show success notification
+      showNotification('✅ You can now send messages!', 'success');
+      
+      // Focus input
+      document.getElementById('message-input').focus();
+    }
+  });
+  
+  // Listen for join request rejection
+  userChannel.bind('join-request-rejected', function(data) {
+    if (data.group_id === groupId) {
+      showNotification('❌ Your join request was not approved.', 'error');
+      setTimeout(() => {
+        window.location.href = '/resources/discover/my-requests/';
+      }, 2000);
+    }
+  });
+  
+  // Listen for new members joining
+  groupChannel.bind('member-joined', function(data) {
+    if (data.user_id !== currentUserId) {
+      showNotification(`👋 ${data.display_name} joined the group!`, 'info');
     }
   });
   
@@ -461,8 +562,16 @@
   
   // Send message via AJAX
   async function sendMessage() {
+    if (!isMember) {
+      showNotification('⚠️ You must be an approved member to send messages', 'warning');
+      return;
+    }
+    
     const input = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
+    
+    if (!input || !sendBtn) return; // Elements don't exist if not a member
+    
     const content = input.value.trim();
     
     if (!content) return;
@@ -485,14 +594,19 @@
       
       if (data.success) {
         // Immediately append own message
-        appendMessage(currentUsername, content, data.timestamp, true);
+        const displayName = "{{ request.user.get_full_name|default:request.user.username }}";
+        appendMessage(displayName, content, data.timestamp, true);
         input.value = '';
       } else {
-        alert('Failed to send message: ' + (data.error || 'Unknown error'));
+        if (data.pending) {
+          showNotification('⏳ ' + data.error, 'warning');
+        } else {
+          showNotification('❌ ' + (data.error || 'Failed to send message'), 'error');
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
+      showNotification('❌ Failed to send message. Please try again.', 'error');
     } finally {
       input.disabled = false;
       sendBtn.disabled = false;
@@ -500,18 +614,60 @@
     }
   }
   
-  // Event listeners
-  document.getElementById('send-btn').addEventListener('click', sendMessage);
-  document.getElementById('message-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
-  });
+  // Show notification
+  function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      animation: slideIn 0.3s ease-out;
+      max-width: 300px;
+      border-left: 4px solid ${type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : type === 'warning' ? '#F59E0B' : '#3B82F6'};
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.animation = 'slideOut 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
   
-  // Focus input on load
-  window.addEventListener('load', function() {
-    document.getElementById('message-input').focus();
+  // Attach event listeners to message input
+  function attachMessageEventListeners() {
+    const input = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    
+    if (input && sendBtn) {
+      sendBtn.addEventListener('click', sendMessage);
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+    }
+  }
+  
+  // Initial event listeners
+  {% if is_member %}
+  document.addEventListener('DOMContentLoaded', function() {
+    attachMessageEventListeners();
+    const input = document.getElementById('message-input');
+    if (input) input.focus();
     scrollToBottom();
   });
+  {% else %}
+  document.addEventListener('DOMContentLoaded', function() {
+    scrollToBottom();
+  });
+  {% endif %}
 </script>
 {% endblock %}

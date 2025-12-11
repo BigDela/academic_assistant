@@ -58,4 +58,14 @@ urlpatterns = [
     # ============ REACTIONS & ATTACHMENTS ============
     path('reactions/add/', views.add_reaction, name='add_reaction'),
     path('attachments/upload/', views.upload_message_attachment, name='upload_message_attachment'),
+    
+    # ============ DISCOVERY SYSTEM URLS ============
+    path('discover/', views.discovery_home, name='discovery_home'),
+    path('discover/users/', views.discover_users, name='discover_users'),
+    path('discover/users/<int:user_id>/action/', views.user_discovery_action, name='user_discovery_action'),
+    path('discover/groups/', views.discover_groups, name='discover_groups'),
+    path('discover/groups/<int:group_id>/action/', views.group_discovery_action, name='group_discovery_action'),
+    path('discover/join-requests/', views.group_join_requests_manage, name='group_join_requests_manage'),
+    path('discover/join-requests/<int:request_id>/action/', views.group_join_request_action, name='group_join_request_action'),
+    path('discover/my-requests/', views.my_join_requests, name='my_join_requests'),
 ]

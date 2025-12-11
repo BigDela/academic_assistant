@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Document, Course, StudyGroup, Message, GroupInvite, Friendship, PrivateChat, PrivateMessage, MessageReaction, MessageAttachment
+from .models import (Document, Course, StudyGroup, Message, GroupInvite, Friendship, PrivateChat, PrivateMessage, 
+                     MessageReaction, MessageAttachment, UserDiscoveryAction, GroupDiscoveryAction, GroupJoinRequest)
 from django.contrib.auth.decorators import login_required
 from .forms import StudyGroupForm, MessageForm, DocumentUploadForm, EditGroupForm, ManagePermissionsForm, CreateInviteForm, JoinGroupCodeForm, AddFriendForm, PrivateMessageForm, MessageAttachmentForm
 from django.contrib import messages
@@ -9,7 +10,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count, Case, When, IntegerField
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -151,8 +152,18 @@ def group_chat_view(request, group_id):
     """Render the chat page with existing messages."""
     group = get_object_or_404(StudyGroup, id=group_id)
     
-    # Verify user is a member of the group
-    if request.user not in group.members.all():
+    # Check if user is a member
+    is_member = request.user in group.members.all()
+    
+    # Check if user has pending join request
+    has_pending_request = GroupJoinRequest.objects.filter(
+        user=request.user,
+        group=group,
+        status='pending'
+    ).exists()
+    
+    # If not a member and no pending request, redirect to group detail
+    if not is_member and not has_pending_request:
         messages.error(request, "You must be a member of this group to access the chat.")
         return redirect('group_detail', group_id=group.id)
     
@@ -163,6 +174,8 @@ def group_chat_view(request, group_id):
         'group': group,
         'messages': messages_qs,
         'documents': documents,
+        'is_member': is_member,
+        'has_pending_request': has_pending_request,
         'pusher_key': settings.PUSHER_KEY,
         'pusher_cluster': settings.PUSHER_CLUSTER,
     })
@@ -174,9 +187,26 @@ def send_message(request, group_id):
     """Handle AJAX message sending and trigger Pusher event."""
     group = get_object_or_404(StudyGroup, id=group_id)
     
-    # Verify user is a member
+    # STRICT: Verify user is an APPROVED member (not just pending)
     if request.user not in group.members.all():
-        return JsonResponse({'success': False, 'error': 'You are not a member of this group'}, status=403)
+        # Check if they have a pending request
+        pending_request = GroupJoinRequest.objects.filter(
+            user=request.user,
+            group=group,
+            status='pending'
+        ).exists()
+        
+        if pending_request:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Your join request is pending admin approval. You cannot send messages yet.',
+                'pending': True
+            }, status=403)
+        else:
+            return JsonResponse({
+                'success': False, 
+                'error': 'You are not a member of this group'
+            }, status=403)
     
     content = request.POST.get('content', '').strip()
     
@@ -194,12 +224,17 @@ def send_message(request, group_id):
         content=content
     )
     
-    # Trigger Pusher event for real-time updates to other users
+    # Get user's full name or username for display
+    display_name = request.user.get_full_name() or request.user.username
+    
+    # Trigger Pusher event for real-time updates to ALL users in the group
     pusher_client.trigger(f'group-{group.id}', 'new-message', {
         'username': request.user.username,
+        'display_name': display_name,
         'message': message.content,
         'timestamp': message.timestamp.isoformat(),
         'message_id': message.id,
+        'user_id': request.user.id,
     })
     
     return JsonResponse({
@@ -841,3 +876,319 @@ def upload_message_attachment(request):
         })
     
     return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
+
+# ==================== DISCOVERY SYSTEM ====================
+
+@login_required
+def discovery_home(request):
+    """Main discovery page"""
+    # Get user stats
+    friends_count = Friendship.get_friends(request.user).count()
+    groups_count = request.user.study_groups.count()
+    pending_requests = Friendship.objects.filter(to_user=request.user, status='pending').count()
+    pending_join_requests = GroupJoinRequest.objects.filter(
+        group__in=request.user.admin_groups.all(), 
+        status='pending'
+    ).count()
+    
+    context = {
+        'friends_count': friends_count,
+        'groups_count': groups_count,
+        'pending_requests': pending_requests,
+        'pending_join_requests': pending_join_requests,
+    }
+    return render(request, 'resources/discovery_home.html', context)
+
+
+@login_required
+def discover_users(request):
+    """Discover potential friends with ranking algorithm"""
+    search_query = request.GET.get('q', '')
+    course_filter = request.GET.get('course', '')
+    program_filter = request.GET.get('program', '')
+    
+    # Get users already actioned or are friends
+    actioned_user_ids = UserDiscoveryAction.objects.filter(user=request.user).values_list('discovered_user_id', flat=True)
+    friend_ids = [f.id for f in Friendship.get_friends(request.user)]
+    pending_friend_ids = Friendship.objects.filter(
+        Q(from_user=request.user) | Q(to_user=request.user),
+        status='pending'
+    ).values_list('from_user_id', 'to_user_id')
+    pending_ids = set()
+    for from_id, to_id in pending_friend_ids:
+        pending_ids.add(from_id if from_id != request.user.id else to_id)
+    
+    exclude_ids = set(list(actioned_user_ids) + friend_ids + list(pending_ids) + [request.user.id])
+    
+    # Base query - users not already actioned
+    users = User.objects.exclude(id__in=exclude_ids)
+    
+    # Apply filters
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        )
+    
+    if course_filter:
+        users = users.filter(course=course_filter)
+    
+    if program_filter:
+        users = users.filter(profile__program_of_study__icontains=program_filter)
+    
+    # Ranking algorithm
+    users = users.annotate(
+        match_score=Case(
+            # Same course = 40 points
+            When(course=request.user.course, then=40),
+            default=0,
+            output_field=IntegerField()
+        ) + Case(
+            # Same year = 30 points
+            When(year=request.user.year, then=30),
+            default=0,
+            output_field=IntegerField()
+        ) + Case(
+            # Same program = 20 points
+            When(profile__program_of_study=request.user.profile.program_of_study, then=20),
+            default=0,
+            output_field=IntegerField()
+        )
+    ).order_by('-match_score', '?')[:50]  # Random order for same scores, limit 50
+    
+    # Get available courses for filter
+    courses = User.objects.exclude(course='').values_list('course', flat=True).distinct()
+    
+    context = {
+        'users': users,
+        'search_query': search_query,
+        'course_filter': course_filter,
+        'program_filter': program_filter,
+        'courses': courses,
+    }
+    return render(request, 'resources/discover_users.html', context)
+
+
+@login_required
+@require_POST
+def user_discovery_action(request, user_id):
+    """Handle accept/reject action on discovered user"""
+    discovered_user = get_object_or_404(User, id=user_id)
+    action = request.POST.get('action')  # 'accept' or 'reject'
+    
+    if discovered_user == request.user:
+        return JsonResponse({'success': False, 'error': 'Cannot action yourself'}, status=400)
+    
+    if action not in ['accept', 'reject', 'skip']:
+        return JsonResponse({'success': False, 'error': 'Invalid action'}, status=400)
+    
+    # Record the action
+    UserDiscoveryAction.objects.update_or_create(
+        user=request.user,
+        discovered_user=discovered_user,
+        defaults={'action': action}
+    )
+    
+    # If accept, create friend request
+    if action == 'accept':
+        # Check if other user already sent request
+        existing_request = Friendship.objects.filter(
+            from_user=discovered_user,
+            to_user=request.user,
+            status='pending'
+        ).first()
+        
+        if existing_request:
+            # Auto-accept to create friendship
+            existing_request.status = 'accepted'
+            existing_request.save()
+            message = f"You're now friends with {discovered_user.username}! 🎉"
+            friend_matched = True
+        else:
+            # Create new friend request
+            Friendship.objects.get_or_create(
+                from_user=request.user,
+                to_user=discovered_user,
+                defaults={'status': 'pending'}
+            )
+            message = f"Friend request sent to {discovered_user.username}"
+            friend_matched = False
+        
+        return JsonResponse({
+            'success': True,
+            'action': action,
+            'message': message,
+            'friend_matched': friend_matched
+        })
+    
+    return JsonResponse({
+        'success': True,
+        'action': action,
+        'message': 'User skipped' if action == 'skip' else 'User rejected'
+    })
+
+
+@login_required
+def discover_groups(request):
+    """Discover study groups with ranking algorithm"""
+    search_query = request.GET.get('q', '')
+    
+    # Get groups already actioned or member of
+    actioned_group_ids = GroupDiscoveryAction.objects.filter(user=request.user).values_list('group_id', flat=True)
+    member_group_ids = request.user.study_groups.values_list('id', flat=True)
+    pending_request_group_ids = GroupJoinRequest.objects.filter(user=request.user, status='pending').values_list('group_id', flat=True)
+    
+    exclude_ids = set(list(actioned_group_ids) + list(member_group_ids) + list(pending_request_group_ids))
+    
+    # Base query
+    groups = StudyGroup.objects.exclude(id__in=exclude_ids)
+    
+    # Apply search
+    if search_query:
+        groups = groups.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+    
+    # Ranking algorithm based on group members' attributes
+    groups = groups.annotate(
+        member_count=Count('members'),
+        match_score=Case(
+            # Has members from same course
+            When(members__course=request.user.course, then=30),
+            default=0,
+            output_field=IntegerField()
+        )
+    ).order_by('-match_score', '-member_count', '?')[:50]
+    
+    context = {
+        'groups': groups,
+        'search_query': search_query,
+    }
+    return render(request, 'resources/discover_groups.html', context)
+
+
+@login_required
+@require_POST
+def group_discovery_action(request, group_id):
+    """Handle interested/not interested action on discovered group"""
+    group = get_object_or_404(StudyGroup, id=group_id)
+    action = request.POST.get('action')  # 'interested' or 'not_interested'
+    message_text = request.POST.get('message', '')
+    
+    if action not in ['interested', 'not_interested', 'skip']:
+        return JsonResponse({'success': False, 'error': 'Invalid action'}, status=400)
+    
+    # Record the action
+    GroupDiscoveryAction.objects.update_or_create(
+        user=request.user,
+        group=group,
+        defaults={'action': action}
+    )
+    
+    # If interested, create join request
+    if action == 'interested':
+        GroupJoinRequest.objects.get_or_create(
+            user=request.user,
+            group=group,
+            defaults={'message': message_text, 'status': 'pending'}
+        )
+        return JsonResponse({
+            'success': True,
+            'action': action,
+            'message': f"Join request sent to {group.name}. Admins will review it."
+        })
+    
+    return JsonResponse({
+        'success': True,
+        'action': action,
+        'message': 'Group skipped' if action == 'skip' else 'Marked as not interested'
+    })
+
+
+@login_required
+def group_join_requests_manage(request):
+    """View and manage join requests for groups user admins"""
+    admin_groups = request.user.admin_groups.all() | StudyGroup.objects.filter(creator=request.user)
+    
+    pending_requests = GroupJoinRequest.objects.filter(
+        group__in=admin_groups,
+        status='pending'
+    ).select_related('user', 'group').order_by('-created_at')
+    
+    context = {
+        'pending_requests': pending_requests,
+    }
+    return render(request, 'resources/group_join_requests.html', context)
+
+
+@login_required
+@require_POST
+def group_join_request_action(request, request_id):
+    """Approve or reject a group join request"""
+    join_request = get_object_or_404(GroupJoinRequest, id=request_id)
+    action = request.POST.get('action')  # 'approve' or 'reject'
+    
+    # Verify user is admin
+    if not join_request.group.is_admin(request.user):
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+    
+    if action not in ['approve', 'reject']:
+        return JsonResponse({'success': False, 'error': 'Invalid action'}, status=400)
+    
+    if action == 'approve':
+        join_request.status = 'approved'
+        join_request.reviewed_by = request.user
+        join_request.save()
+        
+        # Add user to group
+        join_request.group.members.add(join_request.user)
+        
+        # Trigger Pusher event to notify approved user in real-time
+        pusher_client.trigger(f'user-{join_request.user.id}', 'join-request-approved', {
+            'group_id': join_request.group.id,
+            'group_name': join_request.group.name,
+            'message': f'Your request to join {join_request.group.name} has been approved!'
+        })
+        
+        # Also trigger event on group channel to notify existing members
+        pusher_client.trigger(f'group-{join_request.group.id}', 'member-joined', {
+            'user_id': join_request.user.id,
+            'username': join_request.user.username,
+            'display_name': join_request.user.get_full_name() or join_request.user.username,
+        })
+        
+        message_text = f"{join_request.user.username} has been added to {join_request.group.name}"
+    else:
+        join_request.status = 'rejected'
+        join_request.reviewed_by = request.user
+        join_request.save()
+        
+        # Trigger Pusher event to notify rejected user
+        pusher_client.trigger(f'user-{join_request.user.id}', 'join-request-rejected', {
+            'group_id': join_request.group.id,
+            'group_name': join_request.group.name,
+            'message': f'Your request to join {join_request.group.name} was not approved.'
+        })
+        
+        message_text = f"Join request from {join_request.user.username} has been rejected"
+    
+    return JsonResponse({
+        'success': True,
+        'action': action,
+        'message': message_text
+    })
+
+
+@login_required
+def my_join_requests(request):
+    """View user's own group join requests"""
+    join_requests = GroupJoinRequest.objects.filter(user=request.user).select_related('group', 'reviewed_by').order_by('-created_at')
+    
+    context = {
+        'join_requests': join_requests,
+    }
+    return render(request, 'resources/my_join_requests.html', context)
+

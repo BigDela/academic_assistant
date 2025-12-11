@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% block title %}Discover - Academic Assistant{% endblock %}
+{% block content %}
+<style>
+    .discovery-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-header p {
+        font-size: 1.1rem;
+        color: var(--text-gray);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--text-gray);
+        font-size: 0.9rem;
+    }
+    
+    .stat-badge {
+        background: var(--danger);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+    
+    .discovery-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    
+    .discovery-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        text-align: center;
+    }
+    
+    .discovery-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .discovery-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .discovery-card h2 {
+        color: var(--text-dark);
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .discovery-card p {
+        color: var(--text-gray);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    
+    .discover-btn {
+        display: inline-block;
+        padding: 0.875rem 2rem;
+        background: var(--primary-blue);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .discover-btn:hover {
+        background: var(--dark-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+    }
+    
+    .info-section {
+        background: var(--light-blue);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+    
+    .info-section h3 {
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+    }
+    
+    .info-section ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .info-section li {
+        padding: 0.5rem 0;
+        color: var(--text-gray);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .info-section li:before {
+        content: "✓";
+        color: var(--success);
+        font-weight: bold;
+    }
+</style>
+
+<div class="discovery-container">
+    <div class="page-header">
+        <h1>🔍 Discover</h1>
+        <p>Find friends and groups that match your interests and courses</p>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ friends_count }}</div>
+            <div class="stat-label">Friends</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ groups_count }}</div>
+            <div class="stat-label">Study Groups</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">
+                {{ pending_requests }}
+                {% if pending_requests > 0 %}
+                <span class="stat-badge">NEW</span>
+                {% endif %}
+            </div>
+            <div class="stat-label">Friend Requests</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">
+                {{ pending_join_requests }}
+                {% if pending_join_requests > 0 %}
+                <span class="stat-badge">NEW</span>
+                {% endif %}
+            </div>
+            <div class="stat-label">Join Requests</div>
+        </div>
+    </div>
+    
+    <div class="discovery-options">
+        <div class="discovery-card">
+            <div class="discovery-icon">👥</div>
+            <h2>Discover People</h2>
+            <p>Find classmates and students with similar interests. Connect with people from your course, program, or year level.</p>
+            <a href="{% url 'discover_users' %}" class="discover-btn">Find Friends</a>
+        </div>
+        
+        <div class="discovery-card">
+            <div class="discovery-icon">📚</div>
+            <h2>Discover Groups</h2>
+            <p>Join study groups related to your courses. Collaborate with peers and access shared resources.</p>
+            <a href="{% url 'discover_groups' %}" class="discover-btn">Find Groups</a>
+        </div>
+    </div>
+    
+    {% if pending_join_requests > 0 %}
+    <div class="info-section" style="background: #FEF3C7; border-left: 4px solid var(--warning);">
+        <h3>⏳ Pending Actions</h3>
+        <p>You have <strong>{{ pending_join_requests }}</strong> group join request(s) waiting for review.</p>
+        <a href="{% url 'group_join_requests_manage' %}" class="btn btn-primary" style="margin-top: 1rem;">Review Requests</a>
+    </div>
+    {% endif %}
+    
+    <div class="info-section">
+        <h3>💡 How Discovery Works</h3>
+        <ul>
+            <li>We match you with users and groups based on your course, program, and interests</li>
+            <li>Accept users you'd like to connect with - both sides must accept to become friends</li>
+            <li>Show interest in groups - admins will review your request</li>
+            <li>Rejected or skipped items won't show up again</li>
+            <li>Build your network and collaborate more effectively</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

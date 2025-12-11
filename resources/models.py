@@ -293,3 +293,69 @@ class GroupChat(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class UserDiscoveryAction(models.Model):
+    """Track user discovery actions (swipe/accept/reject)"""
+    ACTION_CHOICES = [
+        ('accept', 'Accept'),
+        ('reject', 'Reject'),
+        ('skip', 'Skip'),
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='discovery_actions')
+    discovered_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='discovered_by')
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'discovered_user')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} {self.action}ed {self.discovered_user.username}"
+
+
+class GroupDiscoveryAction(models.Model):
+    """Track group discovery actions"""
+    ACTION_CHOICES = [
+        ('interested', 'Interested'),
+        ('not_interested', 'Not Interested'),
+        ('skip', 'Skip'),
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='group_discovery_actions')
+    group = models.ForeignKey(StudyGroup, on_delete=models.CASCADE, related_name='discovery_actions')
+    action = models.CharField(max_length=15, choices=ACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'group')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} {self.action} in {self.group.name}"
+
+
+class GroupJoinRequest(models.Model):
+    """Handle group join requests from discovery"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='group_join_requests')
+    group = models.ForeignKey(StudyGroup, on_delete=models.CASCADE, related_name='join_requests')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    message = models.TextField(blank=True, help_text="Optional message to group admins")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_join_requests')
+
+    class Meta:
+        unique_together = ('user', 'group')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.group.name} ({self.status})"
