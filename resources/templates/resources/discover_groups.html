@@ -233,14 +233,14 @@
 <div class="discover-container">
     <div class="page-header">
         <a href="{% url 'discovery_home' %}" style="color: var(--text-gray); text-decoration: none; margin-right: 1rem;">← Back</a>
-        <h1>📚 Discover Groups</h1>
+        <h1><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-book"></use></svg> Discover Groups</h1>
         <p>Find study groups that match your interests</p>
     </div>
     
     <div class="search-section">
         <form method="GET" class="search-form">
             <input type="text" name="q" placeholder="Search groups..." value="{{ search_query }}">
-            <button type="submit" class="search-btn">🔍 Search</button>
+            <button type="submit" class="search-btn"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-search"></use></svg> Search</button>
         </form>
     </div>
     
@@ -249,13 +249,13 @@
         {% for group in groups %}
         <div class="discovery-card" data-group-id="{{ group.id }}">
             <div class="group-header">
-                <div class="group-icon">👥</div>
+                <div class="group-icon"><svg class="icon-xl icon-primary"><use href="#icon-users"></use></svg></div>
                 <div class="group-info">
                     <div class="group-name">{{ group.name }}</div>
                     <div class="group-meta">
-                        <span>👤 {{ group.member_count }} member{{ group.member_count|pluralize }}</span>
+                        <span><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-user"></use></svg> {{ group.member_count }} member{{ group.member_count|pluralize }}</span>
                         {% if group.match_score > 0 %}
-                        <span>⭐ {{ group.match_score }}% Match</span>
+                        <span><svg class="icon-sm" style="vertical-align: middle; fill: gold;"><use href="#icon-award"></use></svg> {{ group.match_score }}% Match</span>
                         {% endif %}
                     </div>
                 </div>
@@ -266,7 +266,7 @@
             </div>
             
             <div class="group-stats">
-                <div class="stat-badge">📅 Created {{ group.created_at|date:"M Y" }}</div>
+                <div class="stat-badge"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-calendar"></use></svg> Created {{ group.created_at|date:"M Y" }}</div>
             </div>
             
             <div class="message-box">
@@ -277,9 +277,9 @@
             </div>
             
             <div class="action-buttons">
-                <button class="action-btn btn-reject" onclick="handleAction({{ group.id }}, 'not_interested')">✕</button>
-                <button class="action-btn btn-skip" onclick="handleAction({{ group.id }}, 'skip')">→</button>
-                <button class="action-btn btn-accept" onclick="handleAction({{ group.id }}, 'interested')">✓</button>
+                <button class="action-btn btn-reject" onclick="handleAction({{ group.id }}, 'not_interested')"><svg class="icon-sm"><use href="#icon-x"></use></svg></button>
+                <button class="action-btn btn-skip" onclick="handleAction({{ group.id }}, 'skip')"><svg class="icon-sm"><use href="#icon-arrow-right"></use></svg></button>
+                <button class="action-btn btn-accept" onclick="handleAction({{ group.id }}, 'interested')"><svg class="icon-sm"><use href="#icon-check"></use></svg></button>
             </div>
         </div>
         {% endfor %}

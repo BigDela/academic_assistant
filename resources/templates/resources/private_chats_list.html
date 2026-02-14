@@ -20,7 +20,7 @@
     }
     
     .chat-list {
-        background: white;
+        background: var(--white);
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -37,7 +37,7 @@
     }
     
     .chat-item:hover {
-        background: var(--light-blue);
+        background: #f0f7ff;
     }
     
     .chat-item:last-child {
@@ -72,7 +72,7 @@
     }
     
     .chat-name {
-        color: var(--text-dark);
+        color: #2c3e50;
         font-weight: 600;
         font-size: 1.1rem;
     }
@@ -120,11 +120,41 @@
         color: var(--text-gray);
         margin-bottom: 1.5rem;
     }
+
+    /* Dark Mode Specific Styles */
+    @media (prefers-color-scheme: dark) {
+        .chat-list {
+            background: var(--card-dark);
+        }
+
+        .chat-item {
+            border-bottom-color: #444;
+        }
+
+        .chat-item:hover {
+            background: #2a2a2a;
+        }
+
+        .chat-name,
+        .empty-state h2 {
+            color: var(--text-dark);
+        }
+
+        .chat-preview,
+        .chat-time,
+        .empty-state p {
+            color: var(--text-gray);
+        }
+
+        .page-header h1 {
+            color: var(--primary-blue);
+        }
+    }
 </style>
 
 <div class="chats-container">
     <div class="page-header">
-        <h1>💬 Private Messages</h1>
+        <h1><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-message"></use></svg> Private Messages</h1>
         <a href="{% url 'friends_list' %}" class="btn btn-outline">View Friends</a>
     </div>
 
@@ -162,7 +192,7 @@
     {% else %}
     <div class="chat-list">
         <div class="empty-state">
-            <div class="empty-state-icon">💬</div>
+            <div class="empty-state-icon"><svg class="icon-xxl icon-muted"><use href="#icon-message"></use></svg></div>
             <h2>No Conversations Yet</h2>
             <p>Add friends and start chatting!</p>
             <a href="{% url 'friends_list' %}" class="btn btn-primary">Go to Friends</a>

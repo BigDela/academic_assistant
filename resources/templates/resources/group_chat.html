@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}{{ group.name }} - Chat{% endblock %}
+
 {% block extra_css %}
 <style>
     /* Hide messages notification on chat page */
@@ -7,145 +8,84 @@
         display: none !important;
     }
     
-    /* Messenger-style layout */
-    .chat-layout {
-        display: flex;
-        height: calc(100vh - 4.5rem);
-        background: white;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
     
-    /* Sidebar */
-    .chat-sidebar {
-        width: 360px;
-        background: white;
-        border-right: 1px solid var(--border-color);
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .sidebar-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .sidebar-header h2 {
-        color: var(--text-dark);
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .sidebar-info {
-        color: var(--text-gray);
-        font-size: 0.9rem;
-    }
-    
-    .members-list {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1rem;
-    }
-    
-    .member-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem;
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
-        transition: background 0.2s;
-    }
-    
-    .member-item:hover {
-        background: var(--light-blue);
-    }
-    
-    .member-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-    
-    .member-name {
-        font-weight: 500;
-        color: var(--text-dark);
-    }
-    
-    .sidebar-actions {
-        padding: 1rem;
-        border-top: 1px solid var(--border-color);
-    }
-    
-    .sidebar-actions a {
-        display: block;
-        text-align: center;
-        padding: 0.75rem;
-        background: var(--light-blue);
-        color: var(--primary-blue);
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.2s;
-    }
-    
-    .sidebar-actions a:hover {
-        background: var(--primary-blue);
-        color: white;
-    }
-    
-    /* Main chat area */
-    .chat-main {
-        flex: 1;
+    /* ============================================
+       GROUP CHAT WRAPPER - Unified Interface
+    ============================================ */
+    .group-chat-wrapper {
+        height: 100vh;
         display: flex;
         flex-direction: column;
-        background: #F0F2F5;
+        background: var(--background);
     }
     
-    .chat-header {
-        background: white;
+    /* ============================================
+       CHAT HEADER - Unified Style
+    ============================================ */
+    .group-chat-header {
+        background: var(--white);
         padding: 1rem 1.5rem;
         border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
-        justify-content: space-between;
-    }
-    
-    .chat-header-left {
-        display: flex;
-        align-items: center;
         gap: 1rem;
+        flex-shrink: 0;
     }
     
-    .group-avatar {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    .header-avatar {
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
+        color: white;
+        font-size: 1.25rem;
+        flex-shrink: 0;
     }
     
-    .chat-header h3 {
+    .header-info {
+        flex: 1;
+    }
+    
+    .header-name {
+        font-weight: 600;
         color: var(--text-dark);
         font-size: 1.1rem;
-        margin-bottom: 0.1rem;
     }
     
-    .online-status {
-        color: var(--text-gray);
+    .header-status {
         font-size: 0.85rem;
+        color: var(--text-gray);
     }
     
-    /* Messages area */
-    .messages-container {
+    .header-action-btn {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .header-action-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    
+    /* ============================================
+       MESSAGES CONTAINER - Unified Style
+    ============================================ */
+    .group-chat-container {
         flex: 1;
         overflow-y: auto;
         padding: 1.5rem;
@@ -153,30 +93,40 @@
         flex-direction: column;
     }
     
-    .message-group {
-        margin-bottom: 1rem;
+    /* Custom scrollbar */
+    .group-chat-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .group-chat-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .group-chat-container::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+    
+    .group-chat-container::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+    }
+    
+    /* ============================================
+       MESSAGE WRAPPER - Unified Style
+    ============================================ */
+    .message-wrapper {
         display: flex;
-        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        animation: messageSlideIn 0.3s ease;
     }
     
-    .message-group.own {
-        align-items: flex-end;
+    .message-wrapper.own {
+        flex-direction: row-reverse;
     }
     
-    .message-sender {
-        font-size: 0.8rem;
-        color: var(--text-gray);
-        margin-bottom: 0.25rem;
-        padding: 0 0.5rem;
-    }
-    
-    .message {
-        max-width: 60%;
-        padding: 0.75rem 1rem;
-        border-radius: 18px;
-        margin-bottom: 0.25rem;
-        word-wrap: break-word;
-        animation: messageSlideIn 0.2s ease-out;
+    .message-wrapper.other {
+        flex-direction: row;
     }
     
     @keyframes messageSlideIn {
@@ -190,267 +140,391 @@
         }
     }
     
-    .message.other {
-        background: white;
-        color: var(--text-dark);
-        border-bottom-left-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    
-    .message.own {
-        background: var(--primary-blue);
+    /* ============================================
+       AVATARS - Unified Style
+    ============================================ */
+    .message-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: white;
-        border-bottom-right-radius: 4px;
-        margin-left: auto;
-    }
-    
-    .message-time {
-        font-size: 0.75rem;
-        opacity: 0.7;
+        font-size: 0.95rem;
+        font-weight: bold;
+        flex-shrink: 0;
+        object-fit: cover;
         margin-top: 0.25rem;
     }
     
+    /* ============================================
+       MESSAGE BUBBLE - Unified Style
+    ============================================ */
+    .message-bubble {
+        max-width: 60%;
+        position: relative;
+    }
+    
+    .message-content {
+        padding: 0.75rem 1rem;
+        border-radius: 16px;
+        position: relative;
+        word-wrap: break-word;
+        line-height: 1.4;
+    }
+    
+    .message-wrapper.own .message-content {
+        background: var(--primary-blue);
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .message-wrapper.other .message-content {
+        background: #ffffff;
+        color: #2c3e50;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    
+    .message-sender-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 0.25rem;
+    }
+    
+    .message-text {
+        margin-bottom: 0.25rem;
+    }
+    
+    .message-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+    }
+    
+    .message-wrapper.own .message-meta {
+        justify-content: flex-end;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .message-wrapper.other .message-meta {
+        color: #6c757d;
+    }
+    
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
     .no-messages {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #65676b;
         text-align: center;
-        padding: 3rem;
-        color: var(--text-gray);
+        padding: 2rem;
     }
     
     .no-messages-icon {
-        font-size: 4rem;
         margin-bottom: 1rem;
-        opacity: 0.5;
+        opacity: 0.4;
     }
     
-    /* Input area */
-    .chat-input-container {
-        background: #FFFFFF;
-        padding: 1rem 1.5rem;
+    .no-messages p {
+        font-size: 0.9375rem;
+        color: #65676b;
+        margin: 0;
+    }
+    
+    /* ============================================
+       INPUT AREA - Unified Style
+    ============================================ */
+    .group-chat-input {
+        background: var(--white);
         border-top: 1px solid var(--border-color);
+        padding: 1rem 1.5rem;
+        flex-shrink: 0;
     }
     
     .input-wrapper {
         display: flex;
         gap: 0.75rem;
-        align-items: center;
-        background: #F0F2F5;
-        border-radius: 24px;
-        padding: 0.5rem 1rem;
+        align-items: flex-end;
+        background: var(--white);
     }
     
-    #message-input {
+    .message-input {
         flex: 1;
-        border: none;
-        background: #FFFFFF;
-        color: #2C3E50;
-        padding: 0.5rem;
-        font-size: 0.95rem;
-        outline: none;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--border-color);
+        border-radius: 24px;
+        resize: none;
         font-family: inherit;
+        font-size: 0.95rem;
+        max-height: 120px;
+        transition: border-color 0.2s;
+        background: var(--white);
+        color: var(--text-dark);
     }
     
-    #message-input::placeholder {
+    .message-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+    }
+    
+    .message-input::placeholder {
         color: #9CA3AF;
     }
     
-    #send-btn {
-        width: 40px;
-        height: 40px;
-        background: var(--primary-blue);
-        color: white;
-        border: none;
+    .send-btn {
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
+        background: var(--primary-blue);
+        border: none;
+        color: white;
+        font-size: 1.25rem;
         cursor: pointer;
+        transition: all 0.2s;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.2s;
-        font-size: 1.2rem;
     }
     
-    #send-btn:hover {
-        background: var(--accent-blue);
-        transform: scale(1.05);
-    }
-    
-    /* Pending approval notice */
-    .pending-notice {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background: #FEF3C7;
-        border-radius: 12px;
-        border: 2px solid #FCD34D;
-    }
-    
-    .pending-icon {
-        font-size: 2rem;
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-    
-    .pending-text strong {
-        color: #92400E;
-        display: block;
-        margin-bottom: 0.25rem;
-    }
-    
-    .pending-text p {
-        color: #78350F;
-        font-size: 0.9rem;
-        margin: 0;
-    }
-    
-    #send-btn:hover:not(:disabled) {
+    .send-btn:hover {
         background: var(--dark-blue);
         transform: scale(1.05);
     }
     
-    #send-btn:disabled {
-        background: var(--border-color);
+    .send-btn:disabled {
+        background: var(--text-gray);
         cursor: not-allowed;
+        transform: none;
     }
     
-    /* Responsive */
-    @media (max-width: 968px) {
-        .chat-sidebar {
-            width: 300px;
+    /* ============================================
+       PENDING APPROVAL NOTICE
+    ============================================ */
+    .pending-notice {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        display: flex;
+        gap: 0.875rem;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .pending-icon {
+        flex-shrink: 0;
+    }
+    
+    .pending-text strong {
+        color: #856404;
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: 0.9375rem;
+    }
+    
+    .pending-text p {
+        color: #856404;
+        margin: 0;
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+    
+    
+    /* ============================================
+       NOTIFICATION TOAST
+    ============================================ */
+    .notification {
+        position: fixed;
+        top: 5rem;
+        right: 1.5rem;
+        background: white;
+        padding: 0.875rem 1.25rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        z-index: 9999;
+        animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        max-width: 320px;
+        font-size: 0.9375rem;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
         }
-        
-        .message {
-            max-width: 75%;
+        to {
+            transform: translateX(0);
+            opacity: 1;
         }
     }
     
+    .notification.success {
+        border-left: 4px solid var(--success);
+    }
+    
+    .notification.error {
+        border-left: 4px solid #dc3545;
+    }
+    
+    .notification.info {
+        border-left: 4px solid var(--primary-blue);
+    }
+    
+    .notification.warning {
+        border-left: 4px solid #ffc107;
+    }
+    
+    /* ============================================
+       RESPONSIVE DESIGN
+    ============================================ */
     @media (max-width: 768px) {
-        .chat-sidebar {
-            position: fixed;
-            left: -360px;
-            top: 4.5rem;
-            height: calc(100vh - 4.5rem);
-            z-index: 100;
-            transition: left 0.3s;
+        .message-bubble {
+            max-width: 80%;
         }
         
-        .chat-sidebar.open {
-            left: 0;
+        .group-chat-header {
+            padding: 0.875rem 1rem;
         }
         
-        .sidebar-toggle {
-            display: block;
+        .header-name {
+            font-size: 1rem;
         }
         
-        .message {
-            max-width: 85%;
+        .header-status {
+            font-size: 0.75rem;
+        }
+        
+        .header-avatar {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .group-chat-container {
+            padding: 1rem;
+        }
+        
+        .group-chat-input {
+            padding: 0.75rem 1rem;
+        }
+        
+        .notification {
+            right: 1rem;
+            max-width: calc(100vw - 2rem);
         }
     }
 </style>
-<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 {% endblock %}
 
 {% block full_content %}
-<div class="chat-layout">
-    <!-- Sidebar -->
-    <div class="chat-sidebar">
-        <div class="sidebar-header">
-            <h2>{{ group.name }}</h2>
-            <div class="sidebar-info">
-                {{ group.members.count }} member{{ group.members.count|pluralize }}
-            </div>
+<div class="group-chat-wrapper">
+    <!-- Chat Header -->
+    <div class="group-chat-header">
+        <div class="header-avatar">
+            <svg class="icon-lg icon-white"><use href="#icon-book"></use></svg>
         </div>
-        
-        <div class="members-list">
-            <h4 style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 0.75rem; padding: 0 0.5rem;">Members</h4>
-            {% for member in group.members.all %}
-                <div class="member-item">
-                    <div class="member-avatar">{{ member.username.0|upper }}</div>
-                    <div class="member-name">
-                        {{ member.username }}
-                        {% if member == request.user %}<span style="color: var(--text-gray); font-size: 0.85rem;">(You)</span>{% endif %}
+        <div class="header-info">
+            <div class="header-name">{{ group.name }}</div>
+            <div class="header-status">{{ group.members.count }} member{{ group.members.count|pluralize }}</div>
+        </div>
+        <a href="{% url 'group_detail' group.id %}" class="header-action-btn" title="Group Info">
+            Group Info
+        </a>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="group-chat-container" id="chat-box">
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="message-wrapper {% if msg.user == request.user %}own{% else %}other{% endif %}" data-message-id="{{ msg.id }}">
+                    <!-- Avatar -->
+                    {% if msg.user != request.user %}
+                        {% if msg.user.profile.profile_picture %}
+                        <img src="{{ msg.user.profile.profile_picture.url }}" alt="{{ msg.user.username }}" class="message-avatar">
+                        {% else %}
+                        <div class="message-avatar">{{ msg.user.username.0|upper }}</div>
+                        {% endif %}
+                    {% else %}
+                        <div style="width: 36px;"></div>
+                    {% endif %}
+                    
+                    <div class="message-bubble">
+                        <div class="message-content">
+                            {% if msg.user != request.user %}
+                                <div class="message-sender-name">{{ msg.user.username }}</div>
+                            {% endif %}
+                            <div class="message-text">{{ msg.content }}</div>
+                            <div class="message-meta">
+                                <span>{{ msg.timestamp|date:"g:i A" }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
-        </div>
-        
-        <div class="sidebar-actions">
-            <a href="{% url 'group_detail' group.id %}">📋 Group Details</a>
-        </div>
+        {% else %}
+            <div class="no-messages">
+                <div class="no-messages-icon">
+                    <svg class="icon-xxl icon-muted"><use href="#icon-message"></use></svg>
+                </div>
+                <p>No messages yet. Start the conversation!</p>
+            </div>
+        {% endif %}
     </div>
-    
-    <!-- Main chat -->
-    <div class="chat-main">
-        <div class="chat-header">
-            <div class="chat-header-left">
-                <div class="group-avatar">📚</div>
-                <div>
-                    <h3>{{ group.name }}</h3>
-                    <div class="online-status">Active now</div>
+
+    <!-- Input Area -->
+    <div class="group-chat-input">
+        {% if not is_member and has_pending_request %}
+            <div class="pending-notice">
+                <div class="pending-icon">
+                    <svg class="icon-xl icon-primary"><use href="#icon-clock"></use></svg>
+                </div>
+                <div class="pending-text">
+                    <strong>Pending Approval</strong>
+                    <p>Waiting for group admin to approve your join request. You'll be able to send messages once approved.</p>
                 </div>
             </div>
-        </div>
-        
-        <div class="messages-container" id="chat-box">
-            {% if messages %}
-                {% for msg in messages %}
-                    <div class="message-group {% if msg.user == request.user %}own{% endif %}">
-                        {% if msg.user != request.user %}
-                            <div class="message-sender">{{ msg.user.username }}</div>
-                        {% endif %}
-                        <div class="message {% if msg.user == request.user %}own{% else %}other{% endif %}">
-                            {{ msg.content }}
-                        </div>
-                        <div class="message-time">{{ msg.timestamp|date:"g:i A" }}</div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="no-messages">
-                    <div class="no-messages-icon">💬</div>
-                    <p>No messages yet. Start the conversation!</p>
-                </div>
-            {% endif %}
-        </div>
-        
-        <div class="chat-input-container">
+        {% elif is_member %}
             <div class="input-wrapper">
-                {% if not is_member and has_pending_request %}
-                <div class="pending-notice">
-                    <div class="pending-icon">⏳</div>
-                    <div class="pending-text">
-                        <strong>Pending Approval</strong>
-                        <p>Waiting for group admin to approve your join request. You'll be able to send messages once approved.</p>
-                    </div>
-                </div>
-                {% elif is_member %}
-                <input 
-                    type="text" 
-                    id="message-input" 
-                    placeholder="Type a message..." 
-                    autocomplete="off"
-                />
-                <button id="send-btn">➤</button>
-                {% endif %}
+                <textarea id="message-input" class="message-input" placeholder="Type a message..." rows="1"></textarea>
+                <button id="send-btn" class="send-btn">▶</button>
             </div>
-        </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 <script>
   const currentUsername = "{{ request.user.username }}";
   const currentUserId = {{ request.user.id }};
   const groupId = {{ group.id }};
   const csrfToken = "{{ csrf_token }}";
   let isMember = {{ is_member|yesno:"true,false" }};
+  const currentUserProfilePicture = {% if request.user.profile.profile_picture %}"{{ request.user.profile.profile_picture.url }}"{% else %}null{% endif %};
+  const currentUserInitials = "{{ request.user.profile.get_initials }}";
   let hasPendingRequest = {{ has_pending_request|yesno:"true,false" }};
   
   // Initialize Pusher
   const pusher = new Pusher("{{ pusher_key }}", {
     cluster: "{{ pusher_cluster }}",
-    encrypted: true
+    encrypted: true,
+    authEndpoint: null, // Disable authentication for public channels
+    disableStats: true
   });
   
   const groupChannel = pusher.subscribe(`group-${groupId}`);
@@ -461,7 +535,7 @@
     // Only append if it's from another user (own messages are appended immediately after send)
     if (data.user_id !== currentUserId) {
       const displayName = data.display_name || data.username;
-      appendMessage(displayName, data.message, data.timestamp, false);
+      appendMessage(displayName, data.message, data.timestamp, false, data.profile_picture_url, data.initials);
     }
   });
   
@@ -473,15 +547,12 @@
       hasPendingRequest = false;
       
       // Replace pending notice with input box
-      const inputWrapper = document.querySelector('.input-wrapper');
-      inputWrapper.innerHTML = `
-        <input 
-          type="text" 
-          id="message-input" 
-          placeholder="Type a message..." 
-          autocomplete="off"
-        />
-        <button id="send-btn">➤</button>
+      const chatInputContainer = document.querySelector('.group-chat-input');
+      chatInputContainer.innerHTML = `
+        <div class="input-wrapper">
+          <textarea id="message-input" class="message-input" placeholder="Type a message..." rows="1"></textarea>
+          <button id="send-btn" class="send-btn">▶</button>
+        </div>
       `;
       
       // Re-attach event listeners
@@ -519,7 +590,7 @@
   }
   
   // Append message to chat
-  function appendMessage(username, content, timestamp, isOwn) {
+  function appendMessage(username, content, timestamp, isOwn, profilePictureUrl = null, initials = null) {
     const chatBox = document.getElementById('chat-box');
     
     // Remove "no messages" placeholder
@@ -528,18 +599,42 @@
       noMessages.remove();
     }
     
-    const messageGroup = document.createElement('div');
-    messageGroup.className = `message-group ${isOwn ? 'own' : ''}`;
+    // Create message wrapper
+    const messageWrapper = document.createElement('div');
+    messageWrapper.className = `message-wrapper ${isOwn ? 'own' : 'other'}`;
     
     let html = '';
-    if (!isOwn) {
-      html += `<div class="message-sender">${username}</div>`;
-    }
-    html += `<div class="message ${isOwn ? 'own' : 'other'}">${escapeHtml(content)}</div>`;
-    html += `<div class="message-time">${formatTime(timestamp)}</div>`;
     
-    messageGroup.innerHTML = html;
-    chatBox.appendChild(messageGroup);
+    // Add avatar for other users
+    if (!isOwn) {
+      if (profilePictureUrl) {
+        html += `<img src="${profilePictureUrl}" alt="${username}" class="message-avatar">`;
+      } else {
+        const avatarText = initials || username.charAt(0).toUpperCase();
+        html += `<div class="message-avatar">${avatarText}</div>`;
+      }
+    } else {
+      html += `<div style="width: 36px;"></div>`;
+    }
+    
+    // Add message bubble
+    html += `<div class="message-bubble">`;
+    html += `  <div class="message-content">`;
+    
+    // Add sender name for other users
+    if (!isOwn) {
+      html += `    <div class="message-sender-name">${username}</div>`;
+    }
+    
+    html += `    <div class="message-text">${content}</div>`;
+    html += `    <div class="message-meta"><span>${timestamp}</span></div>`;
+    html += `  </div>`;
+    html += `</div>`;
+    
+    messageWrapper.innerHTML = html;
+    chatBox.appendChild(messageWrapper);
+    
+    // Scroll to bottom
     scrollToBottom();
   }
   
@@ -570,7 +665,7 @@
     const input = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
     
-    if (!input || !sendBtn) return; // Elements don't exist if not a member
+    if (!input || !sendBtn) return;
     
     const content = input.value.trim();
     
@@ -590,14 +685,18 @@
         body: `content=${encodeURIComponent(content)}`
       });
       
+      // Parse JSON response
       const data = await response.json();
       
-      if (data.success) {
-        // Immediately append own message
+      // Check for successful response
+      if (response.ok && data.success) {
+        // Immediately append own message (optimistic UI update)
         const displayName = "{{ request.user.get_full_name|default:request.user.username }}";
-        appendMessage(displayName, content, data.timestamp, true);
+        appendMessage(displayName, content, data.timestamp, true, currentUserProfilePicture, currentUserInitials);
         input.value = '';
+        input.style.height = 'auto'; // Reset textarea height
       } else {
+        // Handle specific error cases
         if (data.pending) {
           showNotification('⏳ ' + data.error, 'warning');
         } else {
@@ -606,8 +705,9 @@
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      showNotification('❌ Failed to send message. Please try again.', 'error');
+      showNotification('❌ Network error. Please check your connection and try again.', 'error');
     } finally {
+      // Re-enable input
       input.disabled = false;
       sendBtn.disabled = false;
       input.focus();
@@ -646,13 +746,23 @@
     const input = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
     
+    console.log('Attaching event listeners...', { input, sendBtn });
+    
     if (input && sendBtn) {
-      sendBtn.addEventListener('click', sendMessage);
+      sendBtn.addEventListener('click', function(e) {
+        console.log('Send button clicked');
+        sendMessage();
+      });
       input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          console.log('Enter pressed, sending message');
           sendMessage();
         }
       });
+      console.log('Event listeners attached successfully');
+    } else {
+      console.error('Failed to attach event listeners - elements not found');
     }
   }
   

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <style>
         * {
             margin: 0;
@@ -27,8 +29,8 @@
             --success: #10B981;
             --danger: #EF4444;
             --warning: #F59E0B;
-            --sidebar-width: 260px;
-            --sidebar-collapsed-width: 70px;
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 65px;
             --background: linear-gradient(135deg, #E8F4FD 0%, #F0F9FF 100%);
         }
         
@@ -133,6 +135,15 @@
             opacity: 0;
             width: 0;
             overflow: hidden;
+        }
+        
+        .sidebar.collapsed .sidebar-header {
+            padding: 1.5rem 0.5rem;
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .nav-brand {
+            display: none;
         }
         
         .sidebar-toggle {
@@ -314,56 +325,6 @@
             padding: 2rem 1.5rem;
         }
         
-        .btn {
-            padding: 0.625rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: inline-block;
-        }
-        
-        .btn-primary {
-            background: var(--primary-blue);
-            color: var(--white);
-        }
-        
-        .btn-primary:hover {
-            background: var(--dark-blue);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            color: var(--primary-blue);
-            border: 2px solid var(--primary-blue);
-        }
-        
-        .btn-outline:hover {
-            background: var(--primary-blue);
-            color: var(--white);
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: var(--white);
-        }
-        
-        .btn-danger:hover {
-            background: #DC2626;
-        }
-        
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-        
         /* Messages/Alerts */
         .messages {
             position: fixed;
@@ -536,8 +497,8 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="{% url 'home' %}" class="nav-brand">
-                    <span class="nav-icon">📚</span>
-                    <span class="nav-brand-text">Academic Assistant</span>
+                    <span class="nav-icon"><svg class="icon"><use href="#icon-book"></use></svg></span>
+                    <span class="nav-brand-text">Nk)mm)</span>
                 </a>
                 <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">
                     <span id="toggle-icon">‹</span>
@@ -549,19 +510,19 @@
                     <div class="nav-section-title">Main</div>
                     <div class="nav-links">
                         <a href="{% url 'home' %}">
-                            <span class="nav-icon">🏠</span>
+                            <span class="nav-icon"><svg class="icon"><use href="#icon-home"></use></svg></span>
                             <span class="nav-text">Home</span>
                         </a>
                         <a href="{% url 'group_list' %}">
-                            <span class="nav-icon">👥</span>
+                            <span class="nav-icon"><svg class="icon"><use href="#icon-users"></use></svg></span>
                             <span class="nav-text">Study Groups</span>
                         </a>
                         <a href="{% url 'view_documents' %}">
-                            <span class="nav-icon">📄</span>
+                            <span class="nav-icon"><svg class="icon"><use href="#icon-document"></use></svg></span>
                             <span class="nav-text">Documents</span>
                         </a>
                         <a href="{% url 'upload_document' %}">
-                            <span class="nav-icon">📤</span>
+                            <span class="nav-icon"><svg class="icon"><use href="#icon-upload"></use></svg></span>
                             <span class="nav-text">Upload</span>
                         </a>
                     </div>
@@ -571,15 +532,15 @@
                     <div class="nav-section-title">Social</div>
                     <div class="nav-links">
                         <a href="{% url 'discovery_home' %}">
-                            <span class="nav-icon">🔍</span>
+                            <span class="nav-icon"><svg class="icon"><use href="#icon-search"></use></svg></span>
                             <span class="nav-text">Discover</span>
                         </a>
                         <a href="{% url 'friends_list' %}">
-                            <span class="nav-icon">👤</span>
+                            <span class="nav-icon"><svg class="icon"><use href="#icon-user"></use></svg></span>
                             <span class="nav-text">Friends</span>
                         </a>
                         <a href="{% url 'private_chats_list' %}">
-                            <span class="nav-icon">💬</span>
+                            <span class="nav-icon"><svg class="icon"><use href="#icon-message"></use></svg></span>
                             <span class="nav-text">Messages</span>
                         </a>
                     </div>
@@ -589,7 +550,7 @@
                     <div class="nav-section-title">Account</div>
                     <div class="nav-links">
                         <a href="{% url 'profile' %}">
-                            <span class="nav-icon">⚙️</span>
+                            <span class="nav-icon"><svg class="icon"><use href="#icon-settings"></use></svg></span>
                             <span class="nav-text">Profile</span>
                         </a>
                     </div>
@@ -627,7 +588,7 @@
             <div style="background: var(--white); padding: 1rem 1.5rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
                 <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
                     <a href="{% url 'home' %}" class="nav-brand">
-                        <span style="font-size: 1.5rem;">📚</span>
+                        <svg class="icon" style="width: 1.5rem; height: 1.5rem;"><use href="#icon-book"></use></svg>
                         <span>Academic Assistant</span>
                     </a>
                     <div style="display: flex; gap: 1rem;">
@@ -711,5 +672,175 @@
             }
         });
     </script>
+
+    <!-- SVG Icon Definitions -->
+    <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <!-- Users/Groups Icon -->
+            <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </symbol>
+
+            <!-- Book/Library Icon -->
+            <symbol id="icon-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </symbol>
+
+            <!-- Upload Icon -->
+            <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </symbol>
+
+            <!-- Document/File Icon -->
+            <symbol id="icon-document" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </symbol>
+
+            <!-- Message/Chat Icon -->
+            <symbol id="icon-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </symbol>
+
+            <!-- Search Icon -->
+            <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </symbol>
+
+            <!-- Check/Success Icon -->
+            <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </symbol>
+
+            <!-- X/Close Icon -->
+            <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </symbol>
+
+            <!-- Arrow Right Icon -->
+            <symbol id="icon-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+            </symbol>
+
+            <!-- Key Icon -->
+            <symbol id="icon-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+            </symbol>
+
+            <!-- Home Icon -->
+            <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </symbol>
+
+            <!-- Clock/Pending Icon -->
+            <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </symbol>
+
+            <!-- Calendar Icon -->
+            <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </symbol>
+
+            <!-- User (single) Icon -->
+            <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </symbol>
+
+            <!-- Bell/Notification Icon -->
+            <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </symbol>
+
+            <!-- Settings/Gear Icon -->
+            <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </symbol>
+
+            <!-- Edit/Pencil Icon -->
+            <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </symbol>
+
+            <!-- Lock Icon -->
+            <symbol id="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </symbol>
+
+            <!-- Mail/Email Icon -->
+            <symbol id="icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+            </symbol>
+
+            <!-- Award/Badge Icon -->
+            <symbol id="icon-award" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </symbol>
+
+            <!-- Trash/Delete Icon -->
+            <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </symbol>
+
+            <!-- Alert/Warning Icon -->
+            <symbol id="icon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </symbol>
+
+            <!-- Sun/Light Mode Icon -->
+            <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </symbol>
+
+            <!-- Info Icon -->
+            <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </symbol>
+
+            <!-- Moon/Dark Mode Icon -->
+            <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </symbol>
+        </defs>
+    </svg>
+    
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -249,7 +249,7 @@ function copyCode() {
     navigator.clipboard.writeText(codeText).then(() => {
         const btn = event.target;
         const originalText = btn.textContent;
-        btn.textContent = '✓ Copied!';
+        btn.innerHTML = '<svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-check"></use></svg> Copied!';
         setTimeout(() => {
             btn.textContent = originalText;
         }, 2000);

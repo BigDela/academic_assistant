@@ -1,157 +1,35 @@
 {% extends 'base.html' %}
 {% block title %}Upload Document - Academic Assistant{% endblock %}
 {% block content %}
-<style>
-    .form-container {
-        max-width: 600px;
-        margin: 2rem auto;
-    }
-    
-    .form-card {
-        background: white;
-        border-radius: 16px;
-        padding: 3rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    }
-    
-    .form-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .form-header-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
-    
-    .form-header h1 {
-        color: var(--primary-blue);
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .form-header p {
-        color: var(--text-gray);
-    }
-    
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: var(--text-dark);
-    }
-    
-    .form-group input,
-    .form-group select {
-        width: 100%;
-        padding: 0.875rem 1rem;
-        border: 2px solid var(--border-color);
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: all 0.2s;
-    }
-    
-    .form-group input:focus,
-    .form-group select:focus {
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-        outline: none;
-    }
-    
-    .file-input-wrapper {
-        position: relative;
-        display: block;
-        cursor: pointer;
-    }
-    
-    .file-input-wrapper input[type="file"] {
-        cursor: pointer;
-    }
-    
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-    
-    .btn-submit {
-        flex: 1;
-        padding: 1rem;
-        background: var(--primary-blue);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .btn-submit:hover {
-        background: var(--dark-blue);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-    }
-    
-    .btn-cancel {
-        padding: 1rem 2rem;
-        background: transparent;
-        color: var(--text-gray);
-        border: 2px solid var(--border-color);
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s;
-        display: inline-block;
-    }
-    
-    .btn-cancel:hover {
-        border-color: var(--text-dark);
-        color: var(--text-dark);
-    }
-    
-    .help-text {
-        font-size: 0.875rem;
-        color: var(--text-gray);
-        margin-top: 0.25rem;
-    }
-</style>
 
 <div class="form-container">
-    <div class="form-card">
-        <div class="form-header">
-            <div class="form-header-icon">📤</div>
-            <h1>Upload Document</h1>
-            <p>Share notes, assignments, and study materials</p>
+    <div class="card">
+        <div class="text-center mb-4">
+            <svg class="icon-xxl icon-primary" style="margin-bottom: 1rem;"><use href="#icon-upload"></use></svg>
+            <h1 class="text-primary" style="font-size: 2rem; margin-bottom: 0.5rem;">Upload Document</h1>
+            <p class="text-muted">Share notes, assignments, and study materials</p>
         </div>
         
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% for field in form %}
                 <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {% if field.field.widget.input_type == 'file' %}
-                        <div class="file-input-wrapper">
-                            {{ field }}
-                        </div>
-                        <div class="help-text">Max file size: 10MB</div>
+                        {{ field }}
+                        <div class="form-help-text">Max file size: 10MB</div>
                     {% else %}
                         {{ field }}
                     {% endif %}
                     {% if field.help_text %}
-                        <div class="help-text">{{ field.help_text|safe }}</div>
+                        <div class="form-help-text">{{ field.help_text|safe }}</div>
                     {% endif %}
                 </div>
             {% endfor %}
             
-            <div class="form-actions">
-                <a href="{% url 'view_documents' %}" class="btn-cancel">Cancel</a>
-                <button type="submit" class="btn-submit">Upload Document</button>
+            <div class="flex gap-2 mt-4">
+                <a href="{% url 'view_documents' %}" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-block">Upload Document</button>
             </div>
         </form>
     </div>

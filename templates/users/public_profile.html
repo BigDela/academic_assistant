@@ -195,21 +195,21 @@
             <div class="profile-meta">
                 {% if profile.program_of_study %}
                 <div class="meta-item">
-                    <span class="meta-icon">🎓</span>
+                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-award"></use></svg></span>
                     <span>{{ profile.program_of_study }}</span>
                 </div>
                 {% endif %}
                 
                 {% if profile.year_level %}
                 <div class="meta-item">
-                    <span class="meta-icon">📚</span>
+                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-book"></use></svg></span>
                     <span>{{ profile.year_level }}</span>
                 </div>
                 {% endif %}
                 
                 {% if are_friends %}
                 <div class="friendship-badge">
-                    <span>✓</span>
+                    <span><svg class="icon-sm"><use href="#icon-check"></use></svg></span>
                     <span>Friends</span>
                 </div>
                 {% endif %}
@@ -221,24 +221,24 @@
     <div class="profile-actions">
         {% if are_friends %}
             <a href="{% url 'start_private_chat' profile_user.id %}" class="btn btn-primary">
-                💬 Send Message
+                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-message"></use></svg> Send Message
             </a>
             <a href="{% url 'remove_friend' profile_user.id %}" class="btn btn-outline" onclick="return confirm('Remove {{ profile_user.username }} from your friends?')">
-                ✕ Unfriend
+                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-x"></use></svg> Unfriend
             </a>
         {% else %}
             <a href="{% url 'add_friend_from_group' profile_user.id %}" class="btn btn-primary">
-                👤 Add Friend
+                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-user"></use></svg> Add Friend
             </a>
         {% endif %}
     </div>
     {% else %}
     <div class="profile-actions">
         <a href="{% url 'profile_edit' %}" class="btn btn-primary">
-            ✏️ Edit Profile
+            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-edit"></use></svg> Edit Profile
         </a>
         <a href="{% url 'user_info_edit' %}" class="btn btn-outline">
-            👤 Edit User Info
+            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-user"></use></svg> Edit User Info
         </a>
     </div>
     {% endif %}
@@ -246,7 +246,7 @@
     <div class="profile-sections">
         <div class="profile-section">
             <h2 class="section-title">
-                <span>ℹ️</span>
+                <span><svg class="icon-sm"><use href="#icon-info"></use></svg></span>
                 About
             </h2>
             <div class="section-content">

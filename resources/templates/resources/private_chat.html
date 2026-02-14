@@ -19,14 +19,14 @@
         height: 100vh;
         display: flex;
         flex-direction: column;
-        background: #f5f7fa;
+        background: var(--background);
     }
     
     /* Chat Header */
     .private-chat-header {
-        background: white;
+        background: var(--white);
         padding: 1rem 1.5rem;
-        border-bottom: 1px solid #e8e8e8;
+        border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
         gap: 1rem;
@@ -95,7 +95,7 @@
     }
     
     .message-date-divider span {
-        background: #f5f7fa;
+        background: var(--background);
         padding: 0.5rem 1rem;
         border-radius: 20px;
         font-size: 0.85rem;
@@ -107,16 +107,33 @@
     /* Message Bubbles */
     .message-wrapper {
         display: flex;
+        gap: 0.75rem;
         margin-bottom: 0.75rem;
         animation: messageSlideIn 0.3s ease;
     }
     
     .message-wrapper.own {
-        justify-content: flex-end;
+        flex-direction: row-reverse;
     }
     
     .message-wrapper.other {
-        justify-content: flex-start;
+        flex-direction: row;
+    }
+    
+    .message-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.95rem;
+        font-weight: bold;
+        flex-shrink: 0;
+        object-fit: cover;
+        margin-top: 0.25rem;
     }
     
     .message-bubble {
@@ -138,14 +155,15 @@
     }
     
     .message-wrapper.other .message-content {
-        background: white;
-        color: var(--text-dark);
+        background: #ffffff;
+        color: #2c3e50;
         border-bottom-left-radius: 4px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
     
     .message-text {
         margin-bottom: 0.25rem;
+        line-height: 1.4;
     }
     
     .message-meta {
@@ -162,7 +180,7 @@
     }
     
     .message-wrapper.other .message-meta {
-        color: var(--text-gray);
+        color: #6c757d;
     }
     
     /* Message Actions */
@@ -290,7 +308,13 @@
         border-radius: 4px;
         margin-bottom: 0.5rem;
         font-size: 0.85rem;
-        color: var(--text-gray);
+        color: #6c757d;
+    }
+    
+    .message-wrapper.own .parent-message {
+        background: rgba(255, 255, 255, 0.2);
+        border-left-color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.9);
     }
     
     /* Thread Replies */
@@ -307,8 +331,8 @@
     
     /* Input Area */
     .private-chat-input {
-        background: #FFFFFF;
-        border-top: 1px solid #e8e8e8;
+        background: var(--white);
+        border-top: 1px solid var(--border-color);
         padding: 1rem 1.5rem;
         flex-shrink: 0;
     }
@@ -317,21 +341,21 @@
         display: flex;
         gap: 0.75rem;
         align-items: flex-end;
-        background: #FFFFFF;
+        background: var(--white);
     }
     
     .message-input {
         flex: 1;
         padding: 0.75rem 1rem;
-        border: 2px solid #e8e8e8;
+        border: 2px solid var(--border-color);
         border-radius: 24px;
         resize: none;
         font-family: inherit;
         font-size: 0.95rem;
         max-height: 120px;
         transition: border-color 0.2s;
-        background: #FFFFFF;
-        color: #2C3E50;
+        background: var(--white);
+        color: var(--text-dark);
     }
     
     .message-input:focus {
@@ -364,7 +388,7 @@
     }
     
     .send-btn:disabled {
-        background: #ccc;
+        background: var(--text-gray);
         cursor: not-allowed;
         transform: none;
     }
@@ -385,6 +409,60 @@
             max-width: 80%;
         }
     }
+
+    /* Dark Mode - TEMPORARILY DISABLED
+    @media (prefers-color-scheme: dark) {
+        .private-chat-wrapper {
+            background: var(--background);
+        }
+
+        .private-chat-header {
+            background: var(--card-dark);
+            border-bottom-color: #444;
+        }
+
+        .header-name {
+            color: var(--text-dark);
+        }
+
+        .header-status {
+            color: var(--text-gray);
+        }
+
+        .private-chat-container {
+            background: var(--background);
+        }
+
+        .message-date-divider span {
+            background: var(--background);
+            color: var(--text-gray);
+        }
+
+        .message-wrapper.other .message-content {
+            background: #2a2a2a;
+            color: var(--text-dark);
+        }
+
+        .private-chat-input {
+            background: var(--card-dark);
+            border-top-color: #444;
+        }
+
+        .input-wrapper {
+            background: var(--card-dark);
+        }
+
+        .message-input {
+            background: var(--background);
+            color: var(--text-dark);
+            border-color: #444;
+        }
+
+        .message-input::placeholder {
+            color: #999;
+        }
+    }
+    */
 </style>
 
 <div class="private-chat-wrapper">
@@ -410,6 +488,17 @@
     <div class="private-chat-container" id="chat-container">
         {% for message in messages %}
         <div class="message-wrapper {% if message.sender == user %}own{% else %}other{% endif %}" data-message-id="{{ message.id }}">
+            <!-- Avatar -->
+            {% if message.sender != user %}
+                {% if message.sender.profile.profile_picture %}
+                <img src="{{ message.sender.profile.profile_picture.url }}" alt="{{ message.sender.username }}" class="message-avatar">
+                {% else %}
+                <div class="message-avatar">{{ message.sender.username.0|upper }}</div>
+                {% endif %}
+            {% else %}
+                <div style="width: 36px;"></div> {# Spacer for own messages #}
+            {% endif %}
+            
             <div class="message-bubble">
                 <div class="message-content">
                     {% if message.parent_message %}
@@ -466,6 +555,10 @@
   const chatId = {{ chat.id }};
   const currentUser = '{{ user.username }}';
   const otherUser = '{{ other_user.username }}';
+  const currentUserProfilePicture = {% if user.profile.profile_picture %}"{{ user.profile.profile_picture.url }}"{% else %}null{% endif %};
+  const currentUserInitials = "{{ user.profile.get_initials }}";
+  const otherUserProfilePicture = {% if other_user.profile.profile_picture %}"{{ other_user.profile.profile_picture.url }}"{% else %}null{% endif %};
+  const otherUserInitials = "{{ other_user.profile.get_initials }}";
   
   // Initialize Pusher
   const pusher = new Pusher('{{ pusher_key }}', {
@@ -547,7 +640,20 @@
       `;
     }
     
+    // Build avatar HTML
+    let avatarHtml = '';
+    if (!isOwn) {
+      if (otherUserProfilePicture) {
+        avatarHtml = `<img src="${otherUserProfilePicture}" alt="${otherUser}" class="message-avatar">`;
+      } else {
+        avatarHtml = `<div class="message-avatar">${otherUserInitials}</div>`;
+      }
+    } else {
+      avatarHtml = `<div style="width: 36px;"></div>`; // Spacer for own messages
+    }
+    
     wrapper.innerHTML = `
+      ${avatarHtml}
       <div class="message-bubble">
         <div class="message-content">
           ${parentHtml}

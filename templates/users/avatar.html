@@ -1,0 +1,14 @@
+{% comment %}
+Avatar template for consistent user profile picture display
+{% endcomment %}
+{% if profile_picture_url %}
+    <img src="{{ profile_picture_url }}" 
+         alt="{{ user.username }}" 
+         class="user-avatar {{ css_class }}"
+         style="width: {{ size }}; height: {{ size }}; border-radius: 50%; object-fit: cover;">
+{% else %}
+    <div class="user-avatar user-avatar-default {{ css_class }}"
+         style="width: {{ size }}; height: {{ size }}; border-radius: 50%; background: linear-gradient(135deg, #4A90E2, #357ABD); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; flex-shrink: 0;">
+        {{ initials }}
+    </div>
+{% endif %}

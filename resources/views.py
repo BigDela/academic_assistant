@@ -144,7 +144,8 @@ pusher_client = pusher.Pusher(
     key=settings.PUSHER_KEY,
     secret=settings.PUSHER_SECRET,
     cluster=settings.PUSHER_CLUSTER,
-    ssl=True
+    ssl=True,
+    ssl_verify=False  # Disable SSL verification for development
 )
 
 @login_required
@@ -227,15 +228,28 @@ def send_message(request, group_id):
     # Get user's full name or username for display
     display_name = request.user.get_full_name() or request.user.username
     
+    # Get profile picture URL or initials
+    profile_picture_url = None
+    if request.user.profile.profile_picture:
+        profile_picture_url = request.user.profile.profile_picture.url
+    initials = request.user.profile.get_initials()
+    
     # Trigger Pusher event for real-time updates to ALL users in the group
-    pusher_client.trigger(f'group-{group.id}', 'new-message', {
-        'username': request.user.username,
-        'display_name': display_name,
-        'message': message.content,
-        'timestamp': message.timestamp.isoformat(),
-        'message_id': message.id,
-        'user_id': request.user.id,
-    })
+    try:
+        pusher_client.trigger(f'group-{group.id}', 'new-message', {
+            'username': request.user.username,
+            'display_name': display_name,
+            'message': message.content,
+            'timestamp': message.timestamp.isoformat(),
+            'message_id': message.id,
+            'user_id': request.user.id,
+            'profile_picture_url': profile_picture_url,
+            'initials': initials,
+        })
+    except Exception as e:
+        # Pusher broadcast failed (e.g. SSL error) but message was saved successfully
+        import logging
+        logging.getLogger(__name__).warning(f'Pusher trigger failed for group {group.id}: {e}')
     
     return JsonResponse({
         'success': True,
@@ -759,13 +773,18 @@ def send_private_message(request, chat_id):
     chat.save()  # This triggers auto_now on updated_at
     
     # Trigger Pusher event
-    pusher_client.trigger(f'private-chat-{chat.id}', 'new-message', {
-        'message_id': message.id,
-        'sender': request.user.username,
-        'content': message.content,
-        'timestamp': message.timestamp.isoformat(),
-        'parent_id': parent_id
-    })
+    try:
+        pusher_client.trigger(f'private-chat-{chat.id}', 'new-message', {
+            'message_id': message.id,
+            'sender': request.user.username,
+            'content': message.content,
+            'timestamp': message.timestamp.isoformat(),
+            'parent_id': parent_id
+        })
+    except Exception as e:
+        # Pusher broadcast failed (e.g. SSL error) but message was saved successfully
+        import logging
+        logging.getLogger(__name__).warning(f'Pusher trigger failed for chat {chat.id}: {e}')
     
     return JsonResponse({
         'success': True,

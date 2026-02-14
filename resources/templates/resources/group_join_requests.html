@@ -237,12 +237,12 @@
                 </div>
                 
                 <div class="group-badge">
-                    👥 {{ request.group.name }}
+                    <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-users"></use></svg> {{ request.group.name }}
                 </div>
             </div>
             
             <div class="request-date">
-                📅 Requested {{ request.created_at|timesince }} ago
+                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-calendar"></use></svg> Requested {{ request.created_at|timesince }} ago
             </div>
             
             {% if request.message %}
@@ -253,10 +253,10 @@
             
             <div class="action-buttons">
                 <button class="btn-approve" onclick="handleRequest({{ request.id }}, 'approve')">
-                    ✓ Approve
+                    <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-check"></use></svg> Approve
                 </button>
-                <button class="btn-reject" onclick="handleRequest({{ request.id }}, 'reject')">
-                    ✕ Reject
+                <button class="btn-small btn-decline" onclick="handleRequest({{ request.id }}, 'reject')">
+                    <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-x"></use></svg> Reject
                 </button>
             </div>
         </div>

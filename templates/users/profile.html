@@ -83,6 +83,7 @@
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
+        margin-bottom: 3rem;
     }
     
     .profile-sections {
@@ -201,20 +202,20 @@
             <div class="profile-meta">
                 {% if profile.program_of_study %}
                 <div class="meta-item">
-                    <span class="meta-icon">🎓</span>
+                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-award"></use></svg></span>
                     <span>{{ profile.program_of_study }}</span>
                 </div>
                 {% endif %}
                 
                 {% if profile.year_level %}
                 <div class="meta-item">
-                    <span class="meta-icon">📚</span>
+                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-book"></use></svg></span>
                     <span>{{ profile.year_level }}</span>
                 </div>
                 {% endif %}
                 
                 <div class="meta-item">
-                    <span class="meta-icon">✉️</span>
+                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-mail"></use></svg></span>
                     <span>{{ user.email }}</span>
                 </div>
             </div>
@@ -223,27 +224,29 @@
     
     <div class="profile-actions">
         <a href="{% url 'profile_edit' %}" class="btn btn-primary">
-            ✏️ Edit Profile
+            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-edit"></use></svg> Edit Profile
         </a>
         <a href="{% url 'user_info_edit' %}" class="btn btn-outline">
-            👤 Edit User Info
+            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-user"></use></svg> Edit User Info
         </a>
         <a href="{% url 'change_password' %}" class="btn btn-outline">
-            🔒 Change Password
+            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-lock"></use></svg> Change Password
         </a>
+        <!-- Dark mode temporarily disabled
         <a href="{% url 'toggle_theme' %}?next={{ request.path }}" class="theme-toggle">
             {% if profile.theme_preference == 'light' %}
-                🌙 Dark Mode
+                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-moon"></use></svg> Dark Mode
             {% else %}
-                ☀️ Light Mode
+                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-sun"></use></svg> Light Mode
             {% endif %}
         </a>
+        -->
     </div>
     
     <div class="profile-sections">
         <div class="profile-section">
             <h2 class="section-title">
-                <span>ℹ️</span>
+                <span><svg class="icon-sm"><use href="#icon-info"></use></svg></span>
                 About Me
             </h2>
             <div class="section-content">
@@ -283,9 +286,9 @@
                     <div class="info-label">Theme Preference</div>
                     <div class="info-value">
                         {% if profile.theme_preference == 'light' %}
-                            ☀️ Light Mode
+                            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-sun"></use></svg> Light Mode
                         {% else %}
-                            🌙 Dark Mode
+                            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-moon"></use></svg> Dark Mode
                         {% endif %}
                     </div>
                 </div>

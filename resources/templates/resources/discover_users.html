@@ -261,7 +261,7 @@
 <div class="discover-container">
     <div class="page-header">
         <a href="{% url 'discovery_home' %}" style="color: var(--text-gray); text-decoration: none; margin-right: 1rem;">← Back</a>
-        <h1>👥 Discover People</h1>
+        <h1><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-users"></use></svg> Discover People</h1>
         <p>Find your next study buddy</p>
     </div>
     
@@ -280,7 +280,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="search-btn">🔍 Search</button>
+            <button type="submit" class="search-btn"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-search"></use></svg> Search</button>
         </form>
     </div>
     
@@ -321,9 +321,9 @@
             </div>
             
             <div class="action-buttons">
-                <button class="action-btn btn-reject" onclick="handleAction({{ discovered_user.id }}, 'reject')">✕</button>
-                <button class="action-btn btn-skip" onclick="handleAction({{ discovered_user.id }}, 'skip')">→</button>
-                <button class="action-btn btn-accept" onclick="handleAction({{ discovered_user.id }}, 'accept')">✓</button>
+                <button class="action-btn btn-reject" onclick="handleAction({{ discovered_user.id }}, 'reject')"><svg class="icon-sm"><use href="#icon-x"></use></svg></button>
+                <button class="action-btn btn-skip" onclick="handleAction({{ discovered_user.id }}, 'skip')"><svg class="icon-sm"><use href="#icon-arrow-right"></use></svg></button>
+                <button class="action-btn btn-accept" onclick="handleAction({{ discovered_user.id }}, 'accept')"><svg class="icon-sm"><use href="#icon-check"></use></svg></button>
             </div>
         </div>
         {% endfor %}

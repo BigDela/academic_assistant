@@ -8,10 +8,11 @@
     }
     
     .group-detail-container {
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0 auto;
     }
     
+    /* Header Section */
     .group-header-card {
         background: white;
         border-radius: 16px;
@@ -48,6 +49,7 @@
         color: var(--text-gray);
         line-height: 1.6;
         margin-bottom: 1.5rem;
+        font-size: 1rem;
     }
     
     .group-stats {
@@ -57,6 +59,7 @@
         background: var(--light-blue);
         border-radius: 12px;
         margin-bottom: 1.5rem;
+        flex-wrap: wrap;
     }
     
     .stat-item {
@@ -91,6 +94,203 @@
         font-weight: 500;
     }
     
+    /* Tabs Navigation */
+    .tabs-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .tabs-nav {
+        display: flex;
+        border-bottom: 2px solid var(--border-color);
+        background: #f8f9fa;
+        overflow-x: auto;
+    }
+    
+    .tab-button {
+        flex: 1;
+        min-width: 140px;
+        padding: 1rem 1.5rem;
+        border: none;
+        background: transparent;
+        color: var(--text-gray);
+        font-weight: 500;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-bottom: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .tab-button:hover {
+        background: #e9ecef;
+        color: var(--text-dark);
+    }
+    
+    .tab-button.active {
+        color: var(--primary-blue);
+        border-bottom-color: var(--primary-blue);
+        background: white;
+    }
+    
+    .tab-content {
+        display: none;
+        padding: 2rem;
+    }
+    
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Members List */
+    .members-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .member-card {
+        background: var(--light-blue);
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s;
+    }
+    
+    .member-card:hover {
+        background: #d0e7f9;
+        transform: translateY(-2px);
+    }
+    
+    .member-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        object-fit: cover;
+    }
+    
+    .member-info {
+        flex: 1;
+    }
+    
+    .member-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+    }
+    
+    .member-role {
+        font-size: 0.85rem;
+        color: var(--primary-blue);
+        font-weight: 500;
+    }
+    
+    /* Media/Documents Grid */
+    .media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .media-card {
+        background: white;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .media-card:hover {
+        border-color: var(--primary-blue);
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .media-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        background: var(--light-blue);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .media-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        word-break: break-word;
+    }
+    
+    .media-meta {
+        font-size: 0.8rem;
+        color: var(--text-gray);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-gray);
+    }
+    
+    .empty-state svg {
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    /* About Section */
+    .about-content {
+        line-height: 1.8;
+    }
+    
+    .info-row {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        min-width: 150px;
+    }
+    
+    .info-value {
+        color: var(--text-gray);
+        flex: 1;
+    }
+    
     .back-link {
         display: inline-flex;
         align-items: center;
@@ -98,11 +298,33 @@
         color: var(--text-gray);
         text-decoration: none;
         margin-bottom: 1rem;
-        transition: color 0.2s;
+.back-link:hover {
+        color: var(--primary-blue);
     }
     
-    .back-link:hover {
-        color: var(--primary-blue);
+    /* Responsive */
+    @media (max-width: 768px) {
+        .group-stats {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .members-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .media-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+        
+        .tabs-nav {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        
+        .tab-button {
+            white-space: nowrap;
+        }
     }
 </style>
 
@@ -111,31 +333,37 @@
 </a>
 
 <div class="group-detail-container">
+    <!-- Group Header -->
     <div class="group-header-card">
         <div class="group-title-section">
-            <div class="group-avatar">📚</div>
+            <div class="group-avatar"><svg class="icon-xl icon-white"><use href="#icon-book"></use></svg></div>
             <div class="group-title">
                 <h1>{{ group.name }}</h1>
                 {% if user in group.members.all %}
-                    <span class="membership-badge">✓ Member</span>
+                    <span class="membership-badge"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-check"></use></svg> Member</span>
                 {% endif %}
             </div>
         </div>
         
         {% if group.description %}
             <p class="group-description">{{ group.description }}</p>
+        {% else %}
+            <p class="group-description" style="font-style: italic;">No description provided.</p>
         {% endif %}
         
         <div class="group-stats">
             <div class="stat-item">
+                <svg class="icon-sm icon-primary"><use href="#icon-user"></use></svg>
                 <span class="stat-label">Created by:</span>
                 <span class="stat-value">{{ group.creator.username }}</span>
             </div>
             <div class="stat-item">
+                <svg class="icon-sm icon-primary"><use href="#icon-users"></use></svg>
                 <span class="stat-label">Members:</span>
                 <span class="stat-value">{{ group.members.count }}</span>
             </div>
             <div class="stat-item">
+                <svg class="icon-sm icon-primary"><use href="#icon-calendar"></use></svg>
                 <span class="stat-label">Created:</span>
                 <span class="stat-value">{{ group.created_at|date:"M d, Y" }}</span>
             </div>
@@ -144,13 +372,13 @@
         <div class="group-actions">
             {% if user in group.members.all %}
                 <a href="{% url 'group_chat' group.id %}" class="btn btn-primary">
-                    💬 Open Chat
+                    <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-message"></use></svg> Open Chat
                 </a>
                 
                 <!-- Management Actions for Creator/Admins -->
                 {% if user == group.creator or user in group.admins.all %}
                     <a href="{% url 'manage_permissions' group.id %}" class="btn btn-outline">
-                        👥 Manage Permissions
+                        <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-users"></use></svg> Manage Permissions
                     </a>
                     <a href="{% url 'group_invites' group.id %}" class="btn btn-outline">
                         🔗 Invites
@@ -160,21 +388,21 @@
                 <!-- Edit Group (Creators and Editors) -->
                 {% if user == group.creator or user in group.admins.all or user in group.editors.all %}
                     <a href="{% url 'edit_group' group.id %}" class="btn btn-outline">
-                        ✏️ Edit Group
+                        <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-edit"></use></svg> Edit Group
                     </a>
                 {% endif %}
                 
                 <!-- Leave Group (Non-creators) -->
                 {% if user != group.creator %}
                     <a href="{% url 'leave_group' group.id %}" class="btn btn-outline" style="color: #ffc107; border-color: #ffc107;">
-                        👋 Leave Group
+                        <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-arrow-right"></use></svg> Leave Group
                     </a>
                 {% endif %}
                 
                 <!-- Delete Group (Creator only) -->
                 {% if user == group.creator %}
                     <a href="{% url 'delete_group' group.id %}" class="btn btn-outline" style="color: #dc3545; border-color: #dc3545;">
-                        🗑️ Delete Group
+                        <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-trash"></use></svg> Delete Group
                     </a>
                 {% endif %}
             {% else %}
@@ -187,6 +415,159 @@
             </a>
         </div>
     </div>
+    
+    <!-- Tabs Section -->
+    <div class="tabs-container">
+        <div class="tabs-nav">
+            <button class="tab-button active" onclick="switchTab(event, 'about')">
+                <svg class="icon-sm"><use href="#icon-info"></use></svg>
+                About
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'members')">
+                <svg class="icon-sm"><use href="#icon-users"></use></svg>
+                Members ({{ group.members.count }})
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'media')">
+                <svg class="icon-sm"><use href="#icon-file"></use></svg>
+                Media ({{ group.documents.count }})
+            </button>
+        </div>
+        
+        <!-- About Tab -->
+        <div id="about" class="tab-content active">
+            <div class="about-content">
+                <h3 style="color: var(--text-dark); margin-bottom: 1.5rem;">Group Information</h3>
+                
+                <div class="info-row">
+                    <div class="info-label">Group Name</div>
+                    <div class="info-value">{{ group.name }}</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Description</div>
+                    <div class="info-value">
+                        {% if group.description %}
+                            {{ group.description }}
+                        {% else %}
+                            <em>No description provided</em>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Created By</div>
+                    <div class="info-value">{{ group.creator.username }}</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Created On</div>
+                    <div class="info-value">{{ group.created_at|date:"F j, Y" }} at {{ group.created_at|date:"g:i A" }}</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Total Members</div>
+                    <div class="info-value">{{ group.members.count }} member{{ group.members.count|pluralize }}</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Invite Code</div>
+                    <div class="info-value">
+                        {% if group.is_invite_active %}
+                            <code style="background: var(--light-blue); padding: 0.25rem 0.5rem; border-radius: 4px;">{{ group.invite_code }}</code>
+                        {% else %}
+                            <em>Invite disabled</em>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Members Tab -->
+        <div id="members" class="tab-content">
+            <h3 style="color: var(--text-dark); margin-bottom: 1.5rem;">Group Members</h3>
+            
+            {% if group.members.exists %}
+                <div class="members-grid">
+                    {% for member in group.members.all %}
+                        <div class="member-card">
+                            {% if member.profile.profile_picture %}
+                            <img src="{{ member.profile.profile_picture.url }}" alt="{{ member.username }}" class="member-avatar">
+                            {% else %}
+                            <div class="member-avatar">{{ member.username.0|upper }}</div>
+                            {% endif %}
+                            <div class="member-info">
+                                <div class="member-name">{{ member.username }}</div>
+                                <div class="member-role">
+                                    {% if member == group.creator %}
+                                        👑 Creator
+                                    {% elif member in group.admins.all %}
+                                        🔧 Admin
+                                    {% elif member in group.editors.all %}
+                                        ✏️ Editor
+                                    {% else %}
+                                        Member
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <svg class="icon-xxl icon-muted"><use href="#icon-users"></use></svg>
+                    <p>No members yet</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Media/Documents Tab -->
+        <div id="media" class="tab-content">
+            <h3 style="color: var(--text-dark); margin-bottom: 1.5rem;">Shared Documents & Media</h3>
+            
+            {% if group.documents.exists %}
+                <div class="media-grid">
+                    {% for doc in group.documents.all %}
+                        <a href="{{ doc.file.url }}" target="_blank" class="media-card" style="text-decoration: none;">
+                            <div class="media-icon">
+                                <svg class="icon-lg icon-primary"><use href="#icon-file"></use></svg>
+                            </div>
+                            <div class="media-title">{{ doc.title }}</div>
+                            <div class="media-meta">
+                                by {{ doc.uploaded_by.username }}<br>
+                                {{ doc.uploaded_at|date:"M d, Y" }}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <svg class="icon-xxl icon-muted"><use href="#icon-file"></use></svg>
+                    <p>No documents shared yet</p>
+                    {% if user in group.members.all %}
+                        <a href="{% url 'upload_document' %}" class="btn btn-primary" style="margin-top: 1rem;">
+                            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-upload"></use></svg> Upload Document
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
+
+<script>
+function switchTab(event, tabId) {
+    // Remove active class from all tabs and buttons
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked button and corresponding tab
+    event.currentTarget.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+}
+</script>
 {% endblock %}
 

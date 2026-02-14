@@ -177,7 +177,7 @@
             <div class="request-card">
                 <div class="request-header">
                     <div class="group-info">
-                        <div class="group-icon">👥</div>
+                        <div class="group-icon"><svg class="icon-xl icon-primary"><use href="#icon-users"></use></svg></div>
                         <div class="group-details">
                             <h3>{{ request.group.name }}</h3>
                             <div class="group-meta">
@@ -185,7 +185,7 @@
                             </div>
                         </div>
                     </div>
-                    <span class="status-badge status-pending">⏳ Pending</span>
+                    <span class="status-badge status-pending"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-clock"></use></svg> Pending</span>
                 </div>
                 
                 {% if request.message %}
@@ -195,13 +195,13 @@
                 {% endif %}
                 
                 <div class="request-footer">
-                    <span>📅 Requested {{ request.created_at|timesince }} ago</span>
+                    <span><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-calendar"></use></svg> Requested {{ request.created_at|timesince }} ago</span>
                 </div>
             </div>
             {% endfor %}
         {% else %}
         <div class="empty-state">
-            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-icon"><svg class="icon-xxl icon-muted"><use href="#icon-users"></use></svg></div>
             <h3>No Pending Requests</h3>
             <p>You don't have any pending group join requests.</p>
             <a href="{% url 'discover_groups' %}" class="btn btn-primary">Discover Groups</a>
@@ -226,7 +226,7 @@
                             </div>
                         </div>
                     </div>
-                    <span class="status-badge status-approved">✓ Approved</span>
+                    <span class="status-badge status-approved"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-check"></use></svg> Approved</span>
                 </div>
                 
                 {% if request.message %}
@@ -236,20 +236,20 @@
                 {% endif %}
                 
                 <div class="request-footer">
-                    <span>📅 Approved {{ request.updated_at|timesince }} ago</span>
+                    <span><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-calendar"></use></svg> Approved {{ request.updated_at|timesince }} ago</span>
                     {% if request.reviewed_by %}
                     <span>by {{ request.reviewed_by.get_full_name|default:request.reviewed_by.username }}</span>
                     {% endif %}
                 </div>
                 
                 <a href="{% url 'group_chat' request.group.id %}" class="btn btn-primary" style="margin-top: 1rem;">
-                    💬 Go to Group Chat
+                    <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-message"></use></svg> Go to Group Chat
                 </a>
             </div>
             {% endfor %}
         {% else %}
         <div class="empty-state">
-            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-icon"><svg class="icon-xxl icon-muted"><use href="#icon-users"></use></svg></div>
             <h3>No Approved Requests</h3>
             <p>You don't have any approved group join requests yet.</p>
         </div>
@@ -273,7 +273,7 @@
                             </div>
                         </div>
                     </div>
-                    <span class="status-badge status-rejected">✕ Rejected</span>
+                    <span class="status-badge status-rejected"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-x"></use></svg> Rejected</span>
                 </div>
                 
                 {% if request.message %}
@@ -283,7 +283,7 @@
                 {% endif %}
                 
                 <div class="request-footer">
-                    <span>📅 Rejected {{ request.updated_at|timesince }} ago</span>
+                    <span><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-calendar"></use></svg> Rejected {{ request.updated_at|timesince }} ago</span>
                     {% if request.reviewed_by %}
                     <span>by {{ request.reviewed_by.get_full_name|default:request.reviewed_by.username }}</span>
                     {% endif %}

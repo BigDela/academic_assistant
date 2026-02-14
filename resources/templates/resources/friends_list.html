@@ -22,7 +22,7 @@
     }
     
     .section {
-        background: white;
+        background: var(--white);
         border-radius: 16px;
         padding: 1.5rem;
         margin-bottom: 2rem;
@@ -30,7 +30,7 @@
     }
     
     .section-title {
-        color: var(--text-dark);
+        color: #2c3e50;
         font-size: 1.25rem;
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
@@ -78,7 +78,7 @@
     }
     
     .friend-name {
-        color: var(--text-dark);
+        color: #2c3e50;
         font-weight: 600;
         margin-bottom: 0.25rem;
     }
@@ -111,7 +111,7 @@
     }
     
     .btn-remove {
-        background: #dc3545;
+        background: var(--danger);
         color: white;
     }
     
@@ -120,7 +120,7 @@
     }
     
     .btn-accept {
-        background: #28a745;
+        background: var(--success);
         color: white;
     }
     
@@ -129,7 +129,7 @@
     }
     
     .btn-decline {
-        background: #6c757d;
+        background: var(--text-gray);
         color: white;
     }
     
@@ -149,20 +149,20 @@
     .empty-state {
         text-align: center;
         padding: 2rem;
-        color: var(--text-gray);
+        color: #6c757d;
     }
 </style>
 
 <div class="friends-container">
     <div class="page-header">
-        <h1>👥 Friends</h1>
+        <h1><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-users"></use></svg> Friends</h1>
         <a href="{% url 'add_friend' %}" class="btn btn-primary">+ Add Friend</a>
     </div>
 
     <!-- Friend Requests Received -->
     {% if received_requests %}
     <div class="section">
-        <h2 class="section-title">🔔 Friend Requests ({{ received_requests.count }})</h2>
+        <h2 class="section-title"><svg class="icon" style="vertical-align: middle;"><use href="#icon-bell"></use></svg> Friend Requests ({{ received_requests.count }})</h2>
         <div class="friends-grid">
             {% for request in received_requests %}
             <div class="friend-card">
@@ -180,7 +180,7 @@
                     <small style="color: var(--text-gray);">{{ request.created_at|timesince }} ago</small>
                 </div>
                 <div class="friend-actions">
-                    <a href="{% url 'accept_friend_request' request.id %}" class="btn-small btn-accept">✓</a>
+                    <a href="{% url 'accept_friend_request' request.id %}" class="btn-small btn-accept"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-check"></use></svg></a>
                     <a href="{% url 'decline_friend_request' request.id %}" class="btn-small btn-decline">✗</a>
                 </div>
             </div>
@@ -209,9 +209,9 @@
                     </a>
                 </div>
                 <div class="friend-actions">
-                    <a href="{% url 'start_private_chat' friend.id %}" class="btn-small btn-chat">💬</a>
+                    <a href="{% url 'start_private_chat' friend.id %}" class="btn-small btn-chat"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-message"></use></svg></a>
                     <a href="{% url 'remove_friend' friend.id %}" class="btn-small btn-remove" 
-                       onclick="return confirm('Remove {{ friend.username }} from friends?')">🗑</a>
+                       onclick="return confirm('Remove {{ friend.username }} from friends?')"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-trash"></use></svg></a>
                 </div>
             </div>
             {% endfor %}
@@ -226,7 +226,7 @@
     <!-- Pending Sent Requests -->
     {% if sent_requests %}
     <div class="section">
-        <h2 class="section-title">⏳ Pending Requests ({{ sent_requests.count }})</h2>
+        <h2 class="section-title"><svg class="icon" style="vertical-align: middle;"><use href="#icon-clock"></use></svg> Pending Requests ({{ sent_requests.count }})</h2>
         <div class="friends-grid">
             {% for request in sent_requests %}
             <div class="friend-card">

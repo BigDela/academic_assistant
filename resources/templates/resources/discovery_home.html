@@ -141,15 +141,21 @@
     }
     
     .info-section li:before {
-        content: "✓";
-        color: var(--success);
-        font-weight: bold;
+        content: "";
+        width: 1rem;
+        height: 1rem;
+        background: var(--success);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
     }
 </style>
 
 <div class="discovery-container">
     <div class="page-header">
-        <h1>🔍 Discover</h1>
+        <h1><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-search"></use></svg> Discover</h1>
         <p>Find friends and groups that match your interests and courses</p>
     </div>
     
@@ -184,14 +190,14 @@
     
     <div class="discovery-options">
         <div class="discovery-card">
-            <div class="discovery-icon">👥</div>
+            <div class="discovery-icon"><svg class="icon-xxl icon-primary"><use href="#icon-users"></use></svg></div>
             <h2>Discover People</h2>
             <p>Find classmates and students with similar interests. Connect with people from your course, program, or year level.</p>
             <a href="{% url 'discover_users' %}" class="discover-btn">Find Friends</a>
         </div>
         
         <div class="discovery-card">
-            <div class="discovery-icon">📚</div>
+            <div class="discovery-icon"><svg class="icon-xxl icon-primary"><use href="#icon-book"></use></svg></div>
             <h2>Discover Groups</h2>
             <p>Join study groups related to your courses. Collaborate with peers and access shared resources.</p>
             <a href="{% url 'discover_groups' %}" class="discover-btn">Find Groups</a>
@@ -200,7 +206,7 @@
     
     {% if pending_join_requests > 0 %}
     <div class="info-section" style="background: #FEF3C7; border-left: 4px solid var(--warning);">
-        <h3>⏳ Pending Actions</h3>
+        <h3><svg class="icon" style="vertical-align: middle;"><use href="#icon-clock"></use></svg> Pending Actions</h3>
         <p>You have <strong>{{ pending_join_requests }}</strong> group join request(s) waiting for review.</p>
         <a href="{% url 'group_join_requests_manage' %}" class="btn btn-primary" style="margin-top: 1rem;">Review Requests</a>
     </div>

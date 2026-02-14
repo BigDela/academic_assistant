@@ -48,6 +48,13 @@ class UserProfile(models.Model):
         return f"{self.user.username}'s Profile"
     
     def get_profile_picture_url(self):
+        """Get profile picture URL or return None for default avatar"""
         if self.profile_picture:
             return self.profile_picture.url
         return None
+    
+    def get_initials(self):
+        """Get user initials for default avatar"""
+        if self.user.first_name and self.user.last_name:
+            return f"{self.user.first_name[0]}{self.user.last_name[0]}".upper()
+        return self.user.username[0].upper()
