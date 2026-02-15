@@ -321,9 +321,9 @@
             </div>
             
             <div class="action-buttons">
-                <button class="action-btn btn-reject" onclick="handleAction({{ discovered_user.id }}, 'reject')"><svg class="icon-sm"><use href="#icon-x"></use></svg></button>
-                <button class="action-btn btn-skip" onclick="handleAction({{ discovered_user.id }}, 'skip')"><svg class="icon-sm"><use href="#icon-arrow-right"></use></svg></button>
-                <button class="action-btn btn-accept" onclick="handleAction({{ discovered_user.id }}, 'accept')"><svg class="icon-sm"><use href="#icon-check"></use></svg></button>
+                <button class="action-btn btn-reject" data-user-id="{{ discovered_user.id }}" data-action="reject"><svg class="icon-sm"><use href="#icon-x"></use></svg></button>
+                <button class="action-btn btn-skip" data-user-id="{{ discovered_user.id }}" data-action="skip"><svg class="icon-sm"><use href="#icon-arrow-right"></use></svg></button>
+                <button class="action-btn btn-accept" data-user-id="{{ discovered_user.id }}" data-action="accept"><svg class="icon-sm"><use href="#icon-check"></use></svg></button>
             </div>
         </div>
         {% endfor %}
@@ -340,8 +340,10 @@
 
 <div id="toast" class="toast"></div>
 
+{{ users|length|add:"-1"|json_script:"users-count" }}
+
 <script>
-let currentCardIndex = {{ users|length|add:"-1" }};
+let currentCardIndex = JSON.parse(document.getElementById('users-count').textContent);
 const cards = document.querySelectorAll('.discovery-card');
 
 // Position cards in stack
@@ -350,6 +352,13 @@ cards.forEach((card, index) => {
     if (index !== currentCardIndex) {
         card.style.display = 'none';
     }
+});
+
+// Attach click handlers to action buttons
+document.querySelectorAll('.action-btn[data-user-id]').forEach(btn => {
+    btn.addEventListener('click', function() {
+        handleAction(this.dataset.userId, this.dataset.action);
+    });
 });
 
 function handleAction(userId, action) {

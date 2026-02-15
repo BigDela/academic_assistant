@@ -277,9 +277,9 @@
             </div>
             
             <div class="action-buttons">
-                <button class="action-btn btn-reject" onclick="handleAction({{ group.id }}, 'not_interested')"><svg class="icon-sm"><use href="#icon-x"></use></svg></button>
-                <button class="action-btn btn-skip" onclick="handleAction({{ group.id }}, 'skip')"><svg class="icon-sm"><use href="#icon-arrow-right"></use></svg></button>
-                <button class="action-btn btn-accept" onclick="handleAction({{ group.id }}, 'interested')"><svg class="icon-sm"><use href="#icon-check"></use></svg></button>
+                <button class="action-btn btn-reject" data-action="not_interested"><svg class="icon-sm"><use href="#icon-x"></use></svg></button>
+                <button class="action-btn btn-skip" data-action="skip"><svg class="icon-sm"><use href="#icon-arrow-right"></use></svg></button>
+                <button class="action-btn btn-accept" data-action="interested"><svg class="icon-sm"><use href="#icon-check"></use></svg></button>
             </div>
         </div>
         {% endfor %}
@@ -297,7 +297,8 @@
 <div id="toast" class="toast"></div>
 
 <script>
-let currentCardIndex = {{ groups|length|add:"-1" }};
+var groupCount = JSON.parse('{{ groups|length }}');
+let currentCardIndex = groupCount - 1;
 const cards = document.querySelectorAll('.discovery-card');
 
 // Position cards in stack
@@ -306,6 +307,16 @@ cards.forEach((card, index) => {
     if (index !== currentCardIndex) {
         card.style.display = 'none';
     }
+});
+
+// Add event listeners to action buttons
+document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const card = this.closest('.discovery-card');
+        const groupId = card.dataset.groupId;
+        const action = this.dataset.action;
+        handleAction(groupId, action);
+    });
 });
 
 function handleAction(groupId, action) {

@@ -592,14 +592,21 @@
 </div>
 
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+{{ chat.id|json_script:"chat-id-data" }}
+{{ user.username|json_script:"current-user-data" }}
+{{ other_user.username|json_script:"other-user-data" }}
+{{ user.profile.get_initials|json_script:"current-user-initials-data" }}
+{{ other_user.profile.get_initials|json_script:"other-user-initials-data" }}
+{% if user.profile.profile_picture %}{{ user.profile.profile_picture.url|json_script:"current-user-pp-data" }}{% else %}{{ ""|json_script:"current-user-pp-data" }}{% endif %}
+{% if other_user.profile.profile_picture %}{{ other_user.profile.profile_picture.url|json_script:"other-user-pp-data" }}{% else %}{{ ""|json_script:"other-user-pp-data" }}{% endif %}
 <script>
-  const chatId = {{ chat.id }};
-  const currentUser = '{{ user.username }}';
-  const otherUser = '{{ other_user.username }}';
-  const currentUserProfilePicture = {% if user.profile.profile_picture %}"{{ user.profile.profile_picture.url }}"{% else %}null{% endif %};
-  const currentUserInitials = "{{ user.profile.get_initials }}";
-  const otherUserProfilePicture = {% if other_user.profile.profile_picture %}"{{ other_user.profile.profile_picture.url }}"{% else %}null{% endif %};
-  const otherUserInitials = "{{ other_user.profile.get_initials }}";
+  const chatId = JSON.parse(document.getElementById('chat-id-data').textContent);
+  const currentUser = JSON.parse(document.getElementById('current-user-data').textContent);
+  const otherUser = JSON.parse(document.getElementById('other-user-data').textContent);
+  const currentUserProfilePicture = JSON.parse(document.getElementById('current-user-pp-data').textContent) || null;
+  const currentUserInitials = JSON.parse(document.getElementById('current-user-initials-data').textContent);
+  const otherUserProfilePicture = JSON.parse(document.getElementById('other-user-pp-data').textContent) || null;
+  const otherUserInitials = JSON.parse(document.getElementById('other-user-initials-data').textContent);
   
   // Initialize Pusher
   const pusher = new Pusher('{{ pusher_key }}', {

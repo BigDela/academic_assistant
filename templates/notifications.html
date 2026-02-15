@@ -76,6 +76,16 @@
         height: 18px;
         stroke: white;
     }
+    .notif-icon.type-group_message { background: #4A90E2; }
+    .notif-icon.type-private_message { background: #10B981; }
+    .notif-icon.type-friend_request { background: #F59E0B; }
+    .notif-icon.type-friend_accepted { background: #10B981; }
+    .notif-icon.type-group_join_request { background: #8B5CF6; }
+    .notif-icon.type-group_join_approved { background: #10B981; }
+    .notif-icon.type-group_join_rejected { background: #EF4444; }
+    .notif-icon.type-member_joined { background: #14B8A6; }
+    .notif-icon.type-document_shared { background: #4A90E2; }
+    .notif-icon.type-default { background: #6B7280; }
     .notif-content {
         flex: 1;
         min-width: 0;
@@ -127,17 +137,7 @@
     <div class="notification-card">
         {% for notif in notifications %}
         <a href="{{ notif.action_url|default:'#' }}" class="notification-item {% if not notif.is_read %}unread{% endif %}" data-id="{{ notif.id }}">
-            <div class="notif-icon" style="background: 
-                {% if notif.notification_type == 'group_message' %}#4A90E2
-                {% elif notif.notification_type == 'private_message' %}#10B981
-                {% elif notif.notification_type == 'friend_request' %}#F59E0B
-                {% elif notif.notification_type == 'friend_accepted' %}#10B981
-                {% elif notif.notification_type == 'group_join_request' %}#8B5CF6
-                {% elif notif.notification_type == 'group_join_approved' %}#10B981
-                {% elif notif.notification_type == 'group_join_rejected' %}#EF4444
-                {% elif notif.notification_type == 'member_joined' %}#14B8A6
-                {% elif notif.notification_type == 'document_shared' %}#4A90E2
-                {% else %}#6B7280{% endif %};">
+            <div class="notif-icon {% if notif.notification_type == 'group_message' %}type-group_message{% elif notif.notification_type == 'private_message' %}type-private_message{% elif notif.notification_type == 'friend_request' %}type-friend_request{% elif notif.notification_type == 'friend_accepted' %}type-friend_accepted{% elif notif.notification_type == 'group_join_request' %}type-group_join_request{% elif notif.notification_type == 'group_join_approved' %}type-group_join_approved{% elif notif.notification_type == 'group_join_rejected' %}type-group_join_rejected{% elif notif.notification_type == 'member_joined' %}type-member_joined{% elif notif.notification_type == 'document_shared' %}type-document_shared{% else %}type-default{% endif %}">
                 {% if notif.notification_type == 'group_message' or notif.notification_type == 'private_message' %}
                     <svg><use href="#icon-message"></use></svg>
                 {% elif notif.notification_type == 'friend_request' or notif.notification_type == 'friend_accepted' %}

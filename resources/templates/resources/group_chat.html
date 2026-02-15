@@ -552,13 +552,13 @@
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 <script>
   const currentUsername = "{{ request.user.username }}";
-  const currentUserId = {{ request.user.id }};
-  const groupId = {{ group.id }};
+  const currentUserId = Number("{{ request.user.id }}");
+  const groupId = Number("{{ group.id }}");
   const csrfToken = "{{ csrf_token }}";
-  let isMember = {{ is_member|yesno:"true,false" }};
-  const currentUserProfilePicture = {% if request.user.profile.profile_picture %}"{{ request.user.profile.profile_picture.url }}"{% else %}null{% endif %};
+  let isMember = ("{{ is_member|yesno:'true,false' }}" === "true");
+  const currentUserProfilePicture = "{{ request.user.profile.profile_picture.url|default:'' }}" || null;
   const currentUserInitials = "{{ request.user.profile.get_initials }}";
-  let hasPendingRequest = {{ has_pending_request|yesno:"true,false" }};
+  let hasPendingRequest = ("{{ has_pending_request|yesno:'true,false' }}" === "true");
   
   // Initialize Pusher
   const pusher = new Pusher("{{ pusher_key }}", {
@@ -808,19 +808,15 @@
   }
   
   // Initial event listeners
-  {% if is_member %}
   document.addEventListener('DOMContentLoaded', function() {
-    attachMessageEventListeners();
-    const input = document.getElementById('message-input');
-    if (input) input.focus();
-    scrollToBottom();
-    setupTypingIndicator();
-  });
-  {% else %}
-  document.addEventListener('DOMContentLoaded', function() {
+    if (isMember) {
+      attachMessageEventListeners();
+      const input = document.getElementById('message-input');
+      if (input) input.focus();
+      setupTypingIndicator();
+    }
     scrollToBottom();
   });
-  {% endif %}
 
   // ============ TYPING INDICATOR ============
   function setupTypingIndicator() {

@@ -692,16 +692,19 @@
                 {% if activities %}
                     {% for activity in activities %}
                     <a href="{{ activity.url }}" class="activity-item">
-                        <div class="activity-avatar" style="background: {{ activity.color }};">
+                        {% with avatar_bg=activity.color|default:"#4A90E2" %}
+                        {% comment %}djlint:off{% endcomment %}
+                        <div class="activity-avatar" data-bg="{{ avatar_bg }}">
                             {% if activity.avatar_user.profile.profile_picture %}
                                 <img src="{{ activity.avatar_user.profile.profile_picture.url }}" alt="">
                             {% else %}
                                 {{ activity.avatar_user.username|slice:":1"|upper }}
                             {% endif %}
-                            <div class="activity-icon-badge" style="background: {{ activity.color }};">
+                            <div class="activity-icon-badge" data-bg="{{ avatar_bg }}">
                                 <svg><use href="#icon-{{ activity.icon }}"></use></svg>
                             </div>
                         </div>
+                        {% endwith %}
                         <div class="activity-content">
                             <div class="activity-title">{{ activity.title }}</div>
                             <div class="activity-preview">{{ activity.preview }}</div>
@@ -739,9 +742,7 @@
                 {% if my_groups %}
                     {% for group in my_groups %}
                     <div class="group-item">
-                        <div class="group-avatar" style="background: linear-gradient(135deg, 
-                            {% cycle '#4A90E2' '#10B981' '#8B5CF6' '#F59E0B' '#F43F5E' '#14B8A6' as colors %}, 
-                            {% cycle '#5BA3F5' '#059669' '#7C3AED' '#D97706' '#E11D48' '#0D9488' %});">
+                        <div class="group-avatar" data-bg="linear-gradient(135deg, {% cycle '#4A90E2' '#10B981' '#8B5CF6' '#F59E0B' '#F43F5E' '#14B8A6' as colors %}, {% cycle '#5BA3F5' '#059669' '#7C3AED' '#D97706' '#E11D48' '#0D9488' %})">
                             {{ group.name|slice:":1"|upper }}
                         </div>
                         <div class="group-info">
@@ -919,6 +920,11 @@
 
 {% block extra_js %}
 <script>
+    // Apply background colors from data attributes
+    document.querySelectorAll('[data-bg]').forEach(function(el) {
+        el.style.background = el.getAttribute('data-bg');
+    });
+
     // Set current date
     const dateEl = document.getElementById('current-date');
     if (dateEl) {
@@ -928,39 +934,40 @@
     }
 
     // Poll for unread counts every 30 seconds
-    {% if user.is_authenticated %}
-    function updateUnreadCounts() {
-        fetch('{% url "get_unread_counts" %}')
-            .then(res => res.json())
-            .then(data => {
-                // Update sidebar badges if they exist
-                const msgBadge = document.getElementById('sidebar-msg-badge');
-                const friendBadge = document.getElementById('sidebar-friend-badge');
+    var isAuthenticated = JSON.parse("{{ user.is_authenticated|yesno:'true,false' }}");
+    if (isAuthenticated) {
+        function updateUnreadCounts() {
+            fetch('{% url "get_unread_counts" %}')
+                .then(res => res.json())
+                .then(data => {
+                    // Update sidebar badges if they exist
+                    const msgBadge = document.getElementById('sidebar-msg-badge');
+                    const friendBadge = document.getElementById('sidebar-friend-badge');
 
-                if (msgBadge) {
-                    if (data.messages > 0) {
-                        msgBadge.textContent = data.messages;
-                        msgBadge.style.display = 'inline-flex';
-                    } else {
-                        msgBadge.style.display = 'none';
+                    if (msgBadge) {
+                        if (data.messages > 0) {
+                            msgBadge.textContent = data.messages;
+                            msgBadge.style.display = 'inline-flex';
+                        } else {
+                            msgBadge.style.display = 'none';
+                        }
                     }
-                }
-                if (friendBadge) {
-                    if (data.friend_requests > 0) {
-                        friendBadge.textContent = data.friend_requests;
-                        friendBadge.style.display = 'inline-flex';
-                    } else {
-                        friendBadge.style.display = 'none';
+                    if (friendBadge) {
+                        if (data.friend_requests > 0) {
+                            friendBadge.textContent = data.friend_requests;
+                            friendBadge.style.display = 'inline-flex';
+                        } else {
+                            friendBadge.style.display = 'none';
+                        }
                     }
-                }
-            })
-            .catch(() => {}); // silently fail
+                })
+                .catch(function() {}); // silently fail
+        }
+
+        // Poll every 30 seconds
+        setInterval(updateUnreadCounts, 30000);
+        // Also run once on load
+        setTimeout(updateUnreadCounts, 2000);
     }
-
-    // Poll every 30 seconds
-    setInterval(updateUnreadCounts, 30000);
-    // Also run once on load
-    setTimeout(updateUnreadCounts, 2000);
-    {% endif %}
 </script>
 {% endblock %}

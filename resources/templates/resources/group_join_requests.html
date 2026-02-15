@@ -252,10 +252,10 @@
             {% endif %}
             
             <div class="action-buttons">
-                <button class="btn-approve" onclick="handleRequest({{ request.id }}, 'approve')">
+                <button class="btn-approve" data-request-id="{{ request.id }}" data-action="approve">
                     <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-check"></use></svg> Approve
                 </button>
-                <button class="btn-small btn-decline" onclick="handleRequest({{ request.id }}, 'reject')">
+                <button class="btn-small btn-decline" data-request-id="{{ request.id }}" data-action="reject">
                     <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-x"></use></svg> Reject
                 </button>
             </div>
@@ -274,8 +274,18 @@
 <div id="toast" class="toast"></div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-request-id]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var requestId = this.getAttribute('data-request-id');
+            var action = this.getAttribute('data-action');
+            handleRequest(requestId, action);
+        });
+    });
+});
+
 function handleRequest(requestId, action) {
-    const card = document.getElementById(`request-${requestId}`);
+    const card = document.getElementById('request-' + requestId);
     
     fetch(`/resources/discover/join-requests/${requestId}/action/`, {
         method: 'POST',
