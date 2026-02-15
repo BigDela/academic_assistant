@@ -463,6 +463,41 @@
         }
     }
     */
+
+    /* ============================================
+       TYPING INDICATOR
+    ============================================ */
+    .typing-indicator {
+        display: none;
+        padding: 0.4rem 1.5rem;
+        font-size: 0.8rem;
+        color: var(--text-gray, #65676b);
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--light-blue, #E8F4FD);
+        border-top: 1px solid var(--border-color, #e0e0e0);
+    }
+    .typing-indicator.active {
+        display: flex;
+    }
+    .typing-dots {
+        display: inline-flex;
+        gap: 3px;
+        align-items: center;
+    }
+    .typing-dots span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--primary-blue, #4A90E2);
+        animation: typingBounce 1.4s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+        30% { transform: translateY(-4px); opacity: 1; }
+    }
 </style>
 
 <div class="private-chat-wrapper">
@@ -532,6 +567,12 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+
+    <!-- Typing Indicator -->
+    <div class="typing-indicator" id="typing-indicator">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        <span id="typing-text"></span>
     </div>
 
     <!-- Input Area -->
@@ -862,5 +903,57 @@
   
   // Focus input on load
   document.getElementById('message-input').focus();
+
+  // ============ TYPING INDICATOR ============
+  (function() {
+    const input = document.getElementById('message-input');
+    if (!input) return;
+
+    let typingTimeout = null;
+    let isTyping = false;
+    const csrfToken = '{{ csrf_token }}';
+    const typingUrl = '{% url "typing_indicator" %}';
+
+    function sendTypingEvent(typing) {
+      fetch(typingUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken
+        },
+        body: `chat_type=private&chat_id=${chatId}&is_typing=${typing}`
+      }).catch(() => {});
+    }
+
+    input.addEventListener('input', function() {
+      if (!isTyping) {
+        isTyping = true;
+        sendTypingEvent(true);
+      }
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        isTyping = false;
+        sendTypingEvent(false);
+      }, 2000);
+    });
+
+    const indicator = document.getElementById('typing-indicator');
+    const typingTextEl = document.getElementById('typing-text');
+
+    channel.bind('typing', function(data) {
+      if (data.username === currentUser) return;
+
+      if (data.is_typing) {
+        indicator.classList.add('active');
+        typingTextEl.textContent = `${data.display_name} is typing...`;
+        // Auto-hide after 3s in case stop event is lost
+        setTimeout(() => {
+          indicator.classList.remove('active');
+        }, 3000);
+      } else {
+        indicator.classList.remove('active');
+      }
+    });
+  })();
 </script>
 {% endblock %}

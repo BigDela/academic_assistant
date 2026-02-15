@@ -55,6 +55,9 @@ urlpatterns = [
     path('chats/start/<int:user_id>/', views.start_private_chat, name='start_private_chat'),
     path('chats/<int:chat_id>/send/', views.send_private_message, name='send_private_message'),
     
+    # ============ TYPING INDICATOR ============
+    path('typing/', views.typing_indicator, name='typing_indicator'),
+    
     # ============ REACTIONS & ATTACHMENTS ============
     path('reactions/add/', views.add_reaction, name='add_reaction'),
     path('attachments/upload/', views.upload_message_attachment, name='upload_message_attachment'),

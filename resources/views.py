@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import (Document, Course, StudyGroup, Message, GroupInvite, Friendship, PrivateChat, PrivateMessage, 
-                     MessageReaction, MessageAttachment, UserDiscoveryAction, GroupDiscoveryAction, GroupJoinRequest)
+                     MessageReaction, MessageAttachment, UserDiscoveryAction, GroupDiscoveryAction, GroupJoinRequest, Notification)
 from django.contrib.auth.decorators import login_required
 from .forms import StudyGroupForm, MessageForm, DocumentUploadForm, EditGroupForm, ManagePermissionsForm, CreateInviteForm, JoinGroupCodeForm, AddFriendForm, PrivateMessageForm, MessageAttachmentForm
 from django.contrib import messages
@@ -590,6 +590,16 @@ def add_friend(request):
                 status='pending'
             )
             
+            # Notify the target user
+            Notification.objects.create(
+                recipient=to_user,
+                notification_type='friend_request',
+                title=f'{request.user.get_full_name() or request.user.username} sent you a friend request',
+                message='Accept or decline from your friends page',
+                from_user=request.user,
+                action_url='/resources/friends/',
+            )
+            
             messages.success(request, f"Friend request sent to {username}!")
             return redirect('friends_list')
     else:
@@ -624,6 +634,15 @@ def add_friend_from_group(request, user_id):
             to_user=to_user,
             status='pending'
         )
+        # Notify the target user
+        Notification.objects.create(
+            recipient=to_user,
+            notification_type='friend_request',
+            title=f'{request.user.get_full_name() or request.user.username} sent you a friend request',
+            message='Accept or decline from your friends page',
+            from_user=request.user,
+            action_url='/resources/friends/',
+        )
         messages.success(request, f"Friend request sent to {to_user.username}!")
     
     return redirect('friends_list')
@@ -635,6 +654,16 @@ def accept_friend_request(request, request_id):
     friendship = get_object_or_404(Friendship, id=request_id, to_user=request.user, status='pending')
     friendship.status = 'accepted'
     friendship.save()
+    
+    # Notify the sender that their request was accepted
+    Notification.objects.create(
+        recipient=friendship.from_user,
+        notification_type='friend_accepted',
+        title=f'{request.user.get_full_name() or request.user.username} accepted your friend request',
+        message='You are now friends!',
+        from_user=request.user,
+        action_url='/resources/friends/',
+    )
     
     messages.success(request, f"You are now friends with {friendship.from_user.username}!")
     return redirect('friends_list')
@@ -791,6 +820,40 @@ def send_private_message(request, chat_id):
         'message_id': message.id,
         'timestamp': message.timestamp.isoformat()
     })
+
+
+# ============ TYPING INDICATOR ============
+
+@login_required
+@require_POST
+def typing_indicator(request):
+    """AJAX endpoint to broadcast typing events via Pusher."""
+    chat_type = request.POST.get('chat_type')  # 'group' or 'private'
+    chat_id = request.POST.get('chat_id')
+    is_typing = request.POST.get('is_typing', 'true') == 'true'
+
+    if not chat_type or not chat_id:
+        return JsonResponse({'success': False, 'error': 'Missing params'}, status=400)
+
+    display_name = request.user.get_full_name() or request.user.username
+
+    try:
+        if chat_type == 'group':
+            channel = f'group-{chat_id}'
+        else:
+            channel = f'private-chat-{chat_id}'
+
+        pusher_client.trigger(channel, 'typing', {
+            'user_id': request.user.id,
+            'username': request.user.username,
+            'display_name': display_name,
+            'is_typing': is_typing,
+        })
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f'Pusher typing trigger failed: {e}')
+
+    return JsonResponse({'success': True})
 
 
 # ============ MESSAGE REACTIONS & ATTACHMENTS ============
@@ -1165,6 +1228,29 @@ def group_join_request_action(request, request_id):
         # Add user to group
         join_request.group.members.add(join_request.user)
         
+        # Create notification for the approved user
+        Notification.objects.create(
+            recipient=join_request.user,
+            notification_type='group_join_approved',
+            title=f'Your request to join {join_request.group.name} was approved!',
+            message=f'Approved by {request.user.get_full_name() or request.user.username}',
+            from_user=request.user,
+            group=join_request.group,
+            action_url=f'/resources/groups/{join_request.group.id}/chat/',
+        )
+        
+        # Notify existing group members about the new member
+        for member in join_request.group.members.exclude(id__in=[join_request.user.id, request.user.id]):
+            Notification.objects.create(
+                recipient=member,
+                notification_type='member_joined',
+                title=f'{join_request.user.get_full_name() or join_request.user.username} joined {join_request.group.name}',
+                message='A new member has joined the group',
+                from_user=join_request.user,
+                group=join_request.group,
+                action_url=f'/resources/groups/{join_request.group.id}/detail/',
+            )
+        
         # Trigger Pusher event to notify approved user in real-time
         pusher_client.trigger(f'user-{join_request.user.id}', 'join-request-approved', {
             'group_id': join_request.group.id,
@@ -1184,6 +1270,17 @@ def group_join_request_action(request, request_id):
         join_request.status = 'rejected'
         join_request.reviewed_by = request.user
         join_request.save()
+        
+        # Create notification for the rejected user
+        Notification.objects.create(
+            recipient=join_request.user,
+            notification_type='group_join_rejected',
+            title=f'Your request to join {join_request.group.name} was not approved',
+            message=f'Reviewed by {request.user.get_full_name() or request.user.username}',
+            from_user=request.user,
+            group=join_request.group,
+            action_url='/resources/discover/my-requests/',
+        )
         
         # Trigger Pusher event to notify rejected user
         pusher_client.trigger(f'user-{join_request.user.id}', 'join-request-rejected', {

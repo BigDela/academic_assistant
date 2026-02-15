@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block title %}Notifications - Academic Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notifications-page {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+    .notifications-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    .notifications-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+    .mark-all-btn {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+    .mark-all-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    .notification-card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        overflow: hidden;
+    }
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        transition: background 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+    .notification-item:hover {
+        background: var(--light-blue);
+    }
+    .notification-item.unread {
+        background: rgba(74, 144, 226, 0.04);
+        border-left: 3px solid var(--primary-blue);
+    }
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+    .notif-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: white;
+    }
+    .notif-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: white;
+    }
+    .notif-content {
+        flex: 1;
+        min-width: 0;
+    }
+    .notif-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        margin-bottom: 0.15rem;
+    }
+    .notif-message {
+        font-size: 0.8rem;
+        color: var(--text-gray);
+    }
+    .notif-time {
+        font-size: 0.7rem;
+        color: var(--text-gray);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .empty-notifications {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: var(--text-gray);
+    }
+    .empty-notifications svg {
+        width: 48px;
+        height: 48px;
+        stroke: var(--border-color);
+        margin-bottom: 1rem;
+    }
+    .empty-notifications p {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notifications-page">
+    <div class="notifications-header">
+        <h1>🔔 Notifications</h1>
+        {% if notifications %}
+        <button class="mark-all-btn" onclick="markAllRead()">Mark All as Read</button>
+        {% endif %}
+    </div>
+
+    {% if notifications %}
+    <div class="notification-card">
+        {% for notif in notifications %}
+        <a href="{{ notif.action_url|default:'#' }}" class="notification-item {% if not notif.is_read %}unread{% endif %}" data-id="{{ notif.id }}">
+            <div class="notif-icon" style="background: 
+                {% if notif.notification_type == 'group_message' %}#4A90E2
+                {% elif notif.notification_type == 'private_message' %}#10B981
+                {% elif notif.notification_type == 'friend_request' %}#F59E0B
+                {% elif notif.notification_type == 'friend_accepted' %}#10B981
+                {% elif notif.notification_type == 'group_join_request' %}#8B5CF6
+                {% elif notif.notification_type == 'group_join_approved' %}#10B981
+                {% elif notif.notification_type == 'group_join_rejected' %}#EF4444
+                {% elif notif.notification_type == 'member_joined' %}#14B8A6
+                {% elif notif.notification_type == 'document_shared' %}#4A90E2
+                {% else %}#6B7280{% endif %};">
+                {% if notif.notification_type == 'group_message' or notif.notification_type == 'private_message' %}
+                    <svg><use href="#icon-message"></use></svg>
+                {% elif notif.notification_type == 'friend_request' or notif.notification_type == 'friend_accepted' %}
+                    <svg><use href="#icon-user"></use></svg>
+                {% elif notif.notification_type == 'group_join_request' or notif.notification_type == 'member_joined' %}
+                    <svg><use href="#icon-users"></use></svg>
+                {% elif notif.notification_type == 'group_join_approved' %}
+                    <svg><use href="#icon-check"></use></svg>
+                {% elif notif.notification_type == 'group_join_rejected' %}
+                    <svg><use href="#icon-x"></use></svg>
+                {% elif notif.notification_type == 'document_shared' %}
+                    <svg><use href="#icon-document"></use></svg>
+                {% else %}
+                    <svg><use href="#icon-bell"></use></svg>
+                {% endif %}
+            </div>
+            <div class="notif-content">
+                <div class="notif-title">{{ notif.title }}</div>
+                {% if notif.message %}
+                <div class="notif-message">{{ notif.message }}</div>
+                {% endif %}
+            </div>
+            <div class="notif-time">{{ notif.created_at|timesince }} ago</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-notifications">
+        <svg><use href="#icon-bell"></use></svg>
+        <p>No notifications yet</p>
+        <span style="font-size: 0.85rem;">When something happens, you'll see it here!</span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function markAllRead() {
+    fetch('{% url "mark_all_notifications_read" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelectorAll('.notification-item.unread').forEach(el => {
+                el.classList.remove('unread');
+            });
+        }
+    });
+}
+
+// Mark individual notifications as read on click
+document.querySelectorAll('.notification-item.unread').forEach(el => {
+    el.addEventListener('click', function() {
+        const id = this.dataset.id;
+        fetch('{% url "mark_notifications_read" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'ids[]=' + id,
+        });
+    });
+});
+</script>
+{% endblock %}

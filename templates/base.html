@@ -255,6 +255,32 @@
             overflow: hidden;
         }
         
+        .nav-badge {
+            background: #EF4444;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            margin-left: auto;
+        }
+        
+        .sidebar.collapsed .nav-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            margin-left: 0;
+            min-width: 8px;
+            height: 8px;
+            padding: 0;
+            font-size: 0;
+        }
+        
         .sidebar-footer {
             padding: 1rem 1.5rem;
             border-top: 1px solid var(--border-color);
@@ -538,10 +564,12 @@
                         <a href="{% url 'friends_list' %}">
                             <span class="nav-icon"><svg class="icon"><use href="#icon-user"></use></svg></span>
                             <span class="nav-text">Friends</span>
+                            <span class="nav-badge" id="sidebar-friend-badge"></span>
                         </a>
                         <a href="{% url 'private_chats_list' %}">
                             <span class="nav-icon"><svg class="icon"><use href="#icon-message"></use></svg></span>
                             <span class="nav-text">Messages</span>
+                            <span class="nav-badge" id="sidebar-msg-badge"></span>
                         </a>
                     </div>
                 </div>

@@ -1,72 +1,966 @@
 {% extends 'base.html' %}
-{% block title %}Home - Academic Assistant{% endblock %}
-{% block content %}
+{% load static %}
+{% block title %}Dashboard - Academic Assistant{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ─── Dashboard Layout ─────────────────────────────────── */
+    .dashboard {
+        padding: 1.5rem;
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+
+    /* ─── Welcome Header ───────────────────────────────────── */
+    .welcome-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .welcome-text h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+    }
+    .welcome-text p {
+        color: var(--text-gray);
+        font-size: 0.95rem;
+    }
+    .welcome-date {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-gray);
+        font-size: 0.9rem;
+        background: var(--white);
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .welcome-date svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--primary-blue);
+    }
+
+    /* ─── Quick Actions ────────────────────────────────────── */
+    .quick-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    .quick-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        white-space: nowrap;
+    }
+    .quick-action-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    .quick-action-btn.primary {
+        background: var(--primary-blue);
+        color: white;
+        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+    }
+    .quick-action-btn.primary:hover {
+        background: var(--dark-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(74, 144, 226, 0.4);
+    }
+    .quick-action-btn.secondary {
+        background: var(--white);
+        color: var(--text-dark);
+        border: 1.5px solid var(--border-color);
+    }
+    .quick-action-btn.secondary:hover {
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.12);
+    }
+    .quick-action-btn.accent {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    .quick-action-btn.accent:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    /* ─── Stats Grid ───────────────────────────────────────── */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: var(--white);
+        border-radius: 14px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        opacity: 0.06;
+        transform: translate(20px, -20px);
+    }
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .stat-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+    .stat-icon.blue {
+        background: rgba(74, 144, 226, 0.12);
+        color: #4A90E2;
+    }
+    .stat-card:nth-child(1)::after { background: #4A90E2; }
+    .stat-icon.green {
+        background: rgba(16, 185, 129, 0.12);
+        color: #10B981;
+    }
+    .stat-card:nth-child(2)::after { background: #10B981; }
+    .stat-icon.purple {
+        background: rgba(139, 92, 246, 0.12);
+        color: #8B5CF6;
+    }
+    .stat-card:nth-child(3)::after { background: #8B5CF6; }
+    .stat-icon.amber {
+        background: rgba(245, 158, 11, 0.12);
+        color: #F59E0B;
+    }
+    .stat-card:nth-child(4)::after { background: #F59E0B; }
+    .stat-icon.rose {
+        background: rgba(244, 63, 94, 0.12);
+        color: #F43F5E;
+    }
+    .stat-card:nth-child(5)::after { background: #F43F5E; }
+    .stat-icon.teal {
+        background: rgba(20, 184, 166, 0.12);
+        color: #14B8A6;
+    }
+    .stat-card:nth-child(6)::after { background: #14B8A6; }
+    .stat-info h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1;
+    }
+    .stat-info p {
+        color: var(--text-gray);
+        font-size: 0.8rem;
+        margin-top: 0.2rem;
+    }
+
+    /* ─── Dashboard Grid ───────────────────────────────────── */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* ─── Panel Card ───────────────────────────────────────── */
+    .panel {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .panel-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-dark);
+    }
+    .panel-title svg {
+        width: 18px;
+        height: 18px;
+        stroke: var(--primary-blue);
+    }
+    .panel-badge {
+        background: var(--primary-blue);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 20px;
+        min-width: 20px;
+        text-align: center;
+    }
+    .panel-link {
+        font-size: 0.8rem;
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+    .panel-link:hover {
+        color: var(--dark-blue);
+    }
+    .panel-body {
+        padding: 0;
+        flex: 1;
+        overflow-y: auto;
+        max-height: 400px;
+    }
+    .panel-empty {
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        color: var(--text-gray);
+    }
+    .panel-empty svg {
+        width: 40px;
+        height: 40px;
+        stroke: var(--border-color);
+        margin-bottom: 0.75rem;
+    }
+    .panel-empty p {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    /* ─── Activity Feed ────────────────────────────────────── */
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        transition: background 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+    .activity-item:hover {
+        background: var(--light-blue);
+    }
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    .activity-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .activity-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .activity-icon-badge {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--white);
+    }
+    .activity-icon-badge svg {
+        width: 10px;
+        height: 10px;
+        stroke: white;
+    }
+    .activity-content {
+        flex: 1;
+        min-width: 0;
+    }
+    .activity-title {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text-dark);
+        margin-bottom: 0.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .activity-preview {
+        font-size: 0.8rem;
+        color: var(--text-gray);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .activity-time {
+        font-size: 0.7rem;
+        color: var(--text-gray);
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-top: 0.15rem;
+    }
+
+    /* ─── Group Cards ──────────────────────────────────────── */
+    .group-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        transition: background 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+    .group-item:hover {
+        background: var(--light-blue);
+    }
+    .group-item:last-child {
+        border-bottom: none;
+    }
+    .group-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+    .group-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .group-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .group-meta {
+        font-size: 0.75rem;
+        color: var(--text-gray);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .group-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .group-meta svg {
+        width: 12px;
+        height: 12px;
+    }
+    .group-chat-btn {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        border: none;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+        text-decoration: none;
+    }
+    .group-chat-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    .group-chat-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    /* ─── Document Items ───────────────────────────────────── */
+    .doc-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        transition: background 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+    .doc-item:hover {
+        background: var(--light-blue);
+    }
+    .doc-item:last-child {
+        border-bottom: none;
+    }
+    .doc-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: rgba(74, 144, 226, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .doc-icon svg {
+        width: 20px;
+        height: 20px;
+        stroke: var(--primary-blue);
+    }
+    .doc-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .doc-title {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text-dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .doc-meta {
+        font-size: 0.75rem;
+        color: var(--text-gray);
+    }
+
+    /* ─── Floating Animations ──────────────────────────────── */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-6px); }
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.2); }
+        50% { box-shadow: 0 0 0 8px rgba(74, 144, 226, 0); }
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.5s ease-out forwards;
+        opacity: 0;
+    }
+    .animate-in:nth-child(1) { animation-delay: 0.05s; }
+    .animate-in:nth-child(2) { animation-delay: 0.1s; }
+    .animate-in:nth-child(3) { animation-delay: 0.15s; }
+    .animate-in:nth-child(4) { animation-delay: 0.2s; }
+    .animate-in:nth-child(5) { animation-delay: 0.25s; }
+    .animate-in:nth-child(6) { animation-delay: 0.3s; }
+
+    .stat-card:hover .stat-icon {
+        animation: float 2s ease-in-out infinite;
+    }
+
+    .notification-pulse {
+        animation: pulseGlow 2s infinite;
+    }
+
+    /* ─── Pending Badges ───────────────────────────────────── */
+    .pending-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: #FEF3C7;
+        color: #92400E;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+    }
+    .pending-badge.red {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    /* ─── Responsive ───────────────────────────────────────── */
+    @media (max-width: 968px) {
+        .dashboard { padding: 1rem; }
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .welcome-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    @media (max-width: 600px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .quick-actions {
+            flex-direction: column;
+        }
+        .quick-action-btn {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
 {% if user.is_authenticated %}
-    <div class="card text-center">
-        <h2>Welcome back, {{ user.username }}! 👋</h2>
-        <p class="text-muted mt-2">{{ user.get_course_display }} • {{ user.get_year_display }}</p>
-        <div class="user-stats flex-center gap-4 mt-4">
-            <div>
-                <div class="text-primary" style="font-size: 1.5rem; font-weight: 600;">{{ user.study_groups.count }}</div>
-                <div class="text-muted" style="font-size: 0.9rem;">Study Groups</div>
+<div class="dashboard">
+    <!-- ─── Welcome Header ─────────────────────────────────── -->
+    <div class="welcome-header animate-in">
+        <div class="welcome-text">
+            <h1>Welcome back, {{ user.first_name|default:user.username }}! 👋</h1>
+            <p>{{ user.get_course_display|default:"Student" }} · {{ user.get_year_display|default:"" }}</p>
+        </div>
+        <div class="welcome-date">
+            <svg><use href="#icon-calendar"></use></svg>
+            <span id="current-date"></span>
+        </div>
+    </div>
+
+    <!-- ─── Quick Actions ──────────────────────────────────── -->
+    <div class="quick-actions animate-in">
+        <a href="{% url 'create_group' %}" class="quick-action-btn primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            New Group
+        </a>
+        <a href="{% url 'upload_document' %}" class="quick-action-btn accent">
+            <svg><use href="#icon-upload"></use></svg>
+            Upload Document
+        </a>
+        <a href="{% url 'discovery_home' %}" class="quick-action-btn secondary">
+            <svg><use href="#icon-search"></use></svg>
+            Find Friends
+        </a>
+        <a href="{% url 'private_chats_list' %}" class="quick-action-btn secondary">
+            <svg><use href="#icon-message"></use></svg>
+            Messages
+            {% if unread_private_msgs %}
+                <span class="pending-badge red">{{ unread_private_msgs }}</span>
+            {% endif %}
+        </a>
+        {% if pending_friend_requests %}
+        <a href="{% url 'friends_list' %}" class="quick-action-btn secondary">
+            <svg><use href="#icon-user"></use></svg>
+            Friend Requests
+            <span class="pending-badge">{{ pending_friend_requests }}</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- ─── Stats Grid ─────────────────────────────────────── -->
+    <div class="stats-grid">
+        <a href="{% url 'group_list' %}" class="stat-card animate-in">
+            <div class="stat-icon blue">
+                <svg><use href="#icon-users"></use></svg>
+            </div>
+            <div class="stat-info">
+                <h3>{{ groups_count }}</h3>
+                <p>Study Groups</p>
+            </div>
+        </a>
+        <a href="{% url 'view_documents' %}" class="stat-card animate-in">
+            <div class="stat-icon green">
+                <svg><use href="#icon-document"></use></svg>
+            </div>
+            <div class="stat-info">
+                <h3>{{ documents_uploaded }}</h3>
+                <p>Documents Uploaded</p>
+            </div>
+        </a>
+        <a href="{% url 'friends_list' %}" class="stat-card animate-in">
+            <div class="stat-icon purple">
+                <svg><use href="#icon-user"></use></svg>
+            </div>
+            <div class="stat-info">
+                <h3>{{ friends_count }}</h3>
+                <p>Friends</p>
+            </div>
+        </a>
+        <a href="{% url 'private_chats_list' %}" class="stat-card animate-in">
+            <div class="stat-icon amber">
+                <svg><use href="#icon-message"></use></svg>
+            </div>
+            <div class="stat-info">
+                <h3>{{ private_chats_count }}</h3>
+                <p>Private Chats</p>
+            </div>
+        </a>
+        {% if pending_join_requests %}
+        <a href="{% url 'group_join_requests_manage' %}" class="stat-card animate-in notification-pulse">
+            <div class="stat-icon rose">
+                <svg><use href="#icon-clock"></use></svg>
+            </div>
+            <div class="stat-info">
+                <h3>{{ pending_join_requests }}</h3>
+                <p>Pending Join Requests</p>
+            </div>
+        </a>
+        {% endif %}
+        {% if pending_friend_requests %}
+        <a href="{% url 'friends_list' %}" class="stat-card animate-in notification-pulse">
+            <div class="stat-icon teal">
+                <svg><use href="#icon-bell"></use></svg>
+            </div>
+            <div class="stat-info">
+                <h3>{{ pending_friend_requests }}</h3>
+                <p>Friend Requests</p>
+            </div>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- ─── Main Dashboard Grid ────────────────────────────── -->
+    <div class="dashboard-grid">
+        <!-- Activity Feed -->
+        <div class="panel animate-in">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Recent Activity
+                    {% if activities|length > 0 %}
+                        <span class="panel-badge">{{ activities|length }}</span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'notifications_list' %}" class="panel-link">View All →</a>
+            </div>
+            <div class="panel-body">
+                {% if activities %}
+                    {% for activity in activities %}
+                    <a href="{{ activity.url }}" class="activity-item">
+                        <div class="activity-avatar" style="background: {{ activity.color }};">
+                            {% if activity.avatar_user.profile.profile_picture %}
+                                <img src="{{ activity.avatar_user.profile.profile_picture.url }}" alt="">
+                            {% else %}
+                                {{ activity.avatar_user.username|slice:":1"|upper }}
+                            {% endif %}
+                            <div class="activity-icon-badge" style="background: {{ activity.color }};">
+                                <svg><use href="#icon-{{ activity.icon }}"></use></svg>
+                            </div>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ activity.title }}</div>
+                            <div class="activity-preview">{{ activity.preview }}</div>
+                        </div>
+                        <div class="activity-time">
+                            {{ activity.timestamp|timesince }} ago
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="panel-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        <p>No recent activity yet</p>
+                        <a href="{% url 'discovery_home' %}" class="quick-action-btn secondary" style="display: inline-flex;">
+                            <svg style="width:14px;height:14px;"><use href="#icon-search"></use></svg>
+                            Start Exploring
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- My Study Groups -->
+        <div class="panel animate-in">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg><use href="#icon-users"></use></svg>
+                    My Study Groups
+                </div>
+                <a href="{% url 'group_list' %}" class="panel-link">All Groups →</a>
+            </div>
+            <div class="panel-body">
+                {% if my_groups %}
+                    {% for group in my_groups %}
+                    <div class="group-item">
+                        <div class="group-avatar" style="background: linear-gradient(135deg, 
+                            {% cycle '#4A90E2' '#10B981' '#8B5CF6' '#F59E0B' '#F43F5E' '#14B8A6' as colors %}, 
+                            {% cycle '#5BA3F5' '#059669' '#7C3AED' '#D97706' '#E11D48' '#0D9488' %});">
+                            {{ group.name|slice:":1"|upper }}
+                        </div>
+                        <div class="group-info">
+                            <div class="group-name">{{ group.name }}</div>
+                            <div class="group-meta">
+                                <span>
+                                    <svg><use href="#icon-users"></use></svg>
+                                    {{ group.member_count }} members
+                                </span>
+                                <span>
+                                    <svg><use href="#icon-message"></use></svg>
+                                    {{ group.message_count }} msgs
+                                </span>
+                            </div>
+                        </div>
+                        <a href="{% url 'group_chat' group.id %}" class="group-chat-btn" title="Open Chat">
+                            <svg><use href="#icon-message"></use></svg>
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="panel-empty">
+                        <svg><use href="#icon-users"></use></svg>
+                        <p>You haven't joined any groups yet</p>
+                        <a href="{% url 'create_group' %}" class="quick-action-btn primary" style="display: inline-flex;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                            </svg>
+                            Create a Group
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Documents -->
+        <div class="panel animate-in">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg><use href="#icon-document"></use></svg>
+                    Recent Documents
+                </div>
+                <a href="{% url 'view_documents' %}" class="panel-link">Browse All →</a>
+            </div>
+            <div class="panel-body">
+                {% if recent_documents %}
+                    {% for doc in recent_documents %}
+                    <a href="{% url 'serve_document' doc.id %}" class="doc-item">
+                        <div class="doc-icon">
+                            <svg><use href="#icon-document"></use></svg>
+                        </div>
+                        <div class="doc-info">
+                            <div class="doc-title">{{ doc.title }}</div>
+                            <div class="doc-meta">
+                                {{ doc.course }}
+                                {% if doc.uploaded_by == user %}
+                                    · Uploaded by you
+                                {% else %}
+                                    · by {{ doc.uploaded_by.get_full_name|default:doc.uploaded_by.username }}
+                                {% endif %}
+                                · {{ doc.uploaded_at|timesince }} ago
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="panel-empty">
+                        <svg><use href="#icon-document"></use></svg>
+                        <p>No documents yet</p>
+                        <a href="{% url 'upload_document' %}" class="quick-action-btn accent" style="display: inline-flex;">
+                            <svg style="width:14px;height:14px;"><use href="#icon-upload"></use></svg>
+                            Upload First Document
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Notifications / Alerts Panel -->
+        <div class="panel animate-in">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg><use href="#icon-bell"></use></svg>
+                    Notifications
+                    {% if unread_notifications %}
+                        <span class="panel-badge">{{ unread_notifications }}</span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'notifications_list' %}" class="panel-link">View All →</a>
+            </div>
+            <div class="panel-body">
+                {% if pending_friend_requests or pending_join_requests %}
+                    {% if pending_friend_requests %}
+                    <a href="{% url 'friends_list' %}" class="activity-item">
+                        <div class="activity-avatar" style="background: #F59E0B;">
+                            <svg style="width:18px;height:18px;stroke:white;"><use href="#icon-user"></use></svg>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ pending_friend_requests }} pending friend request{{ pending_friend_requests|pluralize }}</div>
+                            <div class="activity-preview">Tap to review and accept</div>
+                        </div>
+                        <span class="pending-badge">New</span>
+                    </a>
+                    {% endif %}
+                    {% if pending_join_requests %}
+                    <a href="{% url 'group_join_requests_manage' %}" class="activity-item">
+                        <div class="activity-avatar" style="background: #8B5CF6;">
+                            <svg style="width:18px;height:18px;stroke:white;"><use href="#icon-users"></use></svg>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ pending_join_requests }} pending group join request{{ pending_join_requests|pluralize }}</div>
+                            <div class="activity-preview">Review requests for your groups</div>
+                        </div>
+                        <span class="pending-badge">New</span>
+                    </a>
+                    {% endif %}
+                {% else %}
+                    <div class="panel-empty">
+                        <svg><use href="#icon-bell"></use></svg>
+                        <p>You're all caught up! 🎉</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
-    
-    <div class="feature-grid">
-        <a href="{% url 'group_list' %}" style="text-decoration: none; color: inherit;">
-            <div class="card card-hover">
-                <svg class="icon-xxl icon-primary"><use href="#icon-users"></use></svg>
-                <h3 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Study Groups</h3>
-                <p class="text-muted">Join or create groups to collaborate with peers</p>
-            </div>
-        </a>
-        
-        <a href="{% url 'upload_document' %}" style="text-decoration: none; color: inherit;">
-            <div class="card card-hover">
-                <svg class="icon-xxl icon-primary"><use href="#icon-upload"></use></svg>
-                <h3 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Upload Documents</h3>
-                <p class="text-muted">Share notes, assignments, and study materials</p>
-            </div>
-        </a>
-        
-        <a href="{% url 'view_documents' %}" style="text-decoration: none; color: inherit;">
-            <div class="card card-hover">
-                <svg class="icon-xxl icon-primary"><use href="#icon-document"></use></svg>
-                <h3 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Browse Resources</h3>
-                <p class="text-muted">Access shared academic resources</p>
-            </div>
-        </a>
-    </div>
+</div>
+
 {% else %}
-    <div class="hero">
-        <h1 class="hero-title">Welcome to Academic Assistant</h1>
-        <p class="hero-subtitle">Your collaborative platform for sharing resources, joining study groups, and connecting with classmates</p>
-        <div class="flex-center gap-2">
-            <a href="{% url 'signup' %}" class="btn btn-large" style="background: white; color: var(--primary-blue);">Get Started</a>
-            <a href="{% url 'login' %}" class="btn btn-outline btn-large" style="border-color: white; color: white;">Log In</a>
+<!-- ─── Non-Authenticated Landing ─────────────────────── -->
+<div class="hero" style="
+    background: linear-gradient(135deg, #4A90E2 0%, #2E5C8A 100%);
+    color: white;
+    padding: 4rem 2rem;
+    text-align: center;
+    border-radius: 0 0 32px 32px;
+    margin: -2rem -1.5rem 2rem;
+">
+    <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">Welcome to Academic Assistant</h1>
+    <p style="font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto 2rem;">
+        Your collaborative platform for sharing resources, joining study groups, and connecting with classmates
+    </p>
+    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="{% url 'signup' %}" class="quick-action-btn" style="background: white; color: #4A90E2; font-size: 1rem; padding: 0.8rem 2rem;">Get Started</a>
+        <a href="{% url 'login' %}" class="quick-action-btn" style="background: transparent; color: white; border: 2px solid white; font-size: 1rem; padding: 0.8rem 2rem;">Log In</a>
+    </div>
+</div>
+
+<div style="max-width: 1000px; margin: 0 auto; padding: 0 1.5rem;">
+    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="stat-card" style="flex-direction: column; text-align: center; padding: 2rem;">
+            <div class="stat-icon blue" style="width: 56px; height: 56px; margin-bottom: 1rem;">
+                <svg style="width:26px;height:26px;"><use href="#icon-users"></use></svg>
+            </div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-dark);">Study Groups</h3>
+            <p style="color: var(--text-gray); font-size: 0.85rem;">Create or join groups to collaborate with classmates in real-time</p>
+        </div>
+        <div class="stat-card" style="flex-direction: column; text-align: center; padding: 2rem;">
+            <div class="stat-icon green" style="width: 56px; height: 56px; margin-bottom: 1rem;">
+                <svg style="width:26px;height:26px;"><use href="#icon-message"></use></svg>
+            </div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-dark);">Real-Time Chat</h3>
+            <p style="color: var(--text-gray); font-size: 0.85rem;">Communicate instantly with friends and group members</p>
+        </div>
+        <div class="stat-card" style="flex-direction: column; text-align: center; padding: 2rem;">
+            <div class="stat-icon purple" style="width: 56px; height: 56px; margin-bottom: 1rem;">
+                <svg style="width:26px;height:26px;"><use href="#icon-document"></use></svg>
+            </div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-dark);">Resource Sharing</h3>
+            <p style="color: var(--text-gray); font-size: 0.85rem;">Upload and access documents, notes, and study materials</p>
         </div>
     </div>
-    
-    <div class="feature-grid">
-        <div class="card">
-            <svg class="icon-xxl icon-primary"><use href="#icon-users"></use></svg>
-            <h3 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Study Groups</h3>
-            <p class="text-muted">Create or join study groups to collaborate with classmates in real-time</p>
-        </div>
-        
-        <div class="card">
-            <svg class="icon-xxl icon-primary"><use href="#icon-message"></use></svg>
-            <h3 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Real-Time Chat</h3>
-            <p class="text-muted">Communicate instantly with group members via modern messaging</p>
-        </div>
-        
-        <div class="card">
-            <svg class="icon-xxl icon-primary"><use href="#icon-document"></use></svg>
-            <h3 style="color: var(--primary-blue); margin-bottom: 0.5rem;">Resource Sharing</h3>
-            <p class="text-muted">Upload and access academic documents, notes, and study materials</p>
-        </div>
-    </div>
+</div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set current date
+    const dateEl = document.getElementById('current-date');
+    if (dateEl) {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateEl.textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Poll for unread counts every 30 seconds
+    {% if user.is_authenticated %}
+    function updateUnreadCounts() {
+        fetch('{% url "get_unread_counts" %}')
+            .then(res => res.json())
+            .then(data => {
+                // Update sidebar badges if they exist
+                const msgBadge = document.getElementById('sidebar-msg-badge');
+                const friendBadge = document.getElementById('sidebar-friend-badge');
+
+                if (msgBadge) {
+                    if (data.messages > 0) {
+                        msgBadge.textContent = data.messages;
+                        msgBadge.style.display = 'inline-flex';
+                    } else {
+                        msgBadge.style.display = 'none';
+                    }
+                }
+                if (friendBadge) {
+                    if (data.friend_requests > 0) {
+                        friendBadge.textContent = data.friend_requests;
+                        friendBadge.style.display = 'inline-flex';
+                    } else {
+                        friendBadge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(() => {}); // silently fail
+    }
+
+    // Poll every 30 seconds
+    setInterval(updateUnreadCounts, 30000);
+    // Also run once on load
+    setTimeout(updateUnreadCounts, 2000);
+    {% endif %}
+</script>
 {% endblock %}
