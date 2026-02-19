@@ -1,38 +1,245 @@
 {% extends 'base.html' %}
 {% block title %}Sign Up - Academic Assistant{% endblock %}
 {% block content %}
+<style>
+    .auth-page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 200px);
+        padding: 2rem 1rem;
+    }
+    .auth-card {
+        width: 100%;
+        max-width: 480px;
+        background: var(--white);
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+    .auth-banner {
+        background: linear-gradient(135deg, #4A90E2 0%, #6C63FF 60%, #7C3AED 100%);
+        padding: 2.25rem 2rem 2rem;
+        text-align: center;
+        color: white;
+    }
+    .auth-banner-icon {
+        width: 56px;
+        height: 56px;
+        background: rgba(255,255,255,0.18);
+        backdrop-filter: blur(4px);
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    .auth-banner-icon svg { width: 28px; height: 28px; }
+    .auth-banner h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+    .auth-banner p {
+        font-size: 0.86rem;
+        opacity: 0.85;
+    }
+    .auth-body {
+        padding: 2rem 2rem 1.75rem;
+    }
+    .auth-field {
+        margin-bottom: 1.35rem;
+    }
+    .auth-field label {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.45rem;
+        letter-spacing: 0.2px;
+    }
+    .auth-field input,
+    .auth-field select {
+        width: 100%;
+        padding: 0.7rem 0.9rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: 10px;
+        font-size: 0.92rem;
+        font-family: inherit;
+        color: var(--text-dark);
+        background: var(--white);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .auth-field input:focus,
+    .auth-field select:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(74,144,226,0.12);
+    }
+    .auth-field select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.9rem center;
+        padding-right: 2.4rem;
+    }
+    .auth-field .help-text,
+    .auth-field .form-help-text {
+        font-size: 0.76rem;
+        color: var(--text-gray);
+        margin-top: 0.35rem;
+        line-height: 1.45;
+    }
+    .auth-field .help-text ul,
+    .auth-field .form-help-text ul {
+        margin: 0.25rem 0 0;
+        padding-left: 1.2rem;
+    }
+    .auth-field .help-text li,
+    .auth-field .form-help-text li {
+        margin-bottom: 0.1rem;
+    }
+    .auth-field .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0.4rem 0 0;
+    }
+    .auth-field .errorlist li,
+    .auth-field .form-error {
+        color: var(--danger);
+        font-size: 0.78rem;
+        padding: 0.15rem 0;
+    }
+    .auth-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .auth-submit {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, #4A90E2, #6C63FF);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 650;
+        font-family: inherit;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.1s;
+        margin-top: 0.5rem;
+    }
+    .auth-submit:hover { opacity: 0.92; }
+    .auth-submit:active { transform: scale(0.99); }
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border-color);
+    }
+    .auth-divider span {
+        font-size: 0.76rem;
+        color: var(--text-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+    .auth-switch {
+        text-align: center;
+        font-size: 0.88rem;
+        color: var(--text-gray);
+    }
+    .auth-switch a {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .auth-switch a:hover { text-decoration: underline; }
+    .auth-features {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 0.75rem;
+    }
+    .auth-feat {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.82);
+        background: rgba(255,255,255,0.12);
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+    }
+    .auth-feat svg { width: 12px; height: 12px; }
+    @media (max-width: 480px) {
+        .auth-body { padding: 1.5rem 1.25rem 1.5rem; }
+        .auth-banner { padding: 1.75rem 1.25rem 1.5rem; }
+        .auth-row { grid-template-columns: 1fr; }
+    }
+</style>
 
-<div class="form-container">
-    <div class="card">
-        <div class="text-center mb-4">
-            <h1 class="text-primary" style="font-size: 2rem; margin-bottom: 0.5rem;">Create Account</h1>
-            <p class="text-muted">Join Academic Assistant today</p>
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-banner">
+            <div class="auth-banner-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            </div>
+            <h1>Create Account</h1>
+            <p>Join the Academic Assistant community</p>
+            <div class="auth-features">
+                <span class="auth-feat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                    Share Documents
+                </span>
+                <span class="auth-feat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    Study Groups
+                </span>
+                <span class="auth-feat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Real-time Chat
+                </span>
+            </div>
         </div>
-        
-        <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="form-group">
-                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+        <div class="auth-body">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="auth-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                     {% if field.help_text %}
-                        <div class="form-help-text">{{ field.help_text|safe }}</div>
+                        <div class="help-text">{{ field.help_text|safe }}</div>
                     {% endif %}
                     {% if field.errors %}
-                        <ul style="list-style: none; padding: 0; margin-top: 0.5rem;">
+                        <ul class="errorlist">
                             {% for error in field.errors %}
-                                <li class="form-error">{{ error }}</li>
+                                <li>{{ error }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
                 </div>
-            {% endfor %}
-            
-            <button type="submit" class="btn btn-primary btn-block mt-3">Create Account</button>
-        </form>
-        
-        <div class="text-center mt-4">
-            <span class="text-muted">Already have an account? <a href="{% url 'login' %}" style="color: var(--primary-blue); text-decoration: none; font-weight: 500;">Log in</a></span>
+                {% endfor %}
+
+                <button type="submit" class="auth-submit">Create Account</button>
+            </form>
+
+            <div class="auth-divider"><span>or</span></div>
+
+            <div class="auth-switch">
+                Already have an account? <a href="{% url 'login' %}">Log in</a>
+            </div>
         </div>
     </div>
 </div>

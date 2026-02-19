@@ -94,8 +94,34 @@ def create_study_group(request):
 
 @login_required
 def group_list(request):
-    groups = StudyGroup.objects.all()
-    return render(request, 'resources/group_list.html', {'groups': groups})
+    all_groups = StudyGroup.objects.select_related('creator').prefetch_related('members').all()
+    
+    # Categorize groups for the current user
+    my_groups = []
+    pending_groups = []
+    available_groups = []
+    
+    # Get IDs of groups the user has pending requests for
+    pending_group_ids = set(
+        GroupJoinRequest.objects.filter(
+            user=request.user, status='pending'
+        ).values_list('group_id', flat=True)
+    )
+    
+    for group in all_groups:
+        if request.user in group.members.all():
+            my_groups.append(group)
+        elif group.id in pending_group_ids:
+            pending_groups.append(group)
+        else:
+            available_groups.append(group)
+    
+    return render(request, 'resources/group_list.html', {
+        'my_groups': my_groups,
+        'pending_groups': pending_groups,
+        'available_groups': available_groups,
+        'total_groups': all_groups.count(),
+    })
 @login_required
 def group_detail(request, group_id):
     group = get_object_or_404(StudyGroup, id=group_id)
@@ -138,6 +164,18 @@ def join_group(request, group_id):
 
 
 import pusher
+import requests
+
+# Disable SSL verification for development (Pusher SSL cert mismatch)
+_original_request = requests.Session.request
+def _patched_request(self, *args, **kwargs):
+    kwargs['verify'] = False
+    return _original_request(self, *args, **kwargs)
+requests.Session.request = _patched_request
+
+# Suppress urllib3 InsecureRequestWarning
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 pusher_client = pusher.Pusher(
     app_id=settings.PUSHER_APP_ID,
@@ -145,7 +183,6 @@ pusher_client = pusher.Pusher(
     secret=settings.PUSHER_SECRET,
     cluster=settings.PUSHER_CLUSTER,
     ssl=True,
-    ssl_verify=False  # Disable SSL verification for development
 )
 
 @login_required
@@ -168,8 +205,10 @@ def group_chat_view(request, group_id):
         messages.error(request, "You must be a member of this group to access the chat.")
         return redirect('group_detail', group_id=group.id)
     
-    messages_qs = group.messages.all().order_by('timestamp')
+    messages_qs = group.messages.select_related('user', 'parent_message', 'parent_message__user').order_by('timestamp')
     documents = group.documents.all()
+
+    reaction_emojis = MessageReaction.EMOJI_CHOICES
 
     return render(request, 'resources/group_chat.html', {
         'group': group,
@@ -179,6 +218,7 @@ def group_chat_view(request, group_id):
         'has_pending_request': has_pending_request,
         'pusher_key': settings.PUSHER_KEY,
         'pusher_cluster': settings.PUSHER_CLUSTER,
+        'reaction_emojis': reaction_emojis,
     })
 
 
@@ -210,6 +250,7 @@ def send_message(request, group_id):
             }, status=403)
     
     content = request.POST.get('content', '').strip()
+    parent_id = request.POST.get('parent_id')
     
     if not content:
         return JsonResponse({'success': False, 'error': 'Message content cannot be empty'}, status=400)
@@ -222,7 +263,8 @@ def send_message(request, group_id):
     message = Message.objects.create(
         group=group,
         user=request.user,
-        content=content
+        content=content,
+        parent_message_id=parent_id if parent_id else None
     )
     
     # Get user's full name or username for display
@@ -236,6 +278,11 @@ def send_message(request, group_id):
     
     # Trigger Pusher event for real-time updates to ALL users in the group
     try:
+        # Include parent message content for reply display
+        parent_content = None
+        if message.parent_message_id:
+            parent_content = message.parent_message.content if message.parent_message else None
+        
         pusher_client.trigger(f'group-{group.id}', 'new-message', {
             'username': request.user.username,
             'display_name': display_name,
@@ -245,6 +292,8 @@ def send_message(request, group_id):
             'user_id': request.user.id,
             'profile_picture_url': profile_picture_url,
             'initials': initials,
+            'parent_id': message.parent_message_id,
+            'parent_content': parent_content,
         })
     except Exception as e:
         # Pusher broadcast failed (e.g. SSL error) but message was saved successfully
@@ -255,6 +304,7 @@ def send_message(request, group_id):
         'success': True,
         'message_id': message.id,
         'timestamp': message.timestamp.isoformat(),
+        'parent_id': message.parent_message_id,
     })
 
 
@@ -550,28 +600,36 @@ def get_chat_token(request):
 @login_required
 def friends_list(request):
     """View all friends and friend requests"""
-    friends = Friendship.get_friends(request.user)
+    friends = Friendship.get_friends(request.user).select_related('profile')
     
     # Pending requests sent by user
-    sent_requests = Friendship.objects.filter(from_user=request.user, status='pending')
+    sent_requests = Friendship.objects.filter(
+        from_user=request.user, status='pending'
+    ).select_related('to_user__profile')
     
     # Pending requests received by user
-    received_requests = Friendship.objects.filter(to_user=request.user, status='pending')
+    received_requests = Friendship.objects.filter(
+        to_user=request.user, status='pending'
+    ).select_related('from_user__profile')
     
     # Get study group members who aren't friends yet
     group_members = User.objects.filter(
         study_groups__in=request.user.study_groups.all()
-    ).exclude(id=request.user.id).distinct()
+    ).exclude(id=request.user.id).select_related('profile').distinct()
     
-    # Filter out existing friends
+    # Filter out existing friends and pending requests
     friend_ids = [f.id for f in friends]
-    potential_friends = group_members.exclude(id__in=friend_ids)
+    sent_ids = [r.to_user_id for r in sent_requests]
+    received_ids = [r.from_user_id for r in received_requests]
+    exclude_ids = friend_ids + sent_ids + received_ids
+    potential_friends = group_members.exclude(id__in=exclude_ids)
     
     return render(request, 'resources/friends_list.html', {
         'friends': friends,
+        'friends_count': friends.count(),
         'sent_requests': sent_requests,
         'received_requests': received_requests,
-        'potential_friends': potential_friends[:10],  # Limit to 10 suggestions
+        'potential_friends': potential_friends[:10],
     })
 
 
@@ -704,15 +762,20 @@ def private_chats_list(request):
     """View all private chats"""
     chats = PrivateChat.objects.filter(
         Q(participant1=request.user) | Q(participant2=request.user)
-    ).select_related('participant1', 'participant2')
+    ).select_related(
+        'participant1', 'participant1__profile',
+        'participant2', 'participant2__profile',
+    ).order_by('-updated_at')
     
     # Add last message and unread count to each chat
     chat_data = []
+    total_unread = 0
     for chat in chats:
         last_message = chat.messages.order_by('-timestamp').first()
         unread_count = chat.messages.filter(
             is_read=False
         ).exclude(sender=request.user).count()
+        total_unread += unread_count
         
         chat_data.append({
             'chat': chat,
@@ -721,7 +784,11 @@ def private_chats_list(request):
             'unread_count': unread_count
         })
     
-    return render(request, 'resources/private_chats_list.html', {'chat_data': chat_data})
+    return render(request, 'resources/private_chats_list.html', {
+        'chat_data': chat_data,
+        'total_chats': len(chat_data),
+        'total_unread': total_unread,
+    })
 
 
 @login_required
@@ -803,7 +870,7 @@ def send_private_message(request, chat_id):
     
     # Trigger Pusher event
     try:
-        pusher_client.trigger(f'private-chat-{chat.id}', 'new-message', {
+        pusher_client.trigger(f'dm-chat-{chat.id}', 'new-message', {
             'message_id': message.id,
             'sender': request.user.username,
             'content': message.content,
@@ -841,7 +908,7 @@ def typing_indicator(request):
         if chat_type == 'group':
             channel = f'group-{chat_id}'
         else:
-            channel = f'private-chat-{chat_id}'
+            channel = f'dm-chat-{chat_id}'
 
         pusher_client.trigger(channel, 'typing', {
             'user_id': request.user.id,
@@ -917,7 +984,7 @@ def add_reaction(request):
                 action = 'added'
             
             # Trigger Pusher
-            pusher_client.trigger(f'private-chat-{message.chat.id}', 'reaction-update', {
+            pusher_client.trigger(f'dm-chat-{message.chat.id}', 'reaction-update', {
                 'message_id': message_id,
                 'emoji': emoji,
                 'user': request.user.username,

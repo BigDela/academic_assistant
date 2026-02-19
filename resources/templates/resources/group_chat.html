@@ -429,6 +429,107 @@
     }
 
     /* ============================================
+       REACTIONS & EMOJI PICKER
+    ============================================ */
+    .message-actions {
+        display: none;
+        position: absolute;
+        top: -8px;
+        gap: 0.25rem;
+    }
+    .message-wrapper.own .message-actions { right: 0; }
+    .message-wrapper.other .message-actions { left: 60px; }
+    .message-wrapper:hover .message-actions { display: flex; }
+    .action-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid var(--border-color, #e0e0e0);
+        background: white;
+        cursor: pointer;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .action-btn:hover {
+        background: var(--light-blue, #E8F4FD);
+        border-color: var(--primary-blue, #4A90E2);
+    }
+
+    .message-reactions {
+        display: flex;
+        gap: 0.25rem;
+        margin-top: 0.25rem;
+        flex-wrap: wrap;
+    }
+    .reaction {
+        background: white;
+        border: 1px solid #e8e8e8;
+        border-radius: 12px;
+        padding: 0.125rem 0.5rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .reaction:hover {
+        background: var(--light-blue, #E8F4FD);
+        border-color: var(--primary-blue, #4A90E2);
+    }
+
+    .emoji-picker {
+        position: absolute;
+        background: white;
+        border: 1px solid var(--border-color, #e0e0e0);
+        border-radius: 12px;
+        padding: 0.5rem;
+        display: none;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        z-index: 1000;
+        max-width: 200px;
+    }
+    .emoji-picker.active { display: flex; }
+    .emoji-option {
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 6px;
+        transition: background 0.15s;
+    }
+    .emoji-option:hover { background: var(--light-blue, #E8F4FD); }
+
+    /* Reply Indicator */
+    .reply-indicator {
+        animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Parent Message Display */
+    .parent-message {
+        background: rgba(74, 144, 226, 0.1);
+        border-left: 3px solid var(--primary-blue, #4A90E2);
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .message-wrapper.own .parent-message {
+        background: rgba(255, 255, 255, 0.2);
+        border-left-color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* ============================================
        TYPING INDICATOR
     ============================================ */
     .typing-indicator {
@@ -499,6 +600,12 @@
                     
                     <div class="message-bubble">
                         <div class="message-content">
+                            {% if msg.parent_message %}
+                            <div class="parent-message">
+                                <div style="font-weight: 500; margin-bottom: 0.25rem;">↩ Replying to {{ msg.parent_message.user.username }}</div>
+                                <div>{{ msg.parent_message.content|truncatewords:10 }}</div>
+                            </div>
+                            {% endif %}
                             {% if msg.user != request.user %}
                                 <div class="message-sender-name">{{ msg.user.username }}</div>
                             {% endif %}
@@ -506,6 +613,17 @@
                             <div class="message-meta">
                                 <span>{{ msg.timestamp|date:"g:i A" }}</span>
                             </div>
+                        </div>
+                        <div class="message-actions">
+                            <button class="action-btn emoji-trigger" data-message-id="{{ msg.id }}">😊</button>
+                            <button class="action-btn reply-btn" data-message-id="{{ msg.id }}">↩</button>
+                        </div>
+                        <div class="message-reactions" data-message-id="{{ msg.id }}">
+                            {% for reaction_data in msg.get_reactions_summary %}
+                            <span class="reaction" data-emoji="{{ reaction_data.emoji }}">
+                                {{ reaction_data.emoji }} {{ reaction_data.count }}
+                            </span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -518,6 +636,13 @@
                 <p>No messages yet. Start the conversation!</p>
             </div>
         {% endif %}
+    </div>
+
+    <!-- Emoji Picker -->
+    <div class="emoji-picker" id="emoji-picker">
+        {% for emoji, label in reaction_emojis %}
+        <span class="emoji-option" data-emoji="{{ emoji }}">{{ emoji }}</span>
+        {% endfor %}
     </div>
 
     <!-- Typing Indicator -->
@@ -576,7 +701,17 @@
     // Only append if it's from another user (own messages are appended immediately after send)
     if (data.user_id !== currentUserId) {
       const displayName = data.display_name || data.username;
-      appendMessage(displayName, data.message, data.timestamp, false, data.profile_picture_url, data.initials);
+      // Build parent HTML if this is a reply
+      let parentHtml = '';
+      if (data.parent_id && data.parent_content) {
+        parentHtml = `
+          <div class="parent-message">
+            <div style="font-weight: 500; margin-bottom: 0.25rem;">↩ Replying to</div>
+            <div>${escapeHtml(data.parent_content.substring(0, 50))}${data.parent_content.length > 50 ? '...' : ''}</div>
+          </div>
+        `;
+      }
+      appendMessage(displayName, data.message, data.timestamp, false, data.profile_picture_url, data.initials, data.message_id, parentHtml);
     }
   });
   
@@ -623,6 +758,119 @@
       showNotification(`👋 ${data.display_name} joined the group!`, 'info');
     }
   });
+
+  // ============ REACTIONS ============
+  // Listen for reaction updates from Pusher
+  groupChannel.bind('reaction-update', function(data) {
+    if (data.user !== currentUsername) {
+      updateReactionUI(data.message_id, data.emoji, data.action);
+    }
+  });
+
+  // Add reaction via AJAX
+  async function addReaction(messageId, emoji) {
+    try {
+      const response = await fetch('{% url "add_reaction" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken
+        },
+        body: `message_id=${messageId}&emoji=${encodeURIComponent(emoji)}&message_type=group`
+      });
+      const data = await response.json();
+      if (data.success) {
+        updateReactionUI(messageId, emoji, data.action);
+      }
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+    }
+  }
+
+  // Update reaction display on a message
+  function updateReactionUI(messageId, emoji, action) {
+    const wrapper = document.querySelector(`.message-wrapper[data-message-id="${messageId}"]`);
+    if (!wrapper) return;
+
+    let reactionsDiv = wrapper.querySelector('.message-reactions');
+    if (!reactionsDiv) {
+      reactionsDiv = document.createElement('div');
+      reactionsDiv.className = 'message-reactions';
+      reactionsDiv.dataset.messageId = messageId;
+      const bubble = wrapper.querySelector('.message-bubble');
+      bubble.appendChild(reactionsDiv);
+    }
+
+    let reactionSpan = reactionsDiv.querySelector(`span.reaction[data-emoji="${emoji}"]`);
+
+    if (action === 'added') {
+      if (reactionSpan) {
+        const count = parseInt(reactionSpan.textContent.replace(emoji, '').trim()) || 0;
+        reactionSpan.textContent = `${emoji} ${count + 1}`;
+      } else {
+        reactionSpan = document.createElement('span');
+        reactionSpan.className = 'reaction';
+        reactionSpan.dataset.emoji = emoji;
+        reactionSpan.textContent = `${emoji} 1`;
+        reactionsDiv.appendChild(reactionSpan);
+      }
+    } else if (action === 'removed') {
+      if (reactionSpan) {
+        const count = parseInt(reactionSpan.textContent.replace(emoji, '').trim()) || 0;
+        if (count <= 1) {
+          reactionSpan.remove();
+        } else {
+          reactionSpan.textContent = `${emoji} ${count - 1}`;
+        }
+      }
+    }
+  }
+
+  // Reply state
+  let replyingToId = null;
+  let replyingToContent = null;
+
+  // Emoji picker & reply click handling
+  document.addEventListener('click', function(e) {
+    // Reply button
+    if (e.target.classList.contains('reply-btn') || e.target.closest('.reply-btn')) {
+      const btn = e.target.classList.contains('reply-btn') ? e.target : e.target.closest('.reply-btn');
+      const messageId = btn.dataset.messageId;
+      const messageWrapper = btn.closest('.message-wrapper');
+      const messageText = messageWrapper.querySelector('.message-text').textContent;
+      replyingToId = messageId;
+      replyingToContent = messageText;
+      showReplyIndicator(messageText);
+      document.getElementById('message-input').focus();
+      return;
+    }
+    // Open emoji picker
+    if (e.target.classList.contains('emoji-trigger') || e.target.closest('.emoji-trigger')) {
+      e.stopPropagation();
+      const btn = e.target.classList.contains('emoji-trigger') ? e.target : e.target.closest('.emoji-trigger');
+      const messageId = btn.dataset.messageId;
+      const picker = document.getElementById('emoji-picker');
+      const rect = btn.getBoundingClientRect();
+      picker.style.position = 'fixed';
+      picker.style.left = rect.left + 'px';
+      picker.style.bottom = (window.innerHeight - rect.top + 5) + 'px';
+      picker.classList.add('active');
+      picker.dataset.messageId = messageId;
+      return;
+    }
+    // Select emoji
+    if (e.target.classList.contains('emoji-option')) {
+      const emoji = e.target.dataset.emoji;
+      const messageId = document.getElementById('emoji-picker').dataset.messageId;
+      if (messageId) addReaction(messageId, emoji);
+      document.getElementById('emoji-picker').classList.remove('active');
+      return;
+    }
+    // Close picker on outside click
+    if (!e.target.closest('.emoji-picker') && !e.target.closest('.emoji-trigger')) {
+      document.getElementById('emoji-picker').classList.remove('active');
+    }
+  });
   
   // Scroll to bottom of chat
   function scrollToBottom() {
@@ -631,7 +879,7 @@
   }
   
   // Append message to chat
-  function appendMessage(username, content, timestamp, isOwn, profilePictureUrl = null, initials = null) {
+  function appendMessage(username, content, timestamp, isOwn, profilePictureUrl = null, initials = null, messageId = null, parentHtml = '') {
     const chatBox = document.getElementById('chat-box');
     
     // Remove "no messages" placeholder
@@ -643,6 +891,7 @@
     // Create message wrapper
     const messageWrapper = document.createElement('div');
     messageWrapper.className = `message-wrapper ${isOwn ? 'own' : 'other'}`;
+    if (messageId) messageWrapper.dataset.messageId = messageId;
     
     let html = '';
     
@@ -662,6 +911,11 @@
     html += `<div class="message-bubble">`;
     html += `  <div class="message-content">`;
     
+    // Add parent message if replying
+    if (parentHtml) {
+      html += parentHtml;
+    }
+    
     // Add sender name for other users
     if (!isOwn) {
       html += `    <div class="message-sender-name">${username}</div>`;
@@ -670,6 +924,13 @@
     html += `    <div class="message-text">${content}</div>`;
     html += `    <div class="message-meta"><span>${timestamp}</span></div>`;
     html += `  </div>`;
+    if (messageId) {
+      html += `  <div class="message-actions">`;
+      html += `    <button class="action-btn emoji-trigger" data-message-id="${messageId}">😊</button>`;
+      html += `    <button class="action-btn reply-btn" data-message-id="${messageId}">↩</button>`;
+      html += `  </div>`;
+      html += `  <div class="message-reactions" data-message-id="${messageId}"></div>`;
+    }
     html += `</div>`;
     
     messageWrapper.innerHTML = html;
@@ -696,8 +957,37 @@
     return div.innerHTML;
   }
   
-  // Send message via AJAX
-  async function sendMessage() {
+  // Show reply indicator above input
+  function showReplyIndicator(messageText) {
+    const inputArea = document.querySelector('.group-chat-input');
+    
+    // Remove existing indicator
+    const existing = inputArea.querySelector('.reply-indicator');
+    if (existing) existing.remove();
+    
+    // Create new indicator
+    const indicator = document.createElement('div');
+    indicator.className = 'reply-indicator';
+    indicator.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--light-blue); border-radius: 8px; margin-bottom: 0.5rem;">
+        <span style="color: var(--primary-blue); font-weight: 500;">↩ Replying to:</span>
+        <span style="color: var(--text-gray); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(messageText.substring(0, 50))}${messageText.length > 50 ? '...' : ''}</span>
+        <button onclick="cancelReply()" style="background: none; border: none; color: var(--text-gray); cursor: pointer; font-size: 1.2rem;">×</button>
+      </div>
+    `;
+    
+    inputArea.insertBefore(indicator, inputArea.firstChild);
+  }
+  
+  window.cancelReply = function() {
+    replyingToId = null;
+    replyingToContent = null;
+    const indicator = document.querySelector('.reply-indicator');
+    if (indicator) indicator.remove();
+  };
+
+  // Send message via AJAX (with reply support)
+  async function sendMessageWithReply() {
     if (!isMember) {
       showNotification('⚠️ You must be an approved member to send messages', 'warning');
       return;
@@ -723,7 +1013,7 @@
           'Content-Type': 'application/x-www-form-urlencoded',
           'X-CSRFToken': csrfToken
         },
-        body: `content=${encodeURIComponent(content)}`
+        body: `content=${encodeURIComponent(content)}${replyingToId ? '&parent_id=' + replyingToId : ''}`
       });
       
       // Parse JSON response
@@ -731,11 +1021,26 @@
       
       // Check for successful response
       if (response.ok && data.success) {
+        // Build parent HTML if replying
+        let parentHtml = '';
+        if (replyingToId && replyingToContent) {
+          parentHtml = `
+            <div class="parent-message">
+              <div style="font-weight: 500; margin-bottom: 0.25rem;">↩ Replying to</div>
+              <div>${escapeHtml(replyingToContent.substring(0, 50))}${replyingToContent.length > 50 ? '...' : ''}</div>
+            </div>
+          `;
+        }
         // Immediately append own message (optimistic UI update)
         const displayName = "{{ request.user.get_full_name|default:request.user.username }}";
-        appendMessage(displayName, content, data.timestamp, true, currentUserProfilePicture, currentUserInitials);
+        appendMessage(displayName, content, data.timestamp, true, currentUserProfilePicture, currentUserInitials, data.message_id, parentHtml);
         input.value = '';
         input.style.height = 'auto'; // Reset textarea height
+        
+        // Clear reply state
+        if (replyingToId) {
+          cancelReply();
+        }
       } else {
         // Handle specific error cases
         if (data.pending) {
@@ -792,13 +1097,13 @@
     if (input && sendBtn) {
       sendBtn.addEventListener('click', function(e) {
         console.log('Send button clicked');
-        sendMessage();
+        sendMessageWithReply();
       });
       input.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
           console.log('Enter pressed, sending message');
-          sendMessage();
+          sendMessageWithReply();
         }
       });
       console.log('Event listeners attached successfully');

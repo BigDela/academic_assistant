@@ -2,225 +2,469 @@
 {% block title %}Discover - Academic Assistant{% endblock %}
 {% block content %}
 <style>
-    .discovery-container {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    
-    .page-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-    
-    .page-header h1 {
-        font-size: 2.5rem;
-        color: var(--primary-blue);
-        margin-bottom: 0.5rem;
-    }
-    
-    .page-header p {
-        font-size: 1.1rem;
-        color: var(--text-gray);
-    }
-    
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-    
-    .stat-card {
-        background: var(--white);
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        text-align: center;
-    }
-    
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--primary-blue);
-        margin-bottom: 0.5rem;
-    }
-    
-    .stat-label {
-        color: var(--text-gray);
-        font-size: 0.9rem;
-    }
-    
-    .stat-badge {
-        background: var(--danger);
+    .disc-page { max-width: 1100px; margin: 0 auto; }
+
+    /* Hero */
+    .disc-hero {
+        background: linear-gradient(135deg, #4A90E2 0%, #6C63FF 50%, #8B5CF6 100%);
+        border-radius: 20px;
+        padding: 2.75rem 2.5rem 2.25rem;
         color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-left: 0.5rem;
-    }
-    
-    .discovery-options {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-    }
-    
-    .discovery-card {
-        background: var(--white);
-        border-radius: 16px;
-        padding: 2.5rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s;
-        text-align: center;
-    }
-    
-    .discovery-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    }
-    
-    .discovery-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-    }
-    
-    .discovery-card h2 {
-        color: var(--text-dark);
-        font-size: 1.5rem;
-        margin-bottom: 0.75rem;
-    }
-    
-    .discovery-card p {
-        color: var(--text-gray);
-        margin-bottom: 1.5rem;
-        line-height: 1.6;
-    }
-    
-    .discover-btn {
-        display: inline-block;
-        padding: 0.875rem 2rem;
-        background: var(--primary-blue);
-        color: white;
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-    
-    .discover-btn:hover {
-        background: var(--dark-blue);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-    }
-    
-    .info-section {
-        background: var(--light-blue);
-        padding: 2rem;
-        border-radius: 12px;
         margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
     }
-    
-    .info-section h3 {
-        color: var(--primary-blue);
-        margin-bottom: 1rem;
+    .disc-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -8%;
+        width: 320px;
+        height: 320px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 50%;
     }
-    
-    .info-section ul {
-        list-style: none;
-        padding: 0;
+    .disc-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -40%;
+        left: 15%;
+        width: 220px;
+        height: 220px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 50%;
     }
-    
-    .info-section li {
-        padding: 0.5rem 0;
-        color: var(--text-gray);
+    .disc-hero-inner { position: relative; z-index: 1; }
+    .disc-hero h1 {
+        font-size: 1.85rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
     }
-    
-    .info-section li:before {
-        content: "";
-        width: 1rem;
-        height: 1rem;
-        background: var(--success);
-        border-radius: 50%;
+    .disc-hero h1 svg { width: 30px; height: 30px; }
+    .disc-hero-sub {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        max-width: 560px;
+        line-height: 1.6;
+    }
+    .disc-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.75rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid rgba(255,255,255,0.15);
+        flex-wrap: wrap;
+    }
+    .disc-stat { display: flex; flex-direction: column; }
+    .disc-stat-val {
+        font-size: 1.4rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .disc-stat-lbl {
+        font-size: 0.72rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .disc-stat-badge {
+        font-size: 0.6rem;
+        font-weight: 700;
+        background: #EF4444;
+        padding: 0.1rem 0.45rem;
+        border-radius: 6px;
+        letter-spacing: 0.3px;
+    }
+
+    /* Action Cards */
+    .disc-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    .disc-action-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+    .disc-action-card:hover {
+        border-color: transparent;
+        transform: translateY(-3px);
+    }
+    .disc-action-card.people:hover { box-shadow: 0 12px 32px rgba(74,144,226,0.18); }
+    .disc-action-card.groups:hover { box-shadow: 0 12px 32px rgba(139,92,246,0.18); }
+
+    .disc-action-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+    }
+    .disc-action-icon svg { width: 24px; height: 24px; }
+    .disc-action-icon.people-icon {
+        background: linear-gradient(135deg, #E8F4FD, #DBEAFE);
+        color: #4A90E2;
+    }
+    .disc-action-icon.groups-icon {
+        background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+        color: #8B5CF6;
+    }
+    .disc-action-card h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    .disc-action-card p {
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex: 1;
+    }
+    .disc-action-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1.25rem;
+    }
+    .disc-feature-tag {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+    }
+    .disc-feature-tag.blue { background: #E8F4FD; color: #2563EB; }
+    .disc-feature-tag.purple { background: #EDE9FE; color: #7C3AED; }
+    .disc-feature-tag.green { background: #D1FAE5; color: #059669; }
+
+    .disc-go-btn {
         display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.7rem 1.5rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        color: white;
+    }
+    .disc-go-btn svg { width: 16px; height: 16px; }
+    .disc-go-btn.people-btn { background: #4A90E2; }
+    .disc-go-btn.people-btn:hover { background: #2E5C8A; }
+    .disc-go-btn.groups-btn { background: #8B5CF6; }
+    .disc-go-btn.groups-btn:hover { background: #6D28D9; }
+
+    /* Alert Banner */
+    .disc-alert {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--white);
+        border: 1px solid #FCD34D;
+        border-left: 4px solid #F59E0B;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .disc-alert-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #FEF3C7;
+        color: #D97706;
+        display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
     }
+    .disc-alert-icon svg { width: 18px; height: 18px; }
+    .disc-alert-body { flex: 1; }
+    .disc-alert-body strong { color: var(--text-dark); font-size: 0.9rem; }
+    .disc-alert-body p { color: var(--text-gray); font-size: 0.8rem; margin-top: 0.15rem; }
+    .disc-alert-btn {
+        padding: 0.45rem 1rem;
+        border-radius: 8px;
+        background: #F59E0B;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        flex-shrink: 0;
+        transition: background 0.2s;
+    }
+    .disc-alert-btn:hover { background: #D97706; }
+
+    /* How It Works */
+    .disc-how {
+        background: var(--white);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .disc-how-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .disc-how-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+    .disc-how-step {
+        text-align: center;
+        padding: 1.25rem 1rem;
+        background: var(--light-blue);
+        border-radius: 12px;
+    }
+    .disc-how-num {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--primary-blue);
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+    }
+    .disc-how-step h4 {
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+    .disc-how-step p {
+        color: var(--text-gray);
+        font-size: 0.8rem;
+        line-height: 1.5;
+    }
+
+    /* Tips */
+    .disc-tips {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    .disc-tip {
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        gap: 0.75rem;
+    }
+    .disc-tip-icon {
+        font-size: 1.5rem;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+    .disc-tip h4 {
+        font-size: 0.85rem;
+        color: var(--text-dark);
+        margin-bottom: 0.2rem;
+    }
+    .disc-tip p {
+        font-size: 0.78rem;
+        color: var(--text-gray);
+        line-height: 1.45;
+    }
+
+    @media (max-width: 768px) {
+        .disc-hero { padding: 1.75rem 1.25rem 1.5rem; border-radius: 16px; }
+        .disc-hero h1 { font-size: 1.5rem; }
+        .disc-stats { gap: 1.25rem; }
+        .disc-actions { grid-template-columns: 1fr; }
+        .disc-how-grid { grid-template-columns: 1fr; }
+        .disc-tips { grid-template-columns: 1fr; }
+        .disc-alert { flex-wrap: wrap; }
+        .disc-alert-btn { width: 100%; text-align: center; }
+    }
 </style>
 
-<div class="discovery-container">
-    <div class="page-header">
-        <h1><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-search"></use></svg> Discover</h1>
-        <p>Find friends and groups that match your interests and courses</p>
-    </div>
-    
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-value">{{ friends_count }}</div>
-            <div class="stat-label">Friends</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ groups_count }}</div>
-            <div class="stat-label">Study Groups</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">
-                {{ pending_requests }}
-                {% if pending_requests > 0 %}
-                <span class="stat-badge">NEW</span>
-                {% endif %}
+<div class="disc-page">
+    <!-- Hero -->
+    <div class="disc-hero">
+        <div class="disc-hero-inner">
+            <h1>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Discover
+            </h1>
+            <p class="disc-hero-sub">
+                Find classmates who share your courses, connect with study partners, and join groups to collaborate — all powered by a smart matching algorithm that recommends people and groups based on your profile.
+            </p>
+            <div class="disc-stats">
+                <div class="disc-stat">
+                    <span class="disc-stat-val">{{ friends_count }}</span>
+                    <span class="disc-stat-lbl">Friends</span>
+                </div>
+                <div class="disc-stat">
+                    <span class="disc-stat-val">{{ groups_count }}</span>
+                    <span class="disc-stat-lbl">Study Groups</span>
+                </div>
+                <div class="disc-stat">
+                    <span class="disc-stat-val">
+                        {{ pending_requests }}
+                        {% if pending_requests > 0 %}<span class="disc-stat-badge">NEW</span>{% endif %}
+                    </span>
+                    <span class="disc-stat-lbl">Friend Requests</span>
+                </div>
+                <div class="disc-stat">
+                    <span class="disc-stat-val">
+                        {{ pending_join_requests }}
+                        {% if pending_join_requests > 0 %}<span class="disc-stat-badge">NEW</span>{% endif %}
+                    </span>
+                    <span class="disc-stat-lbl">Join Requests</span>
+                </div>
             </div>
-            <div class="stat-label">Friend Requests</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">
-                {{ pending_join_requests }}
-                {% if pending_join_requests > 0 %}
-                <span class="stat-badge">NEW</span>
-                {% endif %}
-            </div>
-            <div class="stat-label">Join Requests</div>
         </div>
     </div>
-    
-    <div class="discovery-options">
-        <div class="discovery-card">
-            <div class="discovery-icon"><svg class="icon-xxl icon-primary"><use href="#icon-users"></use></svg></div>
-            <h2>Discover People</h2>
-            <p>Find classmates and students with similar interests. Connect with people from your course, program, or year level.</p>
-            <a href="{% url 'discover_users' %}" class="discover-btn">Find Friends</a>
-        </div>
-        
-        <div class="discovery-card">
-            <div class="discovery-icon"><svg class="icon-xxl icon-primary"><use href="#icon-book"></use></svg></div>
-            <h2>Discover Groups</h2>
-            <p>Join study groups related to your courses. Collaborate with peers and access shared resources.</p>
-            <a href="{% url 'discover_groups' %}" class="discover-btn">Find Groups</a>
-        </div>
-    </div>
-    
+
+    <!-- Pending Alert -->
     {% if pending_join_requests > 0 %}
-    <div class="info-section" style="background: #FEF3C7; border-left: 4px solid var(--warning);">
-        <h3><svg class="icon" style="vertical-align: middle;"><use href="#icon-clock"></use></svg> Pending Actions</h3>
-        <p>You have <strong>{{ pending_join_requests }}</strong> group join request(s) waiting for review.</p>
-        <a href="{% url 'group_join_requests_manage' %}" class="btn btn-primary" style="margin-top: 1rem;">Review Requests</a>
+    <div class="disc-alert">
+        <div class="disc-alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="disc-alert-body">
+            <strong>{{ pending_join_requests }} Pending Join Request{{ pending_join_requests|pluralize }}</strong>
+            <p>Students are waiting to join groups you manage. Review and respond to keep things moving.</p>
+        </div>
+        <a href="{% url 'group_join_requests_manage' %}" class="disc-alert-btn">Review Now</a>
     </div>
     {% endif %}
-    
-    <div class="info-section">
-        <h3>💡 How Discovery Works</h3>
-        <ul>
-            <li>We match you with users and groups based on your course, program, and interests</li>
-            <li>Accept users you'd like to connect with - both sides must accept to become friends</li>
-            <li>Show interest in groups - admins will review your request</li>
-            <li>Rejected or skipped items won't show up again</li>
-            <li>Build your network and collaborate more effectively</li>
-        </ul>
+
+    {% if pending_requests > 0 %}
+    <div class="disc-alert">
+        <div class="disc-alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="disc-alert-body">
+            <strong>{{ pending_requests }} Friend Request{{ pending_requests|pluralize }}</strong>
+            <p>Someone wants to connect with you! Check your friends list to accept or decline.</p>
+        </div>
+        <a href="{% url 'friends_list' %}" class="disc-alert-btn">View Requests</a>
+    </div>
+    {% endif %}
+
+    <!-- Action Cards -->
+    <div class="disc-actions">
+        <div class="disc-action-card people">
+            <div class="disc-action-icon people-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h2>Discover People</h2>
+            <p>Find students who share your courses, year, and program. Our matching algorithm scores each profile so you see the most relevant people first. Swipe to connect!</p>
+            <div class="disc-action-features">
+                <span class="disc-feature-tag blue">Course Matching</span>
+                <span class="disc-feature-tag green">Year & Program Filter</span>
+                <span class="disc-feature-tag purple">Smart Ranking</span>
+            </div>
+            <a href="{% url 'discover_users' %}" class="disc-go-btn people-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Find Friends
+            </a>
+        </div>
+
+        <div class="disc-action-card groups">
+            <div class="disc-action-icon groups-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <h2>Discover Groups</h2>
+            <p>Browse study groups related to your courses. Send a join request with a personal message and start collaborating with peers once approved by the group admin.</p>
+            <div class="disc-action-features">
+                <span class="disc-feature-tag purple">Group Matching</span>
+                <span class="disc-feature-tag blue">Join Requests</span>
+                <span class="disc-feature-tag green">Real-time Chat</span>
+            </div>
+            <a href="{% url 'discover_groups' %}" class="disc-go-btn groups-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Find Groups
+            </a>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="disc-how">
+        <h3 class="disc-how-title">
+            <svg style="width: 20px; height: 20px; color: var(--primary-blue);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            How Discovery Works
+        </h3>
+        <div class="disc-how-grid">
+            <div class="disc-how-step">
+                <div class="disc-how-num">1</div>
+                <h4>Browse Profiles</h4>
+                <p>We show you people and groups matched to your course, year, and program — highest matches first.</p>
+            </div>
+            <div class="disc-how-step">
+                <div class="disc-how-num">2</div>
+                <h4>Swipe to Act</h4>
+                <p>Accept to send a friend request or show interest in a group. Skip or reject to move on — they won't reappear.</p>
+            </div>
+            <div class="disc-how-step">
+                <div class="disc-how-num">3</div>
+                <h4>Start Collaborating</h4>
+                <p>Once connected, chat privately with friends or join group discussions with shared documents and real-time messaging.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="disc-tips">
+        <div class="disc-tip">
+            <div class="disc-tip-icon">⌨️</div>
+            <div>
+                <h4>Keyboard Shortcuts</h4>
+                <p>Use ← to reject, → to skip, and ↑ or Space to accept while browsing cards.</p>
+            </div>
+        </div>
+        <div class="disc-tip">
+            <div class="disc-tip-icon">🎯</div>
+            <div>
+                <h4>Match Scores</h4>
+                <p>Profiles and groups are ranked by how closely they match your course, year, and program.</p>
+            </div>
+        </div>
+        <div class="disc-tip">
+            <div class="disc-tip-icon">💬</div>
+            <div>
+                <h4>Add a Message</h4>
+                <p>When requesting to join a group, include a message to boost your chances of being approved.</p>
+            </div>
+        </div>
+        <div class="disc-tip">
+            <div class="disc-tip-icon">🔄</div>
+            <div>
+                <h4>Fresh Results</h4>
+                <p>New users and groups appear as more people join. Check back regularly for new matches!</p>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

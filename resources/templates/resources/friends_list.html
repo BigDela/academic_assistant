@@ -2,186 +2,467 @@
 {% block title %}Friends - Academic Assistant{% endblock %}
 {% block content %}
 <style>
-    .friends-container {
-        max-width: 1200px;
+    .fl-page {
+        max-width: 900px;
         margin: 0 auto;
     }
-    
-    .page-header {
+
+    /* ── Hero ── */
+    .fl-hero {
+        background: linear-gradient(135deg, #4A90E2 0%, #6C63FF 60%, #7C3AED 100%);
+        border-radius: 20px;
+        padding: 2.5rem 2.5rem 2rem;
+        margin-bottom: 2rem;
+        color: white;
+    }
+    .fl-hero-top {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
+        align-items: flex-start;
         flex-wrap: wrap;
         gap: 1rem;
+        margin-bottom: 1.75rem;
     }
-    
-    .page-header h1 {
-        color: var(--primary-blue);
-        font-size: 2rem;
+    .fl-hero h1 {
+        font-size: 1.65rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
     }
-    
-    .section {
-        background: var(--white);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    .fl-hero h1 svg { width: 28px; height: 28px; }
+    .fl-hero-sub {
+        font-size: 0.88rem;
+        opacity: 0.85;
+        margin-top: 0.3rem;
     }
-    
-    .section-title {
-        color: #2c3e50;
-        font-size: 1.25rem;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid var(--light-blue);
+    .fl-add-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1.2rem;
+        background: rgba(255,255,255,0.18);
+        backdrop-filter: blur(4px);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.28);
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: background 0.2s;
+        white-space: nowrap;
     }
-    
-    .friends-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    .fl-add-btn:hover { background: rgba(255,255,255,0.32); }
+    .fl-add-btn svg { width: 16px; height: 16px; }
+
+    .fl-stats {
+        display: flex;
         gap: 1rem;
     }
-    
-    .friend-card {
+    .fl-stat {
+        background: rgba(255,255,255,0.14);
+        backdrop-filter: blur(4px);
+        border-radius: 12px;
+        padding: 0.75rem 1.4rem;
+        text-align: center;
+        min-width: 80px;
+    }
+    .fl-stat-num { font-size: 1.5rem; font-weight: 700; }
+    .fl-stat-label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        opacity: 0.8;
+        margin-top: 0.1rem;
+    }
+
+    /* ── Alert banner ── */
+    .fl-alert {
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 1rem;
-        background: var(--light-blue);
-        border-radius: 12px;
-        transition: all 0.2s;
+        background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+        border: 1px solid #FBBF24;
+        border-radius: 14px;
+        padding: 1.1rem 1.5rem;
+        margin-bottom: 2rem;
     }
-    
-    .friend-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .friend-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: var(--primary-blue);
+    .fl-alert-icon {
+        width: 40px;
+        height: 40px;
+        background: #F59E0B;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 1.5rem;
-        font-weight: bold;
+        flex-shrink: 0;
+    }
+    .fl-alert-icon svg { width: 20px; height: 20px; }
+    .fl-alert strong { color: #92400E; font-size: 0.92rem; }
+    .fl-alert p { font-size: 0.78rem; color: #92400E; opacity: 0.75; margin-top: 0.1rem; }
+
+    /* ── Section headers ── */
+    .fl-section { margin-bottom: 2.5rem; }
+    .fl-section-head {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.25rem;
+    }
+    .fl-section-dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .fl-section-dot.blue   { background: var(--primary-blue); }
+    .fl-section-dot.amber  { background: #F59E0B; }
+    .fl-section-dot.green  { background: #10B981; }
+    .fl-section-dot.purple { background: #7C3AED; }
+    .fl-section-label {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+    .fl-section-count {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.2rem 0.55rem;
+        border-radius: 20px;
+        background: var(--light-blue);
+        color: var(--primary-blue);
+    }
+    .fl-section-desc {
+        font-size: 0.8rem;
+        color: var(--text-gray);
+        margin: -0.75rem 0 1.25rem 1.1rem;
+    }
+
+    /* ── Search ── */
+    .fl-search {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+    .fl-search input {
+        width: 100%;
+        padding: 0.7rem 1rem 0.7rem 2.5rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-family: inherit;
+        color: var(--text-dark);
+        background: var(--white);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .fl-search input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(74,144,226,0.1);
+    }
+    .fl-search-icon {
+        position: absolute;
+        left: 0.85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-gray);
+        pointer-events: none;
+    }
+    .fl-search-icon svg { width: 16px; height: 16px; }
+
+    /* ── Card grid ── */
+    .fl-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1rem;
+    }
+
+    /* ── Friend card (spacious) ── */
+    .fl-card {
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.35rem 1.4rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    .fl-card:hover {
+        border-color: var(--primary-blue);
+        box-shadow: 0 6px 20px rgba(74,144,226,0.1);
+        transform: translateY(-2px);
+    }
+
+    /* ── Avatar ── */
+    .fl-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
         object-fit: cover;
         flex-shrink: 0;
     }
-    
-    .friend-info {
-        flex: 1;
-    }
-    
-    .friend-name {
-        color: #2c3e50;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-    
-    .friend-actions {
+    .fl-avatar-ph {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
         display: flex;
-        gap: 0.5rem;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
     }
-    
-    .btn-small {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.85rem;
-        border-radius: 6px;
-        text-decoration: none;
+
+    /* ── Info block ── */
+    .fl-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .fl-info a { text-decoration: none; }
+    .fl-name {
+        font-size: 0.95rem;
+        font-weight: 650;
+        color: var(--text-dark);
+        margin-bottom: 0.15rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .fl-name:hover { color: var(--primary-blue); }
+    .fl-username {
+        font-size: 0.78rem;
+        color: var(--text-gray);
+        margin-bottom: 0.5rem;
+    }
+
+    /* ── Tags row ── */
+    .fl-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.1rem;
+    }
+    .fl-tag {
         display: inline-flex;
         align-items: center;
-        gap: 0.25rem;
+        gap: 0.2rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        white-space: nowrap;
+    }
+    .fl-tag svg { width: 10px; height: 10px; }
+    .fl-tag.course { background: var(--light-blue); color: var(--primary-blue); }
+    .fl-tag.year { background: #F0FDF4; color: #16A34A; }
+    .fl-tag.program { background: #F5F3FF; color: #7C3AED; }
+    .fl-tag.group { background: #FFF7ED; color: #EA580C; }
+    .fl-tag.time { background: #F3F4F6; color: var(--text-gray); }
+
+    /* ── Actions ── */
+    .fl-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-shrink: 0;
+        align-self: center;
+    }
+    .fl-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
         transition: all 0.2s;
+        text-decoration: none;
+    }
+    .fl-btn svg { width: 16px; height: 16px; }
+    .fl-btn:hover { transform: scale(1.1); }
+
+    .fl-btn.chat    { background: #EBF5FF; color: var(--primary-blue); }
+    .fl-btn.chat:hover    { background: var(--primary-blue); color: white; }
+    .fl-btn.accept  { background: #D1FAE5; color: #059669; }
+    .fl-btn.accept:hover  { background: #059669; color: white; }
+    .fl-btn.decline { background: #F3F4F6; color: #6B7280; }
+    .fl-btn.decline:hover { background: #6B7280; color: white; }
+    .fl-btn.remove  { background: #FEE2E2; color: #DC2626; }
+    .fl-btn.remove:hover  { background: #DC2626; color: white; }
+
+    .fl-btn-text {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.45rem 0.85rem;
+        border-radius: 10px;
         border: none;
         cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        white-space: nowrap;
     }
-    
-    .btn-chat {
-        background: var(--primary-blue);
-        color: white;
+    .fl-btn-text svg { width: 14px; height: 14px; }
+    .fl-btn-text.add { background: #EDE9FE; color: #7C3AED; }
+    .fl-btn-text.add:hover { background: #7C3AED; color: white; }
+
+    .fl-pending-pill {
+        font-size: 0.68rem;
+        font-weight: 600;
+        padding: 0.25rem 0.65rem;
+        border-radius: 20px;
+        background: #FEF3C7;
+        color: #B45309;
+        white-space: nowrap;
+        align-self: center;
     }
-    
-    .btn-chat:hover {
-        background: var(--dark-blue);
-    }
-    
-    .btn-remove {
-        background: var(--danger);
-        color: white;
-    }
-    
-    .btn-remove:hover {
-        background: #c82333;
-    }
-    
-    .btn-accept {
-        background: var(--success);
-        color: white;
-    }
-    
-    .btn-accept:hover {
-        background: #218838;
-    }
-    
-    .btn-decline {
-        background: var(--text-gray);
-        color: white;
-    }
-    
-    .btn-decline:hover {
-        background: #5a6268;
-    }
-    
-    .btn-add-friend {
-        background: var(--primary-blue);
-        color: white;
-    }
-    
-    .btn-add-friend:hover {
-        background: var(--dark-blue);
-    }
-    
-    .empty-state {
+
+    /* ── Empty state ── */
+    .fl-empty {
         text-align: center;
-        padding: 2rem;
-        color: #6c757d;
+        padding: 3.5rem 2rem;
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 18px;
+    }
+    .fl-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .fl-empty h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    .fl-empty p {
+        font-size: 0.88rem;
+        color: var(--text-gray);
+        max-width: 380px;
+        margin: 0 auto 1.5rem;
+        line-height: 1.55;
+    }
+    .fl-empty-btns {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    .fl-empty-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .fl-empty-btn svg { width: 16px; height: 16px; }
+    .fl-empty-btn.primary { background: var(--primary-blue); color: white; }
+    .fl-empty-btn.primary:hover { background: var(--dark-blue); }
+    .fl-empty-btn.outline { background: var(--white); color: var(--primary-blue); border: 1.5px solid var(--primary-blue); }
+    .fl-empty-btn.outline:hover { background: var(--light-blue); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+        .fl-hero { padding: 1.75rem 1.5rem 1.5rem; }
+        .fl-hero-top { flex-direction: column; }
+        .fl-stats { flex-wrap: wrap; }
+        .fl-grid { grid-template-columns: 1fr; }
+        .fl-card { padding: 1.1rem; }
     }
 </style>
 
-<div class="friends-container">
-    <div class="page-header">
-        <h1><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-users"></use></svg> Friends</h1>
-        <a href="{% url 'add_friend' %}" class="btn btn-primary">+ Add Friend</a>
+<div class="fl-page">
+
+    <!-- ═══ Hero ═══ -->
+    <div class="fl-hero">
+        <div class="fl-hero-top">
+            <div>
+                <h1>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Friends
+                </h1>
+                <div class="fl-hero-sub">Manage your connections and find new study partners</div>
+            </div>
+            <a href="{% url 'add_friend' %}" class="fl-add-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                Add Friend
+            </a>
+        </div>
+        <div class="fl-stats">
+            <div class="fl-stat">
+                <div class="fl-stat-num">{{ friends_count }}</div>
+                <div class="fl-stat-label">Friends</div>
+            </div>
+            <div class="fl-stat">
+                <div class="fl-stat-num">{{ received_requests.count }}</div>
+                <div class="fl-stat-label">Incoming</div>
+            </div>
+            <div class="fl-stat">
+                <div class="fl-stat-num">{{ sent_requests.count }}</div>
+                <div class="fl-stat-label">Sent</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Friend Requests Received -->
+    <!-- ═══ Incoming Requests Alert ═══ -->
     {% if received_requests %}
-    <div class="section">
-        <h2 class="section-title"><svg class="icon" style="vertical-align: middle;"><use href="#icon-bell"></use></svg> Friend Requests ({{ received_requests.count }})</h2>
-        <div class="friends-grid">
+    <div class="fl-alert">
+        <div class="fl-alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div>
+            <strong>{{ received_requests.count }} friend request{{ received_requests.count|pluralize }} waiting</strong>
+            <p>Someone wants to connect with you — take a look!</p>
+        </div>
+    </div>
+
+    <!-- ── Requests section ── -->
+    <div class="fl-section">
+        <div class="fl-section-head">
+            <div class="fl-section-dot amber"></div>
+            <span class="fl-section-label">Friend Requests</span>
+            <span class="fl-section-count">{{ received_requests.count }}</span>
+        </div>
+
+        <div class="fl-grid">
             {% for request in received_requests %}
-            <div class="friend-card">
-                <a href="{% url 'public_profile' request.from_user.username %}" style="text-decoration: none;">
+            <div class="fl-card">
+                <a href="{% url 'public_profile' request.from_user.username %}">
                     {% if request.from_user.profile.profile_picture %}
-                    <img src="{{ request.from_user.profile.profile_picture.url }}" alt="{{ request.from_user.username }}" class="friend-avatar">
+                    <img src="{{ request.from_user.profile.profile_picture.url }}" alt="" class="fl-avatar" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
                     {% else %}
-                    <div class="friend-avatar">{{ request.from_user.username|slice:":1"|upper }}</div>
+                    <div class="fl-avatar-ph" style="background: linear-gradient(135deg, #F59E0B, #D97706);">{{ request.from_user.username|slice:":1"|upper }}</div>
                     {% endif %}
                 </a>
-                <div class="friend-info">
-                    <a href="{% url 'public_profile' request.from_user.username %}" style="text-decoration: none;">
-                        <div class="friend-name">{{ request.from_user.username }}</div>
+                <div class="fl-info">
+                    <a href="{% url 'public_profile' request.from_user.username %}">
+                        <div class="fl-name">{% if request.from_user.first_name %}{{ request.from_user.first_name }} {{ request.from_user.last_name }}{% else %}{{ request.from_user.username }}{% endif %}</div>
                     </a>
-                    <small style="color: var(--text-gray);">{{ request.created_at|timesince }} ago</small>
+                    <div class="fl-username">@{{ request.from_user.username }}</div>
+                    <div class="fl-tags">
+                        {% if request.from_user.course %}
+                        <span class="fl-tag course">{{ request.from_user.get_course_display }}</span>
+                        {% endif %}
+                        {% if request.from_user.year %}
+                        <span class="fl-tag year">{{ request.from_user.get_year_display }}</span>
+                        {% endif %}
+                        <span class="fl-tag time">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            {{ request.created_at|timesince }} ago
+                        </span>
+                    </div>
                 </div>
-                <div class="friend-actions">
-                    <a href="{% url 'accept_friend_request' request.id %}" class="btn-small btn-accept"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-check"></use></svg></a>
-                    <a href="{% url 'decline_friend_request' request.id %}" class="btn-small btn-decline">✗</a>
+                <div class="fl-actions">
+                    <a href="{% url 'accept_friend_request' request.id %}" class="fl-btn accept" title="Accept">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </a>
+                    <a href="{% url 'decline_friend_request' request.id %}" class="fl-btn decline" title="Decline">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </a>
                 </div>
             </div>
             {% endfor %}
@@ -189,93 +470,193 @@
     </div>
     {% endif %}
 
-    <!-- My Friends -->
-    <div class="section">
-        <h2 class="section-title">Friends ({{ friends.count }})</h2>
+    <!-- ═══ My Friends ═══ -->
+    <div class="fl-section">
+        <div class="fl-section-head">
+            <div class="fl-section-dot blue"></div>
+            <span class="fl-section-label">My Friends</span>
+            <span class="fl-section-count">{{ friends_count }}</span>
+        </div>
+
         {% if friends %}
-        <div class="friends-grid">
+        <div class="fl-search">
+            <span class="fl-search-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input type="text" id="friend-search" placeholder="Search friends by name..." autocomplete="off">
+        </div>
+
+        <div class="fl-grid" id="friends-grid">
             {% for friend in friends %}
-            <div class="friend-card">
-                <a href="{% url 'public_profile' friend.username %}" style="text-decoration: none;">
+            <div class="fl-card" data-name="{{ friend.username }} {{ friend.first_name }} {{ friend.last_name }}">
+                <a href="{% url 'public_profile' friend.username %}">
                     {% if friend.profile.profile_picture %}
-                    <img src="{{ friend.profile.profile_picture.url }}" alt="{{ friend.username }}" class="friend-avatar">
+                    <img src="{{ friend.profile.profile_picture.url }}" alt="" class="fl-avatar" style="background: linear-gradient(135deg, #4A90E2, #6C63FF);">
                     {% else %}
-                    <div class="friend-avatar">{{ friend.username|slice:":1"|upper }}</div>
+                    {% cycle 'grad1' 'grad2' 'grad3' 'grad4' 'grad5' as grad_cycle %}
+                    <div class="fl-avatar-ph" style="background: linear-gradient(135deg, #4A90E2 0%, #6C63FF 100%);">{{ friend.username|slice:":1"|upper }}</div>
                     {% endif %}
                 </a>
-                <div class="friend-info">
-                    <a href="{% url 'public_profile' friend.username %}" style="text-decoration: none;">
-                        <div class="friend-name">{{ friend.username }}</div>
+                <div class="fl-info">
+                    <a href="{% url 'public_profile' friend.username %}">
+                        <div class="fl-name">{% if friend.first_name %}{{ friend.first_name }} {{ friend.last_name }}{% else %}{{ friend.username }}{% endif %}</div>
                     </a>
+                    <div class="fl-username">@{{ friend.username }}</div>
+                    <div class="fl-tags">
+                        {% if friend.course %}
+                        <span class="fl-tag course">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            {{ friend.get_course_display }}
+                        </span>
+                        {% endif %}
+                        {% if friend.year %}
+                        <span class="fl-tag year">{{ friend.get_year_display }}</span>
+                        {% endif %}
+                        {% if friend.profile.program_of_study %}
+                        <span class="fl-tag program">{{ friend.profile.program_of_study }}</span>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="friend-actions">
-                    <a href="{% url 'start_private_chat' friend.id %}" class="btn-small btn-chat"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-message"></use></svg></a>
-                    <a href="{% url 'remove_friend' friend.id %}" class="btn-small btn-remove" 
-                       onclick="return confirm('Remove {{ friend.username }} from friends?')"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-trash"></use></svg></a>
+                <div class="fl-actions">
+                    <a href="{% url 'start_private_chat' friend.id %}" class="fl-btn chat" title="Message">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </a>
+                    <a href="{% url 'remove_friend' friend.id %}" class="fl-btn remove" title="Remove friend"
+                       onclick="return confirm('Remove {{ friend.username }} from friends?')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
+                    </a>
                 </div>
             </div>
             {% endfor %}
         </div>
+
         {% else %}
-        <div class="empty-state">
-            <p>You don't have any friends yet. Start by adding people from your study groups!</p>
+        <div class="fl-empty">
+            <div class="fl-empty-icon">👋</div>
+            <h3>No Friends Yet</h3>
+            <p>Start connecting with fellow students! Add friends by username or discover people from your study groups.</p>
+            <div class="fl-empty-btns">
+                <a href="{% url 'add_friend' %}" class="fl-empty-btn primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    Add by Username
+                </a>
+                <a href="{% url 'discovery_home' %}" class="fl-empty-btn outline">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Discover People
+                </a>
+            </div>
         </div>
         {% endif %}
     </div>
 
-    <!-- Pending Sent Requests -->
+    <!-- ═══ Sent Requests ═══ -->
     {% if sent_requests %}
-    <div class="section">
-        <h2 class="section-title"><svg class="icon" style="vertical-align: middle;"><use href="#icon-clock"></use></svg> Pending Requests ({{ sent_requests.count }})</h2>
-        <div class="friends-grid">
+    <div class="fl-section">
+        <div class="fl-section-head">
+            <div class="fl-section-dot green"></div>
+            <span class="fl-section-label">Sent Requests</span>
+            <span class="fl-section-count">{{ sent_requests.count }}</span>
+        </div>
+        <p class="fl-section-desc">Waiting for these people to accept your request</p>
+
+        <div class="fl-grid">
             {% for request in sent_requests %}
-            <div class="friend-card">
-                <a href="{% url 'public_profile' request.to_user.username %}" style="text-decoration: none;">
+            <div class="fl-card">
+                <a href="{% url 'public_profile' request.to_user.username %}">
                     {% if request.to_user.profile.profile_picture %}
-                    <img src="{{ request.to_user.profile.profile_picture.url }}" alt="{{ request.to_user.username }}" class="friend-avatar">
+                    <img src="{{ request.to_user.profile.profile_picture.url }}" alt="" class="fl-avatar" style="background: linear-gradient(135deg, #10B981, #34D399);">
                     {% else %}
-                    <div class="friend-avatar">{{ request.to_user.username|slice:":1"|upper }}</div>
+                    <div class="fl-avatar-ph" style="background: linear-gradient(135deg, #10B981, #34D399);">{{ request.to_user.username|slice:":1"|upper }}</div>
                     {% endif %}
                 </a>
-                <div class="friend-info">
-                    <a href="{% url 'public_profile' request.to_user.username %}" style="text-decoration: none;">
-                        <div class="friend-name">{{ request.to_user.username }}</div>
+                <div class="fl-info">
+                    <a href="{% url 'public_profile' request.to_user.username %}">
+                        <div class="fl-name">{% if request.to_user.first_name %}{{ request.to_user.first_name }} {{ request.to_user.last_name }}{% else %}{{ request.to_user.username }}{% endif %}</div>
                     </a>
-                    <small style="color: var(--text-gray);">Sent {{ request.created_at|timesince }} ago</small>
+                    <div class="fl-username">@{{ request.to_user.username }}</div>
+                    <div class="fl-tags">
+                        {% if request.to_user.course %}
+                        <span class="fl-tag course">{{ request.to_user.get_course_display }}</span>
+                        {% endif %}
+                        <span class="fl-tag time">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Sent {{ request.created_at|timesince }} ago
+                        </span>
+                    </div>
                 </div>
+                <span class="fl-pending-pill">Pending</span>
             </div>
             {% endfor %}
         </div>
     </div>
     {% endif %}
 
-    <!-- Suggested Friends from Groups -->
+    <!-- ═══ People You May Know ═══ -->
     {% if potential_friends %}
-    <div class="section">
-        <h2 class="section-title">💡 People You May Know</h2>
-        <div class="friends-grid">
+    <div class="fl-section">
+        <div class="fl-section-head">
+            <div class="fl-section-dot purple"></div>
+            <span class="fl-section-label">People You May Know</span>
+            <span class="fl-section-count">{{ potential_friends|length }}</span>
+        </div>
+        <p class="fl-section-desc">Members from your study groups who aren't friends yet</p>
+
+        <div class="fl-grid">
             {% for user in potential_friends %}
-            <div class="friend-card">
-                <a href="{% url 'public_profile' user.username %}" style="text-decoration: none;">
+            <div class="fl-card">
+                <a href="{% url 'public_profile' user.username %}">
                     {% if user.profile.profile_picture %}
-                    <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="friend-avatar">
+                    <img src="{{ user.profile.profile_picture.url }}" alt="" class="fl-avatar" style="background: linear-gradient(135deg, #7C3AED, #A855F7);">
                     {% else %}
-                    <div class="friend-avatar">{{ user.username|slice:":1"|upper }}</div>
+                    <div class="fl-avatar-ph" style="background: linear-gradient(135deg, #7C3AED, #A855F7);">{{ user.username|slice:":1"|upper }}</div>
                     {% endif %}
                 </a>
-                <div class="friend-info">
-                    <a href="{% url 'public_profile' user.username %}" style="text-decoration: none;">
-                        <div class="friend-name">{{ user.username }}</div>
+                <div class="fl-info">
+                    <a href="{% url 'public_profile' user.username %}">
+                        <div class="fl-name">{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</div>
                     </a>
-                    <small style="color: var(--text-gray);">From study groups</small>
+                    <div class="fl-username">@{{ user.username }}</div>
+                    <div class="fl-tags">
+                        {% if user.course %}
+                        <span class="fl-tag course">{{ user.get_course_display }}</span>
+                        {% endif %}
+                        <span class="fl-tag group">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            Shared group
+                        </span>
+                    </div>
                 </div>
-                <div class="friend-actions">
-                    <a href="{% url 'add_friend_from_group' user.id %}" class="btn-small btn-add-friend">+ Add</a>
-                </div>
+                <a href="{% url 'add_friend_from_group' user.id %}" class="fl-btn-text add" title="Send friend request">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                    Add
+                </a>
             </div>
             {% endfor %}
         </div>
     </div>
     {% endif %}
+
 </div>
+
+<!-- Client-side friend search -->
+<script>
+(function() {
+    const search = document.getElementById('friend-search');
+    if (!search) return;
+    const grid = document.getElementById('friends-grid');
+    if (!grid) return;
+    const cards = grid.querySelectorAll('.fl-card');
+
+    search.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        let visible = 0;
+        cards.forEach(card => {
+            const name = (card.dataset.name || '').toLowerCase();
+            const show = name.includes(q);
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+    });
+})();
+</script>
 {% endblock %}

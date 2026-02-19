@@ -3,211 +3,260 @@
 
 {% block content %}
 <style>
-    .edit-container {
-        max-width: 700px;
-        margin: 0 auto;
-    }
-    
-    .edit-header {
-        margin-bottom: 2rem;
-    }
-    
-    .edit-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-    
-    .edit-subtitle {
-        color: var(--text-gray);
-    }
-    
-    .edit-form {
-        background: var(--white);
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-    
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-label {
-        display: block;
-        font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 0.5rem;
-    }
-    
-    .form-help {
-        font-size: 0.85rem;
-        color: var(--text-gray);
-        margin-top: 0.25rem;
-    }
-    
-    .current-picture {
+    .ef-page { max-width: 660px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .ef-hero {
+        background: linear-gradient(135deg, #4A90E2 0%, #6C63FF 60%, #7C3AED 100%);
+        border-radius: 20px;
+        padding: 2rem 2.25rem;
+        color: white;
+        margin-bottom: 1.75rem;
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 1rem;
+    }
+    .ef-hero-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255,255,255,0.18);
+        backdrop-filter: blur(4px);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .ef-hero-icon svg { width: 22px; height: 22px; }
+    .ef-hero h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .ef-hero p { font-size: 0.82rem; opacity: 0.82; }
+
+    /* ── Form card ── */
+    .ef-card {
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+    }
+
+    /* ── Current avatar ── */
+    .ef-current-pic {
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        padding: 1rem 1.15rem;
         background: var(--light-blue);
-        border-radius: 8px;
+        border: 1px solid rgba(74,144,226,0.15);
+        border-radius: 12px;
         margin-bottom: 1rem;
     }
-    
-    .current-picture img {
-        width: 80px;
-        height: 80px;
+    .ef-cp-img {
+        width: 68px;
+        height: 68px;
         border-radius: 50%;
         object-fit: cover;
+        border: 3px solid var(--primary-blue);
     }
-    
-    .current-picture-placeholder {
-        width: 80px;
-        height: 80px;
+    .ef-cp-ph {
+        width: 68px;
+        height: 68px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        background: linear-gradient(135deg, var(--primary-blue), #6C63FF);
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 2rem;
+        font-size: 1.75rem;
         font-weight: 700;
     }
-    
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid var(--border-color);
+    .ef-cp-info strong { color: var(--text-dark); font-size: 0.9rem; display: block; }
+    .ef-cp-info span { color: var(--text-gray); font-size: 0.78rem; }
+
+    /* ── Fields ── */
+    .ef-field { margin-bottom: 1.5rem; }
+    .ef-field label {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.45rem;
+        letter-spacing: 0.2px;
     }
-    
-    .errorlist {
+    .ef-field input[type="text"],
+    .ef-field input[type="file"],
+    .ef-field textarea,
+    .ef-field select {
+        width: 100%;
+        padding: 0.7rem 0.9rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        color: var(--text-dark);
+        background: var(--white);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .ef-field textarea { min-height: 100px; resize: vertical; }
+    .ef-field input:focus,
+    .ef-field textarea:focus,
+    .ef-field select:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(74,144,226,0.12);
+    }
+    .ef-field select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.9rem center;
+        padding-right: 2.4rem;
+    }
+    .ef-field .help {
+        font-size: 0.76rem;
+        color: var(--text-gray);
+        margin-top: 0.3rem;
+    }
+    .ef-field .errorlist {
         list-style: none;
         padding: 0;
-        margin: 0.5rem 0 0 0;
+        margin: 0.35rem 0 0;
     }
-    
-    .errorlist li {
+    .ef-field .errorlist li {
         color: var(--danger);
-        font-size: 0.85rem;
-        padding: 0.25rem 0;
+        font-size: 0.78rem;
     }
-    
-    select.form-control {
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234A90E2' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        padding-right: 2.5rem;
+
+    /* ── Actions ── */
+    .ef-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        margin-top: 1.75rem;
+        padding-top: 1.35rem;
+        border-top: 1px solid var(--border-color);
+    }
+    .ef-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        font-family: inherit;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1.5px solid transparent;
+    }
+    .ef-btn svg { width: 16px; height: 16px; }
+    .ef-btn.primary {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+    }
+    .ef-btn.primary:hover { background: var(--dark-blue); }
+    .ef-btn.outline {
+        background: var(--white);
+        color: var(--text-gray);
+        border-color: var(--border-color);
+    }
+    .ef-btn.outline:hover { background: #F9FAFB; border-color: var(--text-gray); }
+
+    @media (max-width: 480px) {
+        .ef-hero { flex-direction: column; text-align: center; padding: 1.5rem; }
+        .ef-card { padding: 1.35rem; }
     }
 </style>
 
-<div class="edit-container">
-    <div class="edit-header">
-        <h1 class="edit-title">Edit Profile</h1>
-        <p class="edit-subtitle">Update your profile information and preferences</p>
+<div class="ef-page">
+
+    <div class="ef-hero">
+        <div class="ef-hero-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div>
+            <h1>Edit Profile</h1>
+            <p>Update your profile information and preferences</p>
+        </div>
     </div>
-    
-    <form method="post" enctype="multipart/form-data" class="edit-form">
+
+    <form method="post" enctype="multipart/form-data" class="ef-card">
         {% csrf_token %}
-        
-        <!-- Profile Picture -->
-        <div class="form-group">
-            <label class="form-label">{{ form.profile_picture.label }}</label>
-            
+
+        <!-- Current picture -->
+        <div class="ef-field">
+            <label>{{ form.profile_picture.label }}</label>
             {% if profile.profile_picture %}
-            <div class="current-picture">
-                <img src="{{ profile.profile_picture.url }}" alt="Current profile picture">
-                <div>
-                    <div style="font-weight: 500; color: var(--text-dark);">Current Profile Picture</div>
-                    <div style="font-size: 0.85rem; color: var(--text-gray);">Upload a new image to replace</div>
+            <div class="ef-current-pic">
+                <img src="{{ profile.profile_picture.url }}" alt="Current" class="ef-cp-img">
+                <div class="ef-cp-info">
+                    <strong>Current Profile Picture</strong>
+                    <span>Upload a new image to replace it</span>
                 </div>
             </div>
             {% else %}
-            <div class="current-picture">
-                <div class="current-picture-placeholder">{{ user.username|slice:":1"|upper }}</div>
-                <div>
-                    <div style="font-weight: 500; color: var(--text-dark);">No Profile Picture</div>
-                    <div style="font-size: 0.85rem; color: var(--text-gray);">Upload an image below</div>
+            <div class="ef-current-pic">
+                <div class="ef-cp-ph">{{ user.username|slice:":1"|upper }}</div>
+                <div class="ef-cp-info">
+                    <strong>No Profile Picture</strong>
+                    <span>Upload an image below</span>
                 </div>
             </div>
             {% endif %}
-            
             {{ form.profile_picture }}
             {% if form.profile_picture.errors %}
-                <ul class="errorlist">
-                    {% for error in form.profile_picture.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
+                <ul class="errorlist">{% for e in form.profile_picture.errors %}<li>{{ e }}</li>{% endfor %}</ul>
             {% endif %}
-            <div class="form-help">Max size: 5MB. Formats: JPEG, PNG, GIF</div>
+            <div class="help">Max size: 5 MB. Formats: JPEG, PNG, GIF</div>
         </div>
-        
+
         <!-- Bio -->
-        <div class="form-group">
-            <label class="form-label" for="{{ form.bio.id_for_label }}">{{ form.bio.label }}</label>
+        <div class="ef-field">
+            <label for="{{ form.bio.id_for_label }}">{{ form.bio.label }}</label>
             {{ form.bio }}
             {% if form.bio.errors %}
-                <ul class="errorlist">
-                    {% for error in form.bio.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
+                <ul class="errorlist">{% for e in form.bio.errors %}<li>{{ e }}</li>{% endfor %}</ul>
             {% endif %}
-            <div class="form-help">{{ form.bio.help_text }}</div>
+            <div class="help">{{ form.bio.help_text }}</div>
         </div>
-        
+
         <!-- Program of Study -->
-        <div class="form-group">
-            <label class="form-label" for="{{ form.program_of_study.id_for_label }}">{{ form.program_of_study.label }}</label>
+        <div class="ef-field">
+            <label for="{{ form.program_of_study.id_for_label }}">{{ form.program_of_study.label }}</label>
             {{ form.program_of_study }}
             {% if form.program_of_study.errors %}
-                <ul class="errorlist">
-                    {% for error in form.program_of_study.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
+                <ul class="errorlist">{% for e in form.program_of_study.errors %}<li>{{ e }}</li>{% endfor %}</ul>
             {% endif %}
-            <div class="form-help">{{ form.program_of_study.help_text }}</div>
+            <div class="help">{{ form.program_of_study.help_text }}</div>
         </div>
-        
+
         <!-- Year Level -->
-        <div class="form-group">
-            <label class="form-label" for="{{ form.year_level.id_for_label }}">{{ form.year_level.label }}</label>
+        <div class="ef-field">
+            <label for="{{ form.year_level.id_for_label }}">{{ form.year_level.label }}</label>
             {{ form.year_level }}
             {% if form.year_level.errors %}
-                <ul class="errorlist">
-                    {% for error in form.year_level.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
+                <ul class="errorlist">{% for e in form.year_level.errors %}<li>{{ e }}</li>{% endfor %}</ul>
             {% endif %}
-            <div class="form-help">{{ form.year_level.help_text }}</div>
+            <div class="help">{{ form.year_level.help_text }}</div>
         </div>
-        
+
         <!-- Theme Preference -->
-        <div class="form-group">
-            <label class="form-label" for="{{ form.theme_preference.id_for_label }}">{{ form.theme_preference.label }}</label>
+        <div class="ef-field">
+            <label for="{{ form.theme_preference.id_for_label }}">{{ form.theme_preference.label }}</label>
             {{ form.theme_preference }}
             {% if form.theme_preference.errors %}
-                <ul class="errorlist">
-                    {% for error in form.theme_preference.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
+                <ul class="errorlist">{% for e in form.theme_preference.errors %}<li>{{ e }}</li>{% endfor %}</ul>
             {% endif %}
-            <div class="form-help">Choose your preferred color theme</div>
+            <div class="help">Choose your preferred color theme</div>
         </div>
-        
-        <div class="form-actions">
-            <a href="{% url 'profile' %}" class="btn btn-outline">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+
+        <div class="ef-actions">
+            <a href="{% url 'profile' %}" class="ef-btn outline">Cancel</a>
+            <button type="submit" class="ef-btn primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Save Changes
+            </button>
         </div>
     </form>
 </div>

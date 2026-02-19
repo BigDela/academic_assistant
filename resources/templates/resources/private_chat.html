@@ -555,15 +555,13 @@
                 </div>
                 
                 <!-- Reactions -->
-                {% if message.reactions.exists %}
-                <div class="message-reactions">
+                <div class="message-reactions" data-message-id="{{ message.id }}">
                     {% for reaction_data in message.get_reactions_summary %}
                     <span class="reaction" data-emoji="{{ reaction_data.emoji }}">
                         {{ reaction_data.emoji }} {{ reaction_data.count }}
                     </span>
                     {% endfor %}
                 </div>
-                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -613,7 +611,7 @@
     cluster: '{{ pusher_cluster }}'
   });
   
-  const channel = pusher.subscribe(`private-chat-${chatId}`);
+  const channel = pusher.subscribe(`dm-chat-${chatId}`);
   
   // Auto-scroll to bottom
   function scrollToBottom() {
@@ -714,6 +712,7 @@
           <button class="action-btn emoji-trigger" data-message-id="${data.message_id}">😊</button>
           <button class="action-btn reply-btn" data-message-id="${data.message_id}">↩</button>
         </div>
+        <div class="message-reactions" data-message-id="${data.message_id}"></div>
       </div>
     `;
     
@@ -749,11 +748,59 @@
       });
       
       const data = await response.json();
-      console.log('Reaction added:', data);
+      if (data.success) {
+        updateReactionUI(messageId, emoji, data.action, currentUser);
+      }
     } catch (error) {
       console.error('Error adding reaction:', error);
     }
   }
+
+  // Update reaction display on a message
+  function updateReactionUI(messageId, emoji, action, username) {
+    const wrapper = document.querySelector(`.message-wrapper[data-message-id="${messageId}"]`);
+    if (!wrapper) return;
+
+    let reactionsDiv = wrapper.querySelector('.message-reactions');
+    if (!reactionsDiv) {
+      reactionsDiv = document.createElement('div');
+      reactionsDiv.className = 'message-reactions';
+      reactionsDiv.dataset.messageId = messageId;
+      const bubble = wrapper.querySelector('.message-bubble');
+      bubble.appendChild(reactionsDiv);
+    }
+
+    let reactionSpan = reactionsDiv.querySelector(`span.reaction[data-emoji="${emoji}"]`);
+
+    if (action === 'added') {
+      if (reactionSpan) {
+        const count = parseInt(reactionSpan.textContent.replace(emoji, '').trim()) || 0;
+        reactionSpan.textContent = `${emoji} ${count + 1}`;
+      } else {
+        reactionSpan = document.createElement('span');
+        reactionSpan.className = 'reaction';
+        reactionSpan.dataset.emoji = emoji;
+        reactionSpan.textContent = `${emoji} 1`;
+        reactionsDiv.appendChild(reactionSpan);
+      }
+    } else if (action === 'removed') {
+      if (reactionSpan) {
+        const count = parseInt(reactionSpan.textContent.replace(emoji, '').trim()) || 0;
+        if (count <= 1) {
+          reactionSpan.remove();
+        } else {
+          reactionSpan.textContent = `${emoji} ${count - 1}`;
+        }
+      }
+    }
+  }
+
+  // Listen for reaction updates from Pusher
+  channel.bind('reaction-update', function(data) {
+    if (data.user !== currentUser) {
+      updateReactionUI(data.message_id, data.emoji, data.action, data.user);
+    }
+  });
   
   // Event listeners
   document.getElementById('message-input').addEventListener('keypress', function(e) {

@@ -2,202 +2,493 @@
 {% block title %}Private Chats - Academic Assistant{% endblock %}
 {% block content %}
 <style>
-    .chats-container {
-        max-width: 900px;
+    .pc-page {
+        max-width: 780px;
         margin: 0 auto;
     }
-    
-    .page-header {
+
+    /* ── Hero ── */
+    .pc-hero {
+        background: linear-gradient(135deg, #4A90E2 0%, #6C63FF 60%, #7C3AED 100%);
+        border-radius: 20px;
+        padding: 2.25rem 2.5rem 2rem;
+        margin-bottom: 2rem;
+        color: white;
+    }
+    .pc-hero-top {
         display: flex;
         justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .pc-hero h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        display: flex;
         align-items: center;
-        margin-bottom: 2rem;
+        gap: 0.6rem;
     }
-    
-    .page-header h1 {
-        color: var(--primary-blue);
-        font-size: 2rem;
+    .pc-hero h1 svg { width: 26px; height: 26px; }
+    .pc-hero-sub {
+        font-size: 0.86rem;
+        opacity: 0.85;
+        margin-top: 0.3rem;
     }
-    
-    .chat-list {
-        background: var(--white);
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    .pc-hero-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1.15rem;
+        background: rgba(255,255,255,0.18);
+        backdrop-filter: blur(4px);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.28);
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.86rem;
+        font-weight: 600;
+        transition: background 0.2s;
+        white-space: nowrap;
     }
-    
-    .chat-item {
+    .pc-hero-btn:hover { background: rgba(255,255,255,0.32); }
+    .pc-hero-btn svg { width: 16px; height: 16px; }
+    .pc-stats {
+        display: flex;
+        gap: 1rem;
+    }
+    .pc-stat {
+        background: rgba(255,255,255,0.14);
+        backdrop-filter: blur(4px);
+        border-radius: 12px;
+        padding: 0.7rem 1.35rem;
+        text-align: center;
+        min-width: 80px;
+    }
+    .pc-stat-num { font-size: 1.5rem; font-weight: 700; }
+    .pc-stat-label {
+        font-size: 0.66rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        opacity: 0.8;
+        margin-top: 0.1rem;
+    }
+
+    /* ── Unread alert ── */
+    .pc-alert {
         display: flex;
         align-items: center;
         gap: 1rem;
-        padding: 1.25rem;
-        border-bottom: 1px solid #f0f0f0;
-        text-decoration: none;
-        transition: background 0.2s;
+        background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+        border: 1px solid #93C5FD;
+        border-radius: 14px;
+        padding: 1rem 1.4rem;
+        margin-bottom: 1.5rem;
     }
-    
-    .chat-item:hover {
-        background: #f0f7ff;
-    }
-    
-    .chat-item:last-child {
-        border-bottom: none;
-    }
-    
-    .chat-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    .pc-alert-icon {
+        width: 38px;
+        height: 38px;
+        background: var(--primary-blue);
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 1.75rem;
-        font-weight: bold;
         flex-shrink: 0;
+    }
+    .pc-alert-icon svg { width: 18px; height: 18px; }
+    .pc-alert strong { color: #1E40AF; font-size: 0.9rem; }
+    .pc-alert p { font-size: 0.76rem; color: #1E40AF; opacity: 0.7; margin-top: 0.1rem; }
+
+    /* ── Search ── */
+    .pc-search {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+    .pc-search input {
+        width: 100%;
+        padding: 0.7rem 1rem 0.7rem 2.5rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-family: inherit;
+        color: var(--text-dark);
+        background: var(--white);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .pc-search input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(74,144,226,0.1);
+    }
+    .pc-search-icon {
+        position: absolute;
+        left: 0.85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-gray);
+        pointer-events: none;
+    }
+    .pc-search-icon svg { width: 16px; height: 16px; }
+
+    /* ── Chat list ── */
+    .pc-list {
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .pc-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.15rem 1.4rem;
+        text-decoration: none;
+        transition: background 0.15s;
+        border-bottom: 1px solid var(--border-color);
+        position: relative;
+    }
+    .pc-item:last-child { border-bottom: none; }
+    .pc-item:hover { background: var(--light-blue); }
+    .pc-item.has-unread { background: #F0F7FF; }
+    .pc-item.has-unread:hover { background: #E0EFFF; }
+
+    /* ── Avatar ── */
+    .pc-avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+    .pc-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
         object-fit: cover;
     }
-    
-    .chat-info {
+    .pc-avatar-ph {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: white;
+    }
+    .pc-online-dot {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #10B981;
+        border: 2.5px solid var(--white);
+    }
+
+    /* ── Chat info ── */
+    .pc-info {
         flex: 1;
         min-width: 0;
     }
-    
-    .chat-header {
+    .pc-row-top {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        margin-bottom: 0.25rem;
+        gap: 0.75rem;
+        margin-bottom: 0.2rem;
     }
-    
-    .chat-name {
-        color: #2c3e50;
+    .pc-name {
+        font-size: 0.95rem;
+        font-weight: 650;
+        color: var(--text-dark);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .pc-item.has-unread .pc-name { font-weight: 700; }
+    .pc-time {
+        font-size: 0.72rem;
+        color: var(--text-gray);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .pc-item.has-unread .pc-time { color: var(--primary-blue); font-weight: 600; }
+
+    .pc-row-mid {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.35rem;
+    }
+    .pc-username {
+        font-size: 0.76rem;
+        color: var(--text-gray);
+    }
+    .pc-course-tag {
+        font-size: 0.64rem;
         font-weight: 600;
-        font-size: 1.1rem;
+        padding: 0.12rem 0.4rem;
+        border-radius: 5px;
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        white-space: nowrap;
     }
-    
-    .chat-time {
+
+    .pc-preview {
+        font-size: 0.82rem;
         color: var(--text-gray);
-        font-size: 0.85rem;
-    }
-    
-    .chat-preview {
-        color: var(--text-gray);
-        font-size: 0.9rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.4;
     }
-    
-    .unread-badge {
+    .pc-item.has-unread .pc-preview { color: var(--text-dark); font-weight: 500; }
+    .pc-preview-you {
+        color: var(--primary-blue);
+        font-weight: 600;
+    }
+
+    /* ── Unread badge ── */
+    .pc-badge {
         background: var(--primary-blue);
         color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        min-width: 24px;
-        text-align: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        min-width: 22px;
+        height: 22px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 0.4rem;
+        flex-shrink: 0;
     }
-    
-    .empty-state {
+
+    /* ── Empty state ── */
+    .pc-empty {
         text-align: center;
         padding: 4rem 2rem;
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 18px;
     }
-    
-    .empty-state-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-    }
-    
-    .empty-state h2 {
+    .pc-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .pc-empty h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
         color: var(--text-dark);
         margin-bottom: 0.5rem;
     }
-    
-    .empty-state p {
+    .pc-empty p {
+        font-size: 0.88rem;
         color: var(--text-gray);
-        margin-bottom: 1.5rem;
+        max-width: 340px;
+        margin: 0 auto 1.5rem;
+        line-height: 1.55;
+    }
+    .pc-empty-btns {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    .pc-empty-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .pc-empty-btn svg { width: 16px; height: 16px; }
+    .pc-empty-btn.primary { background: var(--primary-blue); color: white; }
+    .pc-empty-btn.primary:hover { background: var(--dark-blue); }
+    .pc-empty-btn.outline { background: var(--white); color: var(--primary-blue); border: 1.5px solid var(--primary-blue); }
+    .pc-empty-btn.outline:hover { background: var(--light-blue); }
+
+    /* ── Avatar placeholder colors ── */
+    .pc-avatar-ph.color-1 { background: linear-gradient(135deg, #4A90E2, #6C63FF); }
+    .pc-avatar-ph.color-2 { background: linear-gradient(135deg, #6C63FF, #7C3AED); }
+    .pc-avatar-ph.color-3 { background: linear-gradient(135deg, #7C3AED, #A855F7); }
+    .pc-avatar-ph.color-4 { background: linear-gradient(135deg, #10B981, #34D399); }
+    .pc-avatar-ph.color-5 { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
+
+    /* ── No results from search ── */
+    .pc-no-results {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: var(--text-gray);
+        font-size: 0.88rem;
+        display: none;
     }
 
-    /* Dark Mode Specific Styles */
-    @media (prefers-color-scheme: dark) {
-        .chat-list {
-            background: var(--card-dark);
-        }
-
-        .chat-item {
-            border-bottom-color: #444;
-        }
-
-        .chat-item:hover {
-            background: #2a2a2a;
-        }
-
-        .chat-name,
-        .empty-state h2 {
-            color: var(--text-dark);
-        }
-
-        .chat-preview,
-        .chat-time,
-        .empty-state p {
-            color: var(--text-gray);
-        }
-
-        .page-header h1 {
-            color: var(--primary-blue);
-        }
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+        .pc-hero { padding: 1.75rem 1.5rem 1.5rem; }
+        .pc-hero-top { flex-direction: column; }
+        .pc-stats { flex-wrap: wrap; }
+        .pc-item { padding: 1rem 1.1rem; }
     }
 </style>
 
-<div class="chats-container">
-    <div class="page-header">
-        <h1><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-message"></use></svg> Private Messages</h1>
-        <a href="{% url 'friends_list' %}" class="btn btn-outline">View Friends</a>
+<div class="pc-page">
+
+    <!-- ═══ Hero ═══ -->
+    <div class="pc-hero">
+        <div class="pc-hero-top">
+            <div>
+                <h1>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Messages
+                </h1>
+                <div class="pc-hero-sub">Your private conversations with friends</div>
+            </div>
+            <a href="{% url 'friends_list' %}" class="pc-hero-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                View Friends
+            </a>
+        </div>
+        <div class="pc-stats">
+            <div class="pc-stat">
+                <div class="pc-stat-num">{{ total_chats }}</div>
+                <div class="pc-stat-label">Conversations</div>
+            </div>
+            <div class="pc-stat">
+                <div class="pc-stat-num">{{ total_unread }}</div>
+                <div class="pc-stat-label">Unread</div>
+            </div>
+        </div>
     </div>
 
+    <!-- ═══ Unread alert ═══ -->
+    {% if total_unread > 0 %}
+    <div class="pc-alert">
+        <div class="pc-alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+            <strong>{{ total_unread }} unread message{{ total_unread|pluralize }}</strong>
+            <p>You have conversations waiting for a reply</p>
+        </div>
+    </div>
+    {% endif %}
+
     {% if chat_data %}
-    <div class="chat-list">
+
+    <!-- ═══ Search ═══ -->
+    <div class="pc-search">
+        <span class="pc-search-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" id="chat-search" placeholder="Search conversations..." autocomplete="off">
+    </div>
+
+    <!-- ═══ Chat list ═══ -->
+    <div class="pc-list" id="chat-list">
         {% for data in chat_data %}
-        <a href="{% url 'private_chat' data.chat.id %}" class="chat-item">
-            {% if data.other_user.profile.profile_picture %}
-            <img src="{{ data.other_user.profile.profile_picture.url }}" alt="{{ data.other_user.username }}" class="chat-avatar">
-            {% else %}
-            <div class="chat-avatar">{{ data.other_user.username|slice:":1"|upper }}</div>
-            {% endif %}
-            <div class="chat-info">
-                <div class="chat-header">
-                    <div class="chat-name">{{ data.other_user.username }}</div>
-                    {% if data.last_message %}
-                    <div class="chat-time">{{ data.last_message.timestamp|timesince }} ago</div>
-                    {% endif %}
-                </div>
-                {% if data.last_message %}
-                <div class="chat-preview">
-                    {% if data.last_message.sender == user %}You: {% endif %}
-                    {{ data.last_message.content }}
-                </div>
+        <a href="{% url 'private_chat' data.chat.id %}"
+           class="pc-item{% if data.unread_count > 0 %} has-unread{% endif %}"
+           data-name="{{ data.other_user.username }} {{ data.other_user.first_name }} {{ data.other_user.last_name }}">
+
+            <div class="pc-avatar-wrap">
+                {% if data.other_user.profile.profile_picture %}
+                <img src="{{ data.other_user.profile.profile_picture.url }}" alt="" class="pc-avatar"
+                     style="background: linear-gradient(135deg, #4A90E2, #6C63FF);">
                 {% else %}
-                <div class="chat-preview" style="font-style: italic;">No messages yet</div>
+                <div class="pc-avatar-ph color-{{ forloop.counter0|add:1|divisibleby:5|yesno:'5,' }}{% with r=forloop.counter0 %}{% if r|divisibleby:5 %}5{% elif r|add:4|divisibleby:5 %}4{% elif r|add:3|divisibleby:5 %}3{% elif r|add:2|divisibleby:5 %}2{% else %}1{% endif %}{% endwith %}">
+                    {{ data.other_user.username|slice:":1"|upper }}
+                </div>
                 {% endif %}
             </div>
+
+            <div class="pc-info">
+                <div class="pc-row-top">
+                    <span class="pc-name">
+                        {% if data.other_user.first_name %}{{ data.other_user.first_name }} {{ data.other_user.last_name }}{% else %}{{ data.other_user.username }}{% endif %}
+                    </span>
+                    {% if data.last_message %}
+                    <span class="pc-time">{{ data.last_message.timestamp|timesince }} ago</span>
+                    {% endif %}
+                </div>
+
+                <div class="pc-row-mid">
+                    <span class="pc-username">@{{ data.other_user.username }}</span>
+                    {% if data.other_user.course %}
+                    <span class="pc-course-tag">{{ data.other_user.get_course_display }}</span>
+                    {% endif %}
+                </div>
+
+                {% if data.last_message %}
+                <div class="pc-preview">
+                    {% if data.last_message.sender == user %}<span class="pc-preview-you">You: </span>{% endif %}{{ data.last_message.content }}
+                </div>
+                {% else %}
+                <div class="pc-preview" style="font-style: italic; opacity: 0.7;">No messages yet — say hello!</div>
+                {% endif %}
+            </div>
+
             {% if data.unread_count > 0 %}
-            <div class="unread-badge">{{ data.unread_count }}</div>
+            <div class="pc-badge">{{ data.unread_count }}</div>
             {% endif %}
         </a>
         {% endfor %}
     </div>
+
+    <div class="pc-no-results" id="no-results">
+        No conversations match your search.
+    </div>
+
     {% else %}
-    <div class="chat-list">
-        <div class="empty-state">
-            <div class="empty-state-icon"><svg class="icon-xxl icon-muted"><use href="#icon-message"></use></svg></div>
-            <h2>No Conversations Yet</h2>
-            <p>Add friends and start chatting!</p>
-            <a href="{% url 'friends_list' %}" class="btn btn-primary">Go to Friends</a>
+
+    <!-- ═══ Empty state ═══ -->
+    <div class="pc-empty">
+        <div class="pc-empty-icon">💬</div>
+        <h3>No Conversations Yet</h3>
+        <p>Start chatting with your friends! Head to your friends list to begin a conversation.</p>
+        <div class="pc-empty-btns">
+            <a href="{% url 'friends_list' %}" class="pc-empty-btn primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Go to Friends
+            </a>
+            <a href="{% url 'discovery_home' %}" class="pc-empty-btn outline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Discover People
+            </a>
         </div>
     </div>
     {% endif %}
+
 </div>
+
+<!-- Client-side chat search -->
+<script>
+(function() {
+    const input = document.getElementById('chat-search');
+    if (!input) return;
+    const list = document.getElementById('chat-list');
+    const noResults = document.getElementById('no-results');
+    if (!list) return;
+    const items = list.querySelectorAll('.pc-item');
+
+    input.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        let visible = 0;
+        items.forEach(item => {
+            const name = (item.dataset.name || '').toLowerCase();
+            const show = name.includes(q);
+            item.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        if (noResults) {
+            noResults.style.display = (visible === 0 && q) ? 'block' : 'none';
+        }
+    });
+})();
+</script>
 {% endblock %}

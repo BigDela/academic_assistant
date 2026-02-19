@@ -3,257 +3,316 @@
 
 {% block content %}
 <style>
-    .profile-container {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-    
-    .profile-header {
-        background: var(--white);
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    .pf-page { max-width: 820px; margin: 0 auto; }
+
+    /* ── Hero banner ── */
+    .pf-hero {
+        background: linear-gradient(135deg, #4A90E2 0%, #6C63FF 60%, #7C3AED 100%);
+        border-radius: 20px;
+        padding: 2.5rem 2.5rem 1.75rem;
+        color: white;
+        position: relative;
         margin-bottom: 2rem;
+    }
+    .pf-hero-top {
         display: flex;
         align-items: center;
-        gap: 2rem;
+        gap: 1.75rem;
+        margin-bottom: 1.75rem;
+        flex-wrap: wrap;
     }
-    
-    .profile-picture-container {
-        position: relative;
-    }
-    
-    .profile-picture {
-        width: 120px;
-        height: 120px;
+    .pf-avatar-wrap { position: relative; flex-shrink: 0; }
+    .pf-avatar {
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid var(--light-blue);
+        border: 4px solid rgba(255,255,255,0.35);
     }
-    
-    .profile-picture-placeholder {
-        width: 120px;
-        height: 120px;
+    .pf-avatar-ph {
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        background: rgba(255,255,255,0.18);
+        border: 4px solid rgba(255,255,255,0.35);
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
         color: white;
-        font-size: 3rem;
+    }
+    .pf-hero-info { flex: 1; min-width: 0; }
+    .pf-hero-name {
+        font-size: 1.6rem;
         font-weight: 700;
-        border: 4px solid var(--light-blue);
+        margin-bottom: 0.15rem;
     }
-    
-    .profile-info {
-        flex: 1;
+    .pf-hero-handle {
+        font-size: 0.92rem;
+        opacity: 0.8;
+        margin-bottom: 0.75rem;
     }
-    
-    .profile-name {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 0.25rem;
-    }
-    
-    .profile-username {
-        color: var(--text-gray);
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .profile-meta {
+    .pf-hero-tags {
         display: flex;
-        gap: 1.5rem;
         flex-wrap: wrap;
+        gap: 0.45rem;
     }
-    
-    .meta-item {
-        display: flex;
+    .pf-htag {
+        display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        color: var(--text-gray);
+        gap: 0.3rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.22rem 0.6rem;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.16);
+        backdrop-filter: blur(4px);
+        white-space: nowrap;
     }
-    
-    .meta-icon {
-        font-size: 1.25rem;
+    .pf-htag svg { width: 12px; height: 12px; }
+    .pf-htag.friends {
+        background: rgba(16,185,129,0.2);
+        border: 1px solid rgba(16,185,129,0.35);
     }
-    
-    .profile-actions {
+    .pf-hero-stats {
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
     }
-    
-    .profile-sections {
-        display: grid;
-        gap: 1.5rem;
+    .pf-hstat {
+        background: rgba(255,255,255,0.14);
+        backdrop-filter: blur(4px);
+        border-radius: 12px;
+        padding: 0.6rem 1.15rem;
+        text-align: center;
+        min-width: 72px;
     }
-    
-    .profile-section {
-        background: var(--white);
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    .pf-hstat-num { font-size: 1.35rem; font-weight: 700; }
+    .pf-hstat-label {
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        opacity: 0.8;
+        margin-top: 0.05rem;
     }
-    
-    .section-title {
-        font-size: 1.25rem;
+
+    /* ── Actions ── */
+    .pf-actions {
+        display: flex;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    .pf-act {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.86rem;
         font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 1rem;
+        transition: all 0.2s;
+        border: 1.5px solid transparent;
+    }
+    .pf-act svg { width: 16px; height: 16px; }
+    .pf-act.primary { background: var(--primary-blue); color: white; }
+    .pf-act.primary:hover { background: var(--dark-blue); }
+    .pf-act.outline { background: var(--white); color: var(--primary-blue); border-color: var(--primary-blue); }
+    .pf-act.outline:hover { background: var(--light-blue); }
+    .pf-act.danger { background: var(--white); color: var(--danger); border-color: var(--danger); }
+    .pf-act.danger:hover { background: #FEF2F2; }
+    .pf-act.success { background: var(--success); color: white; }
+    .pf-act.success:hover { background: #059669; }
+
+    /* ── Section cards ── */
+    .pf-sections { display: grid; gap: 1.5rem; }
+    .pf-card {
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.75rem 2rem;
+    }
+    .pf-card-head {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.55rem;
+        margin-bottom: 1.1rem;
     }
-    
-    .section-content {
+    .pf-card-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .pf-card-title {
+        font-size: 1.05rem;
+        font-weight: 650;
+        color: var(--text-dark);
+    }
+    .pf-card-body {
         color: var(--text-gray);
         line-height: 1.6;
+        font-size: 0.92rem;
     }
-    
-    .info-grid {
+
+    /* ── Info grid ── */
+    .pf-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 1.35rem;
     }
-    
-    .info-item {
+    .pf-gi {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.2rem;
     }
-    
-    .info-label {
-        font-size: 0.85rem;
+    .pf-gi-label {
+        font-size: 0.72rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: var(--text-gray);
     }
-    
-    .info-value {
-        font-size: 1rem;
+    .pf-gi-value {
+        font-size: 0.95rem;
+        font-weight: 550;
         color: var(--text-dark);
-        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
     }
-    
-    .empty-state {
+    .pf-gi-value svg { width: 14px; height: 14px; color: var(--primary-blue); }
+
+    .pf-empty {
         text-align: center;
-        padding: 2rem;
+        padding: 1.5rem;
         color: var(--text-gray);
+        font-size: 0.9rem;
         font-style: italic;
     }
-    
-    .friendship-badge {
-        background: var(--light-blue);
+    .pf-empty a {
         color: var(--primary-blue);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
     }
-    
+
     @media (max-width: 768px) {
-        .profile-header {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .profile-actions {
-            justify-content: center;
-            width: 100%;
-        }
+        .pf-hero { padding: 1.75rem 1.5rem 1.5rem; }
+        .pf-hero-top { flex-direction: column; text-align: center; align-items: center; }
+        .pf-hero-tags { justify-content: center; }
+        .pf-hero-stats { justify-content: center; }
+        .pf-actions { justify-content: center; }
+        .pf-card { padding: 1.35rem 1.25rem; }
     }
 </style>
 
-<div class="profile-container">
-    <div class="profile-header">
-        <div class="profile-picture-container">
-            {% if profile.profile_picture %}
-                <img src="{{ profile.profile_picture.url }}" alt="{{ profile_user.username }}" class="profile-picture">
-            {% else %}
-                <div class="profile-picture-placeholder">
-                    {{ profile_user.username|slice:":1"|upper }}
-                </div>
-            {% endif %}
-        </div>
-        
-        <div class="profile-info">
-            <h1 class="profile-name">
-                {% if profile_user.first_name or profile_user.last_name %}
-                    {{ profile_user.first_name }} {{ profile_user.last_name }}
+<div class="pf-page">
+
+    <!-- ═══ Hero ═══ -->
+    <div class="pf-hero">
+        <div class="pf-hero-top">
+            <div class="pf-avatar-wrap">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" alt="{{ profile_user.username }}" class="pf-avatar">
                 {% else %}
-                    {{ profile_user.username }}
+                    <div class="pf-avatar-ph">{{ profile_user.username|slice:":1"|upper }}</div>
                 {% endif %}
-            </h1>
-            <div class="profile-username">@{{ profile_user.username }}</div>
-            
-            <div class="profile-meta">
-                {% if profile.program_of_study %}
-                <div class="meta-item">
-                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-award"></use></svg></span>
-                    <span>{{ profile.program_of_study }}</span>
+            </div>
+            <div class="pf-hero-info">
+                <div class="pf-hero-name">
+                    {% if profile_user.first_name or profile_user.last_name %}
+                        {{ profile_user.first_name }} {{ profile_user.last_name }}
+                    {% else %}
+                        {{ profile_user.username }}
+                    {% endif %}
                 </div>
-                {% endif %}
-                
-                {% if profile.year_level %}
-                <div class="meta-item">
-                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-book"></use></svg></span>
-                    <span>{{ profile.year_level }}</span>
+                <div class="pf-hero-handle">@{{ profile_user.username }}</div>
+                <div class="pf-hero-tags">
+                    {% if profile.program_of_study %}
+                    <span class="pf-htag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5"/></svg>
+                        {{ profile.program_of_study }}
+                    </span>
+                    {% endif %}
+                    {% if profile.year_level %}
+                    <span class="pf-htag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        {{ profile.year_level }}
+                    </span>
+                    {% endif %}
+                    {% if are_friends %}
+                    <span class="pf-htag friends">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        Friends
+                    </span>
+                    {% endif %}
                 </div>
-                {% endif %}
-                
-                {% if are_friends %}
-                <div class="friendship-badge">
-                    <span><svg class="icon-sm"><use href="#icon-check"></use></svg></span>
-                    <span>Friends</span>
-                </div>
-                {% endif %}
+            </div>
+        </div>
+        <div class="pf-hero-stats">
+            <div class="pf-hstat">
+                <div class="pf-hstat-num">{{ profile_user.get_course_display }}</div>
+                <div class="pf-hstat-label">Course</div>
+            </div>
+            <div class="pf-hstat">
+                <div class="pf-hstat-num">{{ profile_user.get_year_display }}</div>
+                <div class="pf-hstat-label">Year</div>
+            </div>
+            <div class="pf-hstat">
+                <div class="pf-hstat-num">{{ profile_user.date_joined|date:"M 'y" }}</div>
+                <div class="pf-hstat-label">Joined</div>
             </div>
         </div>
     </div>
-    
+
+    <!-- ═══ Actions ═══ -->
     {% if not is_own_profile %}
-    <div class="profile-actions">
+    <div class="pf-actions">
         {% if are_friends %}
-            <a href="{% url 'start_private_chat' profile_user.id %}" class="btn btn-primary">
-                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-message"></use></svg> Send Message
+            <a href="{% url 'start_private_chat' profile_user.id %}" class="pf-act primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Send Message
             </a>
-            <a href="{% url 'remove_friend' profile_user.id %}" class="btn btn-outline" onclick="return confirm('Remove {{ profile_user.username }} from your friends?')">
-                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-x"></use></svg> Unfriend
+            <a href="{% url 'remove_friend' profile_user.id %}" class="pf-act danger" onclick="return confirm('Remove {{ profile_user.username }} from your friends?')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="11" x2="23" y2="11"/></svg>
+                Unfriend
             </a>
         {% else %}
-            <a href="{% url 'add_friend_from_group' profile_user.id %}" class="btn btn-primary">
-                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-user"></use></svg> Add Friend
+            <a href="{% url 'add_friend_from_group' profile_user.id %}" class="pf-act success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                Add Friend
             </a>
         {% endif %}
     </div>
     {% else %}
-    <div class="profile-actions">
-        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
-            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-edit"></use></svg> Edit Profile
+    <div class="pf-actions">
+        <a href="{% url 'profile_edit' %}" class="pf-act primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Profile
         </a>
-        <a href="{% url 'user_info_edit' %}" class="btn btn-outline">
-            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-user"></use></svg> Edit User Info
+        <a href="{% url 'user_info_edit' %}" class="pf-act outline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Edit User Info
         </a>
     </div>
     {% endif %}
-    
-    <div class="profile-sections">
-        <div class="profile-section">
-            <h2 class="section-title">
-                <span><svg class="icon-sm"><use href="#icon-info"></use></svg></span>
-                About
-            </h2>
-            <div class="section-content">
+
+    <!-- ═══ Sections ═══ -->
+    <div class="pf-sections">
+
+        <!-- About -->
+        <div class="pf-card">
+            <div class="pf-card-head">
+                <div class="pf-card-dot" style="background: #4A90E2;"></div>
+                <div class="pf-card-title">About</div>
+            </div>
+            <div class="pf-card-body">
                 {% if profile.bio %}
                     {{ profile.bio|linebreaks }}
                 {% else %}
-                    <div class="empty-state">
+                    <div class="pf-empty">
                         {% if is_own_profile %}
                             No bio yet. <a href="{% url 'profile_edit' %}">Add one</a>
                         {% else %}
@@ -263,40 +322,59 @@
                 {% endif %}
             </div>
         </div>
-        
-        <div class="profile-section">
-            <h2 class="section-title">
-                <span>📋</span>
-                Information
-            </h2>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Username</div>
-                    <div class="info-value">{{ profile_user.username }}</div>
+
+        <!-- Information -->
+        <div class="pf-card">
+            <div class="pf-card-head">
+                <div class="pf-card-dot" style="background: #6C63FF;"></div>
+                <div class="pf-card-title">Information</div>
+            </div>
+            <div class="pf-grid">
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Username</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        {{ profile_user.username }}
+                    </div>
                 </div>
                 {% if profile.program_of_study %}
-                <div class="info-item">
-                    <div class="info-label">Program</div>
-                    <div class="info-value">{{ profile.program_of_study }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Program</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5"/></svg>
+                        {{ profile.program_of_study }}
+                    </div>
                 </div>
                 {% endif %}
                 {% if profile.year_level %}
-                <div class="info-item">
-                    <div class="info-label">Year Level</div>
-                    <div class="info-value">{{ profile.year_level }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Year Level</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        {{ profile.year_level }}
+                    </div>
                 </div>
                 {% endif %}
-                <div class="info-item">
-                    <div class="info-label">Course</div>
-                    <div class="info-value">{{ profile_user.get_course_display }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Course</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        {{ profile_user.get_course_display }}
+                    </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Year</div>
-                    <div class="info-value">{{ profile_user.get_year_display }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Year</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        {{ profile_user.get_year_display }}
+                    </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Member Since</div>
-                    <div class="info-value">{{ profile_user.date_joined|date:"F Y" }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Member Since</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        {{ profile_user.date_joined|date:"F Y" }}
+                    </div>
                 </div>
             </div>
         </div>

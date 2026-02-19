@@ -3,298 +3,357 @@
 
 {% block content %}
 <style>
-    .profile-container {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-    
-    .profile-header {
-        background: var(--white);
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    .pf-page { max-width: 820px; margin: 0 auto; }
+
+    /* ── Hero banner ── */
+    .pf-hero {
+        background: linear-gradient(135deg, #4A90E2 0%, #6C63FF 60%, #7C3AED 100%);
+        border-radius: 20px;
+        padding: 2.5rem 2.5rem 1.75rem;
+        color: white;
+        position: relative;
         margin-bottom: 2rem;
+    }
+    .pf-hero-top {
         display: flex;
         align-items: center;
-        gap: 2rem;
+        gap: 1.75rem;
+        margin-bottom: 1.75rem;
+        flex-wrap: wrap;
     }
-    
-    .profile-picture-container {
-        position: relative;
-    }
-    
-    .profile-picture {
-        width: 120px;
-        height: 120px;
+    .pf-avatar-wrap { position: relative; flex-shrink: 0; }
+    .pf-avatar {
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid var(--light-blue);
+        border: 4px solid rgba(255,255,255,0.35);
     }
-    
-    .profile-picture-placeholder {
-        width: 120px;
-        height: 120px;
+    .pf-avatar-ph {
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+        background: rgba(255,255,255,0.18);
+        border: 4px solid rgba(255,255,255,0.35);
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
         color: white;
-        font-size: 3rem;
+    }
+    .pf-hero-info { flex: 1; min-width: 0; }
+    .pf-hero-name {
+        font-size: 1.6rem;
         font-weight: 700;
-        border: 4px solid var(--light-blue);
+        margin-bottom: 0.15rem;
     }
-    
-    .profile-info {
-        flex: 1;
+    .pf-hero-handle {
+        font-size: 0.92rem;
+        opacity: 0.8;
+        margin-bottom: 0.75rem;
     }
-    
-    .profile-name {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--text-dark);
-        margin-bottom: 0.25rem;
-    }
-    
-    .profile-username {
-        color: var(--text-gray);
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .profile-meta {
+    .pf-hero-tags {
         display: flex;
-        gap: 1.5rem;
         flex-wrap: wrap;
+        gap: 0.45rem;
     }
-    
-    .meta-item {
-        display: flex;
+    .pf-htag {
+        display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        color: var(--text-gray);
+        gap: 0.3rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.22rem 0.6rem;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.16);
+        backdrop-filter: blur(4px);
+        white-space: nowrap;
     }
-    
-    .meta-icon {
-        font-size: 1.25rem;
-    }
-    
-    .profile-actions {
+    .pf-htag svg { width: 12px; height: 12px; }
+    .pf-hero-stats {
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
-        margin-bottom: 3rem;
     }
-    
-    .profile-sections {
-        display: grid;
-        gap: 1.5rem;
+    .pf-hstat {
+        background: rgba(255,255,255,0.14);
+        backdrop-filter: blur(4px);
+        border-radius: 12px;
+        padding: 0.6rem 1.15rem;
+        text-align: center;
+        min-width: 72px;
     }
-    
-    .profile-section {
-        background: var(--white);
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    .pf-hstat-num { font-size: 1.35rem; font-weight: 700; }
+    .pf-hstat-label {
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        opacity: 0.8;
+        margin-top: 0.05rem;
     }
-    
-    .section-title {
-        font-size: 1.25rem;
+
+    /* ── Actions ── */
+    .pf-actions {
+        display: flex;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    .pf-act {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.86rem;
         font-weight: 600;
-        color: var(--text-dark);
-        margin-bottom: 1rem;
+        transition: all 0.2s;
+        border: 1.5px solid transparent;
+    }
+    .pf-act svg { width: 16px; height: 16px; }
+    .pf-act.primary {
+        background: var(--primary-blue);
+        color: white;
+    }
+    .pf-act.primary:hover { background: var(--dark-blue); }
+    .pf-act.outline {
+        background: var(--white);
+        color: var(--primary-blue);
+        border-color: var(--primary-blue);
+    }
+    .pf-act.outline:hover { background: var(--light-blue); }
+
+    /* ── Section cards ── */
+    .pf-sections { display: grid; gap: 1.5rem; }
+    .pf-card {
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.75rem 2rem;
+    }
+    .pf-card-head {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.55rem;
+        margin-bottom: 1.1rem;
     }
-    
-    .section-content {
+    .pf-card-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .pf-card-title {
+        font-size: 1.05rem;
+        font-weight: 650;
+        color: var(--text-dark);
+    }
+    .pf-card-body {
         color: var(--text-gray);
         line-height: 1.6;
+        font-size: 0.92rem;
     }
-    
-    .info-grid {
+
+    /* ── Info grid ── */
+    .pf-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 1.35rem;
     }
-    
-    .info-item {
+    .pf-gi {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.2rem;
     }
-    
-    .info-label {
-        font-size: 0.85rem;
+    .pf-gi-label {
+        font-size: 0.72rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: var(--text-gray);
     }
-    
-    .info-value {
-        font-size: 1rem;
+    .pf-gi-value {
+        font-size: 0.95rem;
+        font-weight: 550;
         color: var(--text-dark);
-        font-weight: 500;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: var(--text-gray);
-    }
-    
-    .theme-toggle {
-        background: var(--light-blue);
-        color: var(--primary-blue);
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.35rem;
     }
-    
-    .theme-toggle:hover {
-        background: var(--primary-blue);
-        color: white;
+    .pf-gi-value svg { width: 14px; height: 14px; color: var(--primary-blue); }
+
+    /* ── Empty bio ── */
+    .pf-empty {
+        text-align: center;
+        padding: 1.5rem;
+        color: var(--text-gray);
+        font-size: 0.9rem;
     }
-    
+    .pf-empty a {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .pf-empty a:hover { text-decoration: underline; }
+
     @media (max-width: 768px) {
-        .profile-header {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .profile-actions {
-            justify-content: center;
-            width: 100%;
-        }
+        .pf-hero { padding: 1.75rem 1.5rem 1.5rem; }
+        .pf-hero-top { flex-direction: column; text-align: center; align-items: center; }
+        .pf-hero-tags { justify-content: center; }
+        .pf-hero-stats { justify-content: center; }
+        .pf-actions { justify-content: center; }
+        .pf-card { padding: 1.35rem 1.25rem; }
     }
 </style>
 
-<div class="profile-container">
-    <div class="profile-header">
-        <div class="profile-picture-container">
-            {% if profile.profile_picture %}
-                <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}" class="profile-picture">
-            {% else %}
-                <div class="profile-picture-placeholder">
-                    {{ user.username|slice:":1"|upper }}
-                </div>
-            {% endif %}
-        </div>
-        
-        <div class="profile-info">
-            <h1 class="profile-name">
-                {% if user.first_name or user.last_name %}
-                    {{ user.first_name }} {{ user.last_name }}
+<div class="pf-page">
+
+    <!-- ═══ Hero ═══ -->
+    <div class="pf-hero">
+        <div class="pf-hero-top">
+            <div class="pf-avatar-wrap">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}" class="pf-avatar">
                 {% else %}
-                    {{ user.username }}
+                    <div class="pf-avatar-ph">{{ user.username|slice:":1"|upper }}</div>
                 {% endif %}
-            </h1>
-            <div class="profile-username">@{{ user.username }}</div>
-            
-            <div class="profile-meta">
-                {% if profile.program_of_study %}
-                <div class="meta-item">
-                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-award"></use></svg></span>
-                    <span>{{ profile.program_of_study }}</span>
+            </div>
+            <div class="pf-hero-info">
+                <div class="pf-hero-name">
+                    {% if user.first_name or user.last_name %}
+                        {{ user.first_name }} {{ user.last_name }}
+                    {% else %}
+                        {{ user.username }}
+                    {% endif %}
                 </div>
-                {% endif %}
-                
-                {% if profile.year_level %}
-                <div class="meta-item">
-                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-book"></use></svg></span>
-                    <span>{{ profile.year_level }}</span>
-                </div>
-                {% endif %}
-                
-                <div class="meta-item">
-                    <span class="meta-icon"><svg class="icon-sm"><use href="#icon-mail"></use></svg></span>
-                    <span>{{ user.email }}</span>
+                <div class="pf-hero-handle">@{{ user.username }}</div>
+                <div class="pf-hero-tags">
+                    {% if profile.program_of_study %}
+                    <span class="pf-htag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5"/></svg>
+                        {{ profile.program_of_study }}
+                    </span>
+                    {% endif %}
+                    {% if profile.year_level %}
+                    <span class="pf-htag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        {{ profile.year_level }}
+                    </span>
+                    {% endif %}
+                    <span class="pf-htag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        {{ user.email }}
+                    </span>
                 </div>
             </div>
         </div>
+        <div class="pf-hero-stats">
+            <div class="pf-hstat">
+                <div class="pf-hstat-num">{{ user.get_course_display }}</div>
+                <div class="pf-hstat-label">Course</div>
+            </div>
+            <div class="pf-hstat">
+                <div class="pf-hstat-num">{{ user.get_year_display }}</div>
+                <div class="pf-hstat-label">Year</div>
+            </div>
+            <div class="pf-hstat">
+                <div class="pf-hstat-num">{{ user.date_joined|date:"M 'y" }}</div>
+                <div class="pf-hstat-label">Joined</div>
+            </div>
+        </div>
     </div>
-    
-    <div class="profile-actions">
-        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
-            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-edit"></use></svg> Edit Profile
+
+    <!-- ═══ Actions ═══ -->
+    <div class="pf-actions">
+        <a href="{% url 'profile_edit' %}" class="pf-act primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Profile
         </a>
-        <a href="{% url 'user_info_edit' %}" class="btn btn-outline">
-            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-user"></use></svg> Edit User Info
+        <a href="{% url 'user_info_edit' %}" class="pf-act outline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Edit User Info
         </a>
-        <a href="{% url 'change_password' %}" class="btn btn-outline">
-            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-lock"></use></svg> Change Password
+        <a href="{% url 'change_password' %}" class="pf-act outline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Change Password
         </a>
-        <!-- Dark mode temporarily disabled
-        <a href="{% url 'toggle_theme' %}?next={{ request.path }}" class="theme-toggle">
-            {% if profile.theme_preference == 'light' %}
-                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-moon"></use></svg> Dark Mode
-            {% else %}
-                <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-sun"></use></svg> Light Mode
-            {% endif %}
-        </a>
-        -->
     </div>
-    
-    <div class="profile-sections">
-        <div class="profile-section">
-            <h2 class="section-title">
-                <span><svg class="icon-sm"><use href="#icon-info"></use></svg></span>
-                About Me
-            </h2>
-            <div class="section-content">
+
+    <!-- ═══ Sections ═══ -->
+    <div class="pf-sections">
+
+        <!-- About Me -->
+        <div class="pf-card">
+            <div class="pf-card-head">
+                <div class="pf-card-dot" style="background: #4A90E2;"></div>
+                <div class="pf-card-title">About Me</div>
+            </div>
+            <div class="pf-card-body">
                 {% if profile.bio %}
                     {{ profile.bio|linebreaks }}
                 {% else %}
-                    <div class="empty-state">
-                        No bio yet. <a href="{% url 'profile_edit' %}">Add one</a>
+                    <div class="pf-empty">
+                        No bio yet. <a href="{% url 'profile_edit' %}">Add one</a> to tell others about yourself.
                     </div>
                 {% endif %}
             </div>
         </div>
-        
-        <div class="profile-section">
-            <h2 class="section-title">
-                <span>📋</span>
-                Account Details
-            </h2>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Username</div>
-                    <div class="info-value">{{ user.username }}</div>
+
+        <!-- Account Details -->
+        <div class="pf-card">
+            <div class="pf-card-head">
+                <div class="pf-card-dot" style="background: #6C63FF;"></div>
+                <div class="pf-card-title">Account Details</div>
+            </div>
+            <div class="pf-grid">
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Username</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        {{ user.username }}
+                    </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">{{ user.email }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Email</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        {{ user.email }}
+                    </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Course</div>
-                    <div class="info-value">{{ user.get_course_display }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Course</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        {{ user.get_course_display }}
+                    </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Year</div>
-                    <div class="info-value">{{ user.get_year_display }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Year</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        {{ user.get_year_display }}
+                    </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Theme Preference</div>
-                    <div class="info-value">
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Theme Preference</div>
+                    <div class="pf-gi-value">
                         {% if profile.theme_preference == 'light' %}
-                            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-sun"></use></svg> Light Mode
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                            Light Mode
                         {% else %}
-                            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-moon"></use></svg> Dark Mode
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            Dark Mode
                         {% endif %}
                     </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Member Since</div>
-                    <div class="info-value">{{ user.date_joined|date:"F Y" }}</div>
+                <div class="pf-gi">
+                    <div class="pf-gi-label">Member Since</div>
+                    <div class="pf-gi-value">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        {{ user.date_joined|date:"F Y" }}
+                    </div>
                 </div>
             </div>
         </div>

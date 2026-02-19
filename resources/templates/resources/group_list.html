@@ -1,52 +1,635 @@
 {% extends 'base.html' %}
 {% block title %}Study Groups - Academic Assistant{% endblock %}
 {% block content %}
+<style>
+    .groups-page {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
 
-<div class="flex-between mb-4">
-    <h1 class="text-primary" style="font-size: 2rem;"><svg class="icon-lg" style="vertical-align: middle;"><use href="#icon-users"></use></svg> Study Groups</h1>
-    <div class="flex gap-2">
-        <a href="{% url 'join_via_code' %}" class="btn btn-outline">
-            <svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-key"></use></svg> Join via Code
-        </a>
-        <a href="{% url 'create_group' %}" class="btn btn-primary">
-            + Create New Group
-        </a>
-    </div>
-</div>
+    /* Hero Header */
+    .groups-hero {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, #6C63FF 100%);
+        border-radius: 20px;
+        padding: 2.5rem 2.5rem 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .groups-hero::before {
+        content: '';
+        position: absolute;
+        top: -40%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 50%;
+    }
+    .groups-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: 20%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 50%;
+    }
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    .hero-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .hero-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .hero-subtitle {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        max-width: 500px;
+        line-height: 1.6;
+    }
+    .hero-actions {
+        display: flex;
+        gap: 0.625rem;
+        flex-shrink: 0;
+    }
+    .hero-btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border: none;
+    }
+    .hero-btn-primary {
+        background: white;
+        color: var(--primary-blue);
+    }
+    .hero-btn-primary:hover {
+        background: #f0f0f0;
+        transform: translateY(-1px);
+    }
+    .hero-btn-outline {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1.5px solid rgba(255, 255, 255, 0.4);
+    }
+    .hero-btn-outline:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+    }
 
-{% if groups %}
-    <div class="card-grid">
-        {% for group in groups %}
-            <div class="card card-hover">
-                <div class="flex gap-3 mb-3">
-                    <svg class="icon-xl icon-primary"><use href="#icon-book"></use></svg>
-                    <div style="flex: 1;">
-                        <h3 style="color: var(--text-dark); margin-bottom: 0.25rem; font-size: 1.25rem;">{{ group.name }}</h3>
-                        <div class="text-muted" style="font-size: 0.875rem;">
-                            {{ group.members.count }} member{{ group.members.count|pluralize }}
-                        </div>
-                    </div>
-                </div>
-                
-                {% if group.description %}
-                    <p class="text-muted mb-3" style="font-size: 0.9rem;">
-                        {{ group.description|truncatewords:15 }}
+    /* Stats Row */
+    .hero-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .hero-stat {
+        display: flex;
+        flex-direction: column;
+    }
+    .hero-stat-value {
+        font-size: 1.35rem;
+        font-weight: 700;
+    }
+    .hero-stat-label {
+        font-size: 0.75rem;
+        opacity: 0.75;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        margin-top: 0.5rem;
+    }
+    .section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .section-icon svg {
+        width: 18px;
+        height: 18px;
+    }
+    .section-icon.blue {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+    }
+    .section-icon.amber {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+    .section-icon.green {
+        background: #D1FAE5;
+        color: #059669;
+    }
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+    .section-count {
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        padding: 0.15rem 0.6rem;
+        border-radius: 99px;
+    }
+    .section-count.amber {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+    .section-count.green {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    /* Group Cards Grid */
+    .groups-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+    }
+
+    /* Group Card */
+    .group-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .group-card:hover {
+        border-color: var(--primary-blue);
+        box-shadow: 0 8px 25px rgba(74, 144, 226, 0.12);
+        transform: translateY(-2px);
+    }
+    .group-card-top {
+        display: flex;
+        gap: 0.875rem;
+        margin-bottom: 0.875rem;
+    }
+    .group-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        flex-shrink: 0;
+        color: white;
+    }
+    .group-avatar.v0 { background: linear-gradient(135deg, #4A90E2, #6C63FF); }
+    .group-avatar.v1 { background: linear-gradient(135deg, #10B981, #34D399); }
+    .group-avatar.v2 { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
+    .group-avatar.v3 { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
+    .group-avatar.v4 { background: linear-gradient(135deg, #EC4899, #F472B6); }
+    .group-avatar.v5 { background: linear-gradient(135deg, #14B8A6, #5EEAD4); }
+
+    .group-info { flex: 1; min-width: 0; }
+    .group-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .group-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.8rem;
+        color: var(--text-gray);
+    }
+    .group-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .group-meta-item svg {
+        width: 13px;
+        height: 13px;
+    }
+
+    .group-description {
+        font-size: 0.875rem;
+        color: var(--text-gray);
+        line-height: 1.55;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .group-description.empty {
+        font-style: italic;
+        opacity: 0.6;
+    }
+
+    /* Tags */
+    .group-tags {
+        display: flex;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .group-tag {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        background: var(--light-blue);
+        color: var(--primary-blue);
+    }
+    .group-tag.creator {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+
+    /* Card Footer */
+    .group-card-footer {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .group-card-footer .gbtn {
+        flex: 1;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.8rem;
+        border-radius: 10px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+    .group-card-footer .gbtn svg {
+        width: 14px;
+        height: 14px;
+    }
+    .gbtn-chat {
+        background: var(--primary-blue);
+        color: white;
+    }
+    .gbtn-chat:hover {
+        background: var(--dark-blue);
+    }
+    .gbtn-details {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+    }
+    .gbtn-details:hover {
+        background: #d4ecfa;
+    }
+    .gbtn-join {
+        background: #D1FAE5;
+        color: #059669;
+    }
+    .gbtn-join:hover {
+        background: #A7F3D0;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.3rem 0.75rem;
+        border-radius: 99px;
+    }
+    .status-badge.pending {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+    .status-badge svg {
+        width: 13px;
+        height: 13px;
+    }
+
+    /* Empty Section */
+    .empty-section {
+        background: var(--white);
+        border: 2px dashed var(--border-color);
+        border-radius: 16px;
+        padding: 2.5rem;
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    .empty-section-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+    }
+    .empty-section-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+    .empty-section h3 {
+        color: var(--text-dark);
+        font-size: 1rem;
+        margin-bottom: 0.35rem;
+    }
+    .empty-section p {
+        color: var(--text-gray);
+        font-size: 0.85rem;
+        max-width: 340px;
+        margin: 0 auto;
+    }
+
+    /* Divider */
+    .section-divider {
+        height: 1px;
+        background: var(--border-color);
+        margin: 0.5rem 0 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .groups-hero { padding: 1.75rem 1.25rem 1.5rem; border-radius: 16px; }
+        .hero-top { flex-direction: column; }
+        .hero-title { font-size: 1.4rem; }
+        .hero-stats { gap: 1.25rem; flex-wrap: wrap; }
+        .hero-actions { width: 100%; }
+        .hero-btn { flex: 1; justify-content: center; }
+        .groups-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="groups-page">
+    <!-- Hero Header -->
+    <div class="groups-hero">
+        <div class="hero-content">
+            <div class="hero-top">
+                <div>
+                    <h1 class="hero-title">
+                        <svg style="width: 28px; height: 28px; vertical-align: -4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        Study Groups
+                    </h1>
+                    <p class="hero-subtitle">
+                        Collaborate with classmates, share notes, and discuss coursework in real-time. Join an existing group or create your own to get started.
                     </p>
-                {% endif %}
-                
-                <div class="flex gap-2">
-                    <a href="{% url 'group_chat' group.id %}" class="btn btn-primary btn-small" style="flex: 1;"><svg class="icon-sm" style="vertical-align: middle;"><use href="#icon-message"></use></svg> Chat</a>
-                    <a href="{% url 'group_detail' group.id %}" class="btn btn-secondary btn-small" style="flex: 1;">Details</a>
+                </div>
+                <div class="hero-actions">
+                    <a href="{% url 'join_via_code' %}" class="hero-btn hero-btn-outline">
+                        <svg style="width: 16px; height: 16px;"><use href="#icon-key"></use></svg>
+                        Join via Code
+                    </a>
+                    <a href="{% url 'create_group' %}" class="hero-btn hero-btn-primary">
+                        <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Create Group
+                    </a>
                 </div>
             </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-value">{{ my_groups|length }}</span>
+                    <span class="hero-stat-label">My Groups</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value">{{ pending_groups|length }}</span>
+                    <span class="hero-stat-label">Pending</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value">{{ available_groups|length }}</span>
+                    <span class="hero-stat-label">Available</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value">{{ total_groups }}</span>
+                    <span class="hero-stat-label">Total Groups</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ MY GROUPS ═══════ -->
+    <div class="section-header">
+        <div class="section-icon blue">
+            <svg><use href="#icon-check"></use></svg>
+        </div>
+        <h2 class="section-title">My Groups</h2>
+        <span class="section-count">{{ my_groups|length }}</span>
+    </div>
+
+    {% if my_groups %}
+    <div class="groups-grid">
+        {% for group in my_groups %}
+        <div class="group-card">
+            <div class="group-card-top">
+                <div class="group-avatar v{% cycle '0' '1' '2' '3' '4' '5' %}">
+                    {{ group.name.0|upper }}
+                </div>
+                <div class="group-info">
+                    <div class="group-name">{{ group.name }}</div>
+                    <div class="group-meta">
+                        <span class="group-meta-item">
+                            <svg><use href="#icon-users"></use></svg>
+                            {{ group.members.count }} member{{ group.members.count|pluralize }}
+                        </span>
+                        <span class="group-meta-item">
+                            <svg><use href="#icon-calendar"></use></svg>
+                            {{ group.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="group-description{% if not group.description %} empty{% endif %}">
+                {% if group.description %}
+                    {{ group.description|truncatewords:20 }}
+                {% else %}
+                    No description provided
+                {% endif %}
+            </p>
+
+            <div class="group-tags">
+                {% if group.creator == request.user %}
+                <span class="group-tag creator">👑 Creator</span>
+                {% endif %}
+            </div>
+
+            <div class="group-card-footer">
+                <a href="{% url 'group_chat' group.id %}" class="gbtn gbtn-chat">
+                    <svg><use href="#icon-message"></use></svg>
+                    Chat
+                </a>
+                <a href="{% url 'group_detail' group.id %}" class="gbtn gbtn-details">
+                    Details
+                </a>
+            </div>
+        </div>
         {% endfor %}
     </div>
-{% else %}
-    <div class="empty-state card">
-        <div class="empty-state-icon"><svg class="icon-xxl icon-muted"><use href="#icon-users"></use></svg></div>
-        <h2 class="empty-state-title">No Study Groups Yet</h2>
-        <p class="empty-state-text">Be the first to create a study group and start collaborating!</p>
-        <a href="{% url 'create_group' %}" class="btn btn-primary">Create Your First Group</a>
+    {% else %}
+    <div class="empty-section">
+        <div class="empty-section-icon">
+            <svg><use href="#icon-users"></use></svg>
+        </div>
+        <h3>No groups yet</h3>
+        <p>Create a new group or join one below to start collaborating with others.</p>
     </div>
-{% endif %}
+    {% endif %}
+
+    <!-- ═══════ PENDING REQUESTS ═══════ -->
+    {% if pending_groups %}
+    <div class="section-divider"></div>
+    <div class="section-header">
+        <div class="section-icon amber">
+            <svg><use href="#icon-clock"></use></svg>
+        </div>
+        <h2 class="section-title">Pending Requests</h2>
+        <span class="section-count amber">{{ pending_groups|length }}</span>
+    </div>
+
+    <div class="groups-grid">
+        {% for group in pending_groups %}
+        <div class="group-card">
+            <div class="group-card-top">
+                <div class="group-avatar v{% cycle '0' '1' '2' '3' '4' '5' %}">
+                    {{ group.name.0|upper }}
+                </div>
+                <div class="group-info">
+                    <div class="group-name">{{ group.name }}</div>
+                    <div class="group-meta">
+                        <span class="group-meta-item">
+                            <svg><use href="#icon-users"></use></svg>
+                            {{ group.members.count }} member{{ group.members.count|pluralize }}
+                        </span>
+                        <span class="group-meta-item">
+                            <svg><use href="#icon-calendar"></use></svg>
+                            {{ group.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="group-description{% if not group.description %} empty{% endif %}">
+                {% if group.description %}
+                    {{ group.description|truncatewords:20 }}
+                {% else %}
+                    No description provided
+                {% endif %}
+            </p>
+
+            <div class="group-card-footer" style="justify-content: space-between; align-items: center;">
+                <span class="status-badge pending">
+                    <svg><use href="#icon-clock"></use></svg>
+                    Awaiting Approval
+                </span>
+                <a href="{% url 'group_detail' group.id %}" class="gbtn gbtn-details" style="flex: 0;">
+                    View
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ═══════ AVAILABLE GROUPS ═══════ -->
+    <div class="section-divider"></div>
+    <div class="section-header">
+        <div class="section-icon green">
+            <svg><use href="#icon-search"></use></svg>
+        </div>
+        <h2 class="section-title">Available Groups</h2>
+        <span class="section-count green">{{ available_groups|length }}</span>
+    </div>
+
+    {% if available_groups %}
+    <div class="groups-grid">
+        {% for group in available_groups %}
+        <div class="group-card">
+            <div class="group-card-top">
+                <div class="group-avatar v{% cycle '1' '5' '0' %}">
+                    {{ group.name.0|upper }}
+                </div>
+                <div class="group-info">
+                    <div class="group-name">{{ group.name }}</div>
+                    <div class="group-meta">
+                        <span class="group-meta-item">
+                            <svg><use href="#icon-users"></use></svg>
+                            {{ group.members.count }} member{{ group.members.count|pluralize }}
+                        </span>
+                        <span class="group-meta-item">
+                            <svg><use href="#icon-user"></use></svg>
+                            {{ group.creator.username }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="group-description{% if not group.description %} empty{% endif %}">
+                {% if group.description %}
+                    {{ group.description|truncatewords:20 }}
+                {% else %}
+                    No description provided
+                {% endif %}
+            </p>
+
+            <div class="group-card-footer">
+                <a href="{% url 'group_detail' group.id %}" class="gbtn gbtn-join">
+                    <svg><use href="#icon-arrow-right"></use></svg>
+                    View & Join
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-section">
+        <div class="empty-section-icon">
+            <svg><use href="#icon-search"></use></svg>
+        </div>
+        <h3>No more groups to discover</h3>
+        <p>You've joined or requested all available groups. Check back later or create your own!</p>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
